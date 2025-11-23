@@ -1,0 +1,62 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SMS.Application.Services.Interfaces.Common;
+using SMS.Application.Services.Interfaces.Context;
+using SMS.Application.Services.Interfaces.Identity;
+using SMS.Application.Services.Interfaces.Logging;
+using SMS.Domain.Entities.Identity;
+using SMS.Domain.Interfaces.Repositories;
+using SMS.Infrastructure.Persistence.Context;
+using SMS.Infrastructure.Repositories;
+using SMS.Infrastructure.Services.Common;
+using SMS.Infrastructure.Services.Identity;
+using SMS.Infrastructure.Services.Logging;
+
+namespace SMS.Infrastructure
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName));
+            });
+
+            // Identity setup.
+            services.AddDefaultIdentity<AppUser>(options =>
+            {
+                // --- Security and Sign-In Policy ---
+                options.SignIn.RequireConfirmedEmail = true;
+                options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+
+                // --- Password Policy ---
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 1;
+            })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>(); // Hooks Identity services to your database
+
+            services.AddScoped<IAppDbContext, AppDbContext>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
+
+            services.AddScoped<IUserManagementService, UserManagementService>();
+            services.AddScoped<IRoleManagementService, RoleManagementService>();
+            services.AddScoped<ITokenManagementService, TokenManagementService>();
+
+            services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
+            services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
+
+            return services;
+        }
+    }
+}
