@@ -108,6 +108,18 @@ namespace SMS.Infrastructure.Persistence.Context
                 .HasOne(sp => sp.Parent) // StudentParent has ONE Parent
                 .WithMany(p => p.StudentParents) // Parent also needs the reciprocal collection!
                 .HasForeignKey(sp => sp.ParentId);
+
+
+            // --- Fix for WeightPercentage on Assignment ---
+            modelBuilder.Entity<Assignment>()
+                // HasPrecision(total_digits, after_decimal_point)
+                .Property(a => a.WeightPercentage)
+                .HasPrecision(5, 2); // Example: Allows values up to 999.99
+
+            // --- Fix for MarksObtained on Grade ---
+            modelBuilder.Entity<Grade>()
+                .Property(g => g.MarksObtained)
+                .HasPrecision(8, 4); // Example: Allows values up to 9999.9999
         }
     }
 }

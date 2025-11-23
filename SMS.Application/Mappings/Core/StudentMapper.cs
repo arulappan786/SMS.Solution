@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using SMS.Application.CQRS.Core.Students.Commands;
-using SMS.Application.DTOs.Identity;
+using SMS.Application.DTOs.Core;
 using SMS.Domain.Entities.Core;
 
-namespace SMS.Application.Mappings.Identity
+namespace SMS.Application.Mappings.Core
 {
     public class StudentMapper : Profile
     {

@@ -56,6 +56,8 @@ namespace SMS.Infrastructure
             services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
 
+            services.AddSingleton<IEmailService, EmailService>();
+
             return services;
         }
     }

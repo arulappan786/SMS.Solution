@@ -17,5 +17,11 @@ namespace SMS.Domain.Interfaces.Repositories
         /// <param name="studentCode"></param>
         /// <returns></returns>
         Task<bool> ExistsByStudentCodeAsync(string studentCode);
+
+        /// <summary>
+        /// To get the total student count, so that we can generate new student code.
+        /// </summary>
+        /// <returns></returns>
+        Task<int> GetTotalStudentCountAsync();
     }
 }

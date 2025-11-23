@@ -1,22 +1,38 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using MediatR.Pipeline;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SMS.Application.CQRS.Core.Students.Commands;
+using SMS.Application.Services.Implementations.Core;
+using SMS.Application.Services.Interfaces.Core;
+using SMS.Application.Validations;
 using System.Reflection;
 
 namespace SMS.Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            // 1. Register MediatR
-            // Scans the current assembly (SMS.Application) for Handlers (Commands/Queries)
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            services.Configure<StudentCodeSettings>(cfg => configuration.GetSection("StudentSettings"));
 
-            // 2. Register AutoMapper
-            // Scans the current assembly (SMS.Application) for mapping profiles (classes inheriting from Profile)
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            });
+
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient<IRequestPreProcessor<CreateStudentCommand>, StudentCodeGeneratorPreProcessor>();
+
             services.AddAutoMapper(cfg => cfg.AddMaps(Assembly.GetExecutingAssembly()));
-            
-            // 3. Register Fluent Validators (if used in MediatR pipeline)
-            // Example: services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
+                        
+            services.AddScoped<IValidator<CreateStudentCommand>, CreateStudentCommandValidator>();
+            services.AddScoped<IValidationService, ValidationService>();
+
+            services.AddScoped<IStudentCodeGeneratorService, StudentCodeGeneratorService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddSingleton<StudentCodeSettings>();
 
             return services;
         }

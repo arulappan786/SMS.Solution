@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SMS.Application.DTOs.Identity;
+using SMS.Application.DTOs.Core;
 
 namespace SMS.Application.CQRS.Core.Students.Queries
 {

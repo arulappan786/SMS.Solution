@@ -12,7 +12,7 @@ Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
 builder.Host.UseSerilog();
 Log.Logger.Information("Application is building......!");
 
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();

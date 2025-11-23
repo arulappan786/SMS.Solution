@@ -20,5 +20,10 @@ namespace SMS.Infrastructure.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Email == email);
         }
+
+        public async Task<int> GetTotalStudentCountAsync()
+        {
+            return await _context.Students.CountAsync();
+        }
     }
 }
