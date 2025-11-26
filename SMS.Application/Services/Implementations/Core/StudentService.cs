@@ -3,7 +3,6 @@ using FluentValidation;
 using SMS.Application.CQRS.Core.Students.Commands;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Interfaces.Common;
-using SMS.Application.Services.Interfaces.Context;
 using SMS.Application.Services.Interfaces.Core;
 using SMS.Application.Services.Interfaces.Identity;
 using SMS.Application.Validations;
@@ -14,7 +13,6 @@ using SMS.Domain.Interfaces.Repositories;
 namespace SMS.Application.Services.Implementations.Core
 {
     public class StudentService(IStudentRepository studentRepository,
-                                IAppDbContext appDbContext,
                                 IUserManagementService userManagement,
                                 IRoleManagementService roleManagement,
                                 IPasswordGeneratorService passwordGeneratorService,
@@ -88,11 +86,9 @@ namespace SMS.Application.Services.Implementations.Core
                 ((IStudentHasInternalIds)student).StudentCode = await GenerateNewStudentCode();
 
                 var mappedStudent = mapper.Map<Student>(student);
+                var resultStudentAdd = await studentRepository.AddAsync(mappedStudent);
 
-                await studentRepository.AddAsync(mappedStudent);
-                int newStudentId = await appDbContext.SaveChangesAsync(cancellationToken);
-
-                if (newStudentId <= 0)
+                if (!resultStudentAdd)
                     return new ServiceResponse()
                     {
                         Success = false,

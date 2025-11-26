@@ -1,6 +1,6 @@
 ﻿namespace SMS.Application.Services.Implementations.Core
 {
-    public record StudentCodeSettings
+    public record StudentSettings
     {
         public required string CodePrefix { get; init; }
         public required int CodeLength { get; init; }

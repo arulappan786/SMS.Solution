@@ -1,15 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 using SMS.Application;
+using SMS.Application.Services.Implementations.Core;
 using SMS.Infrastructure;
 using SMS.Infrastructure.Persistence.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
-    .Console().WriteTo
-    .File("log/log.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+builder.Services.Configure<StudentSettings>(builder.Configuration.GetSection("StudentSettings"));
+
+//Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
+//    .Console().WriteTo
+//    .File("log/log.txt", rollingInterval: RollingInterval.Day)
+//    .CreateLogger();
 
 builder.Host.UseSerilog();
 Log.Logger.Information("Application is building......!");

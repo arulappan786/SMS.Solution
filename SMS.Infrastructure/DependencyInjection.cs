@@ -3,13 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SMS.Application.Services.Interfaces.Common;
-using SMS.Application.Services.Interfaces.Context;
 using SMS.Application.Services.Interfaces.Identity;
 using SMS.Application.Services.Interfaces.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
 using SMS.Infrastructure.Persistence.Context;
-using SMS.Infrastructure.Persistence.Seed;
 using SMS.Infrastructure.Repositories;
 using SMS.Infrastructure.Services.Common;
 using SMS.Infrastructure.Services.Identity;
@@ -47,16 +45,13 @@ namespace SMS.Infrastructure
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>(); // Hooks Identity services to your database            
 
-            services.AddScoped<IAppDbContext, AppDbContext>();
+            
             services.AddScoped<IStudentRepository, StudentRepository>();
-
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IRoleManagementService, RoleManagementService>();
             services.AddScoped<ITokenManagementService, TokenManagementService>();
-
             services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
-
             services.AddSingleton<IEmailService, EmailService>();
 
             return services;
