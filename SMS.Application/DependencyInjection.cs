@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SMS.Application.CQRS.Core.Students.Commands;
-using SMS.Application.Services.Implementations.Core;
+using SMS.Application.Services.Implements.Core;
 using SMS.Application.Services.Interfaces.Core;
 using SMS.Application.Validations;
 using System.Reflection;

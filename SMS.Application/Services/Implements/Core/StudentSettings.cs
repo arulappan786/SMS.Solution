@@ -1,4 +1,4 @@
-﻿namespace SMS.Application.Services.Implementations.Core
+﻿namespace SMS.Application.Services.Implements.Core
 {
     public record StudentSettings
     {

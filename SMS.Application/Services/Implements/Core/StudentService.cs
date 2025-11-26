@@ -10,7 +10,7 @@ using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
 
-namespace SMS.Application.Services.Implementations.Core
+namespace SMS.Application.Services.Implements.Core
 {
     public class StudentService(IStudentRepository studentRepository,
                                 IUserManagementService userManagement,
@@ -21,6 +21,12 @@ namespace SMS.Application.Services.Implementations.Core
                                 IValidator<CreateStudentCommand> validator,
                                 IMapper mapper) : IStudentService
     {
+        /// <summary>
+        /// To onboard a new student into the system.
+        /// </summary>
+        /// <param name="student"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<ServiceResponse> CreateStudentAsync(CreateStudentCommand student, CancellationToken cancellationToken)
         {
             try

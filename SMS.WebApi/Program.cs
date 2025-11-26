@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 using SMS.Application;
-using SMS.Application.Services.Implementations.Core;
+using SMS.Application.Services.Implements.Core;
 using SMS.Infrastructure;
 using SMS.Infrastructure.Persistence.Seed;
 
