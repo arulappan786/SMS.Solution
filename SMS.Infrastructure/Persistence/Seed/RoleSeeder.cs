@@ -2,9 +2,9 @@
 
 namespace SMS.Infrastructure.Persistence.Seed
 {
-    public class RoleSeeder(RoleManager<IdentityRole> roleManager)
+    public static class RoleSeeder
     {
-        public async Task SeedRolesAsync()
+        public async static Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
             // Define the roles based on your business needs
             string[] roles = { "Admin", "Teacher", "Student", "Parent" };

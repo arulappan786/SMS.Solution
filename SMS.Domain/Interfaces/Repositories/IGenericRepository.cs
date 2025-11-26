@@ -1,14 +1,15 @@
-﻿using System.Linq.Expressions;
-
-namespace SMS.Domain.Interfaces.Repositories
+﻿namespace SMS.Domain.Interfaces.Repositories
 {
-    public interface IGenericRepository<T> where T : class
+    public interface IGenericRepository<TEntity> where TEntity : class
     {
-        Task<T?> GetByIdAsync(int id);
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression);
-        Task AddAsync(T entity);
-        void Update(T entity);
-        void Remove(T entity);
+        Task<IEnumerable<TEntity>> GetAllAsync();
+
+        Task<TEntity> GetAsync(Guid id);
+
+        Task<bool> AddAsync(TEntity entity);
+
+        Task<bool> UpdateAsync(Guid id, TEntity entity);
+
+        Task<bool> DeleteAsync(Guid id);
     }
 }

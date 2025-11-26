@@ -1,73 +1,87 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SMS.Domain.Interfaces.Repositories;
 using SMS.Infrastructure.Persistence.Context;
-using System.Linq.Expressions;
 
 namespace SMS.Infrastructure.Repositories
 {
-    // The class is made abstract so that it cannot be instantiated directly, 
-    // forcing specific repositories to inherit from it.
-    // It is often made internal to prevent access outside the Infrastructure assembly.
-    public abstract class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<TEntity>(AppDbContext dbContext) : IGenericRepository<TEntity> where TEntity : class
     {
-        // 1. Dependency Injection: The DbContext is injected into the repository.
-        protected readonly AppDbContext _context;
-        protected readonly DbSet<T> _dbSet;
-
-        // Constructor to receive the DbContext instance
-        public GenericRepository(AppDbContext context)
+        /// <summary>
+        /// Generic repository method to add an entity to the underlying database entity/table.
+        /// </summary>
+        /// <param name="entity">This is the generic type that has to be passed by the caller</param>
+        /// <returns>Returns true if added, false if not added.</returns>
+        public async Task<bool> AddAsync(TEntity entity)
         {
-            _context = context;
-            _dbSet = context.Set<T>(); // Get the DbSet specific to the entity T
+            await dbContext.AddAsync(entity);
+            var result = await dbContext.SaveChangesAsync();
+            return (result > 0);
         }
 
-        // --- C R E A T E ---
-        public async Task AddAsync(T entity)
+        /// <summary>
+        /// Generic repository method to delete an entity from the underlying database entity/table.
+        /// </summary>
+        /// <param name="id">The primary/unique key based on which the entity record has to be found and deleted.</param>
+        /// <returns>Returns true if deleted, false if not deleted.</returns>
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            // Tracks the entity in the context with 'Added' state. 
-            // Changes are saved when the Unit of Work (DbContext.SaveChanges) is called.
-            await _dbSet.AddAsync(entity);
+            // Step1: Find the entity first prior to deleting it. if not found return false to the caller.
+            var delEntity = await dbContext.Set<TEntity>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+
+            if (delEntity == null) return false;
+
+            // Step2: Delete the found entity. and save changes.
+            var remResult = dbContext.Set<TEntity>().Remove(delEntity);
+            var result = await dbContext.SaveChangesAsync();
+
+            return (result > 0);
         }
 
-        // --- R E A D : By ID ---
-        public async Task<T?> GetByIdAsync(int id)
+        /// <summary>
+        /// Generic repository method to retrieve all records from the underlying database entity/table.
+        /// </summary>
+        /// <returns>Returns collection of entity records.</returns>
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            // Finds an entity with the given primary key value.
-            // This is efficient and first checks the context cache.
-            return await _dbSet.FindAsync(id);
+            return await dbContext.Set<TEntity>().AsNoTracking().ToListAsync();
         }
 
-        // --- R E A D : All ---
-        public async Task<IEnumerable<T>> GetAllAsync()
+
+        /// <summary>
+        /// Generic repository method to get an entity record from the underlying database entity/table.
+        /// </summary>
+        /// <param name="id">The primary/unique key based on which the entity record has to be found.</param>
+        /// <returns>Returns a single record if found, otherwise empty type.</returns>
+        public async Task<TEntity> GetAsync(Guid id)
         {
-            // Retrieves all entities. AsNoTracking can improve performance for read-only scenarios.
-            return await _dbSet.AsNoTracking().ToListAsync();
+            var result = await dbContext.Set<TEntity>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+            return result!;
         }
 
-        // --- R E A D : Conditional ---
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
+        /// <summary>
+        /// Generic repository method to update an entity record on the underlying database entity/table.
+        /// </summary>
+        /// <param name="id">The primary/unique key based on which the entity record has to be found.</param>
+        /// <param name="entity">The entity itself whose values have to be updated.</param>
+        /// <returns>Returns true if updated, false if not updated.</returns>
+        public async Task<bool> UpdateAsync(Guid id, TEntity entity)
         {
-            // Filters the DbSet using the provided LINQ expression (WHERE clause).
-            return await _dbSet
-                .AsNoTracking() // Recommended for read operations
-                .Where(expression)
-                .ToListAsync();
+            // Step1: Find the entity first prior to updating it. if not found return false to the caller.
+            var upEntity = await dbContext.Set<TEntity>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+            if (upEntity == null) return false;
+
+            // Step2: Update the entity with the suplied entity values.
+            dbContext.Set<TEntity>().Update(entity);
+            var result = await dbContext.SaveChangesAsync();
+
+            return (result > 0);
         }
 
-        // --- U P D A T E ---
-        public void Update(T entity)
-        {
-            // Attaches the entity and marks it as Modified.
-            // If the entity is already tracked, it only marks its state as Modified.
-            _dbSet.Update(entity);
-
-        }
-
-        // --- D E L E T E ---
-        public void Remove(T entity)
-        {
-            // Marks the entity for deletion.
-            _dbSet.Remove(entity);
-        }
     }
 }

@@ -9,14 +9,14 @@ namespace SMS.Infrastructure.Repositories
     {
         public async Task<Teacher?> GetByEmailAsync(string email)
         {
-            return await _context.Set<Teacher>()
+            return await context.Teachers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Email == email);
         }
 
         public async Task<Teacher?> GetByTeacherCodeAsync(string teacherCode)
         {
-            return await _context.Set<Teacher>()
+            return await context.Teachers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.TeacherCode == teacherCode);
         }

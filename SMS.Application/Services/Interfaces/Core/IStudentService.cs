@@ -5,6 +5,6 @@ namespace SMS.Application.Services.Interfaces.Core
 {
     public interface IStudentService
     {
-        Task<ServiceResponse> CreateStudentAsync(CreateStudentCommand student);
+        Task<ServiceResponse> CreateStudentAsync(CreateStudentCommand student, CancellationToken cancellationToken);
     }
 }

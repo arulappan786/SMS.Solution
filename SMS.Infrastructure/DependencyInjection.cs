@@ -9,6 +9,7 @@ using SMS.Application.Services.Interfaces.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
 using SMS.Infrastructure.Persistence.Context;
+using SMS.Infrastructure.Persistence.Seed;
 using SMS.Infrastructure.Repositories;
 using SMS.Infrastructure.Services.Common;
 using SMS.Infrastructure.Services.Identity;
@@ -44,7 +45,7 @@ namespace SMS.Infrastructure
                 options.Password.RequiredUniqueChars = 1;
             })
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>(); // Hooks Identity services to your database
+                .AddEntityFrameworkStores<AppDbContext>(); // Hooks Identity services to your database            
 
             services.AddScoped<IAppDbContext, AppDbContext>();
             services.AddScoped<IStudentRepository, StudentRepository>();

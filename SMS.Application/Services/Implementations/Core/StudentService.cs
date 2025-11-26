@@ -3,25 +3,27 @@ using FluentValidation;
 using SMS.Application.CQRS.Core.Students.Commands;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Interfaces.Common;
+using SMS.Application.Services.Interfaces.Context;
 using SMS.Application.Services.Interfaces.Core;
 using SMS.Application.Services.Interfaces.Identity;
 using SMS.Application.Validations;
 using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
-using System.Threading.Tasks;
 
 namespace SMS.Application.Services.Implementations.Core
 {
-    public class StudentService(IStudentRepository repository,
+    public class StudentService(IStudentRepository studentRepository,
+                                IAppDbContext appDbContext,
                                 IUserManagementService userManagement,
+                                IRoleManagementService roleManagement,
                                 IPasswordGeneratorService passwordGeneratorService,
                                 IStudentCodeGeneratorService studentCodeGeneratorService,
                                 IValidationService validationService,
                                 IValidator<CreateStudentCommand> validator,
                                 IMapper mapper) : IStudentService
     {
-        public async Task<ServiceResponse> CreateStudentAsync(CreateStudentCommand student)
+        public async Task<ServiceResponse> CreateStudentAsync(CreateStudentCommand student, CancellationToken cancellationToken)
         {
             try
             {
@@ -31,7 +33,7 @@ namespace SMS.Application.Services.Implementations.Core
                     return validationResult;
 
                 // 2. Check if the same student with the same email exists already in the student store.
-                var studentByEmail = await repository.GetByEmailAsync(student.Email);
+                var studentByEmail = await studentRepository.GetByEmailAsync(student.Email);
                 if (studentByEmail != null)
                     return new ServiceResponse()
                     {
@@ -74,25 +76,45 @@ namespace SMS.Application.Services.Implementations.Core
                         Message = $"Not able to find the user with email {student.Email}"
                     };
 
+                var roleResult = await roleManagement.AddUserToRoleAsync(newUser, "Student");
+                if (!roleResult)
+                    return new ServiceResponse()
+                    {
+                        Success = false,
+                        Message = $"Error while assigning role to the user with email {student.Email}"
+                    };
+
                 ((IStudentHasInternalIds)student).UserId = newUser!.Id;
                 ((IStudentHasInternalIds)student).StudentCode = await GenerateNewStudentCode();
 
                 var mappedStudent = mapper.Map<Student>(student);
 
-                await repository.AddAsync(mappedStudent);
+                await studentRepository.AddAsync(mappedStudent);
+                int newStudentId = await appDbContext.SaveChangesAsync(cancellationToken);
+
+                if (newStudentId <= 0)
+                    return new ServiceResponse()
+                    {
+                        Success = false,
+                        Message = $"Student is not created with the email {student.Email}"
+                    };
+                else
+                    return new ServiceResponse()
+                    {
+                        Success = true,
+                        Message = $"New student is created with the email: {student.Email}"
+                    };
+            }
+            catch (Exception ex)
+            {
 
                 return new ServiceResponse()
                 {
-                    Success = true,
-                    Message = $"New student is created with the email: {student.Email}"
+                    Success = false,
+                    Message = $"Error while creting the student with email: {student.Email}. Error : {ex.InnerException}"
                 };
             }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }       
+        }
 
         private async Task<string> GenerateNewStudentCode()
         {

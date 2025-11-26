@@ -8,19 +8,19 @@ namespace SMS.Infrastructure.Repositories
     {
         public async Task<Parent?> GetByContactNumberAsync(string phoneNumber)
         {
-            return await _dbSet.AsNoTracking()
+            return await context.Parents.AsNoTracking()
                                .FirstOrDefaultAsync(p => p.PrimaryPhone == phoneNumber);
         }
 
         public async Task<Parent?> GetByIdentityIdAsync(int userId)
         {
-            return await _dbSet.AsNoTracking()
+            return await context.Parents.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
 
         public async Task<IEnumerable<Parent>> GetByStudentIdAsync(int studentId)
         {
-            return await _dbSet.AsNoTracking()
+            return await context.Parents.AsNoTracking()
                                .Where(p => p.StudentParents.Any(s => s.StudentId == studentId))
                                .ToListAsync();
         }

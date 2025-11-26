@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Serilog;
 using SMS.Application;
 using SMS.Infrastructure;
+using SMS.Infrastructure.Persistence.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,12 @@ builder.Services.AddCors(builder =>
 try
 {
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        await RoleSeeder.SeedRolesAsync(roleManager);
+    }
 
     app.UseCors();
 
