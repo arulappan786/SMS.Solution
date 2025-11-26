@@ -6,8 +6,8 @@ namespace SMS.Domain.Entities.Core
     public class StudentParent : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int StudentId { get; set; }
-        public int ParentId { get; set; }
+        public Guid StudentId { get; set; }
+        public Guid ParentId { get; set; }
 
         // Relationship Detail (Optional)
         public RelationshipToStudent RelationshipToStudent { get; set; } // e.g., "Mother", "Father", "Guardian"

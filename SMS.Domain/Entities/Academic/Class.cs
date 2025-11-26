@@ -10,7 +10,7 @@ namespace SMS.Domain.Entities.Academic
         public int MaxCapacity { get; set; }
 
         // Foreign Key (FK) to AcademicYear
-        public int AcademicYearId { get; set; }
+        public Guid AcademicYearId { get; set; }
 
         // Navigation Property
         public AcademicYear? AcademicYear { get; set; }

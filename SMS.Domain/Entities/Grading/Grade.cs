@@ -6,8 +6,8 @@ namespace SMS.Domain.Entities.Grading
     public class Grade : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int StudentId { get; set; }
-        public int AssignmentId { get; set; }
+        public Guid StudentId { get; set; }
+        public Guid AssignmentId { get; set; }
 
         // Properties
         public decimal MarksObtained { get; set; }

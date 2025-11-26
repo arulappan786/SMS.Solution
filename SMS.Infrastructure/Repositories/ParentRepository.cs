@@ -12,13 +12,13 @@ namespace SMS.Infrastructure.Repositories
                                .FirstOrDefaultAsync(p => p.PrimaryPhone == phoneNumber);
         }
 
-        public async Task<Parent?> GetByIdentityIdAsync(int userId)
+        public async Task<Parent?> GetByIdentityIdAsync(Guid userId)
         {
             return await context.Parents.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
 
-        public async Task<IEnumerable<Parent>> GetByStudentIdAsync(int studentId)
+        public async Task<IEnumerable<Parent>> GetByStudentIdAsync(Guid studentId)
         {
             return await context.Parents.AsNoTracking()
                                .Where(p => p.StudentParents.Any(s => s.StudentId == studentId))

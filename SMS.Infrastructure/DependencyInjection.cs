@@ -28,8 +28,10 @@ namespace SMS.Infrastructure
                     builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName));
             });
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             // Identity setup.
-            services.AddDefaultIdentity<AppUser>(options =>
+            services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 // --- Security and Sign-In Policy ---
                 options.SignIn.RequireConfirmedEmail = true;
@@ -42,9 +44,7 @@ namespace SMS.Infrastructure
                 options.Password.RequiredLength = 8;
                 options.Password.RequiredUniqueChars = 1;
             })
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<AppDbContext>(); // Hooks Identity services to your database            
-
+                .AddEntityFrameworkStores<AppDbContext>();
             
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IUserManagementService, UserManagementService>();
@@ -53,6 +53,7 @@ namespace SMS.Infrastructure
             services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
             services.AddSingleton<IEmailService, EmailService>();
+            
 
             return services;
         }

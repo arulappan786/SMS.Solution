@@ -7,7 +7,7 @@ namespace SMS.Domain.Entities.Grading
     public class Assignment : BaseEntity
     {
         // Foreign Key (FK) to link to the specific class/subject combination
-        public int ClassSubjectId { get; set; }
+        public Guid ClassSubjectId { get; set; }
 
         // Properties
         public required string Title { get; set; } // e.g., "Chapter 3 Quiz", "Final Project"

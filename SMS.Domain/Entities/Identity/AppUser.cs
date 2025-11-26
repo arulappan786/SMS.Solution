@@ -5,7 +5,6 @@ namespace SMS.Domain.Entities.Identity
 {
     public class AppUser : IdentityUser
     {
-        //public AppRole AppRole { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime? LastLogin { get; set; }
 
@@ -15,9 +14,9 @@ namespace SMS.Domain.Entities.Identity
 
         public DateTime RefreshTokenExpiry { get; set; }
 
-        public int? StudentProfileId { get; set; }
-        public int? TeacherProfileId { get; set; }
-        public int? ParentProfileId { get; set; }
+        public Guid? StudentProfileId { get; set; }
+        public Guid? TeacherProfileId { get; set; }
+        public Guid? ParentProfileId { get; set; }
 
         public Student? StudentProfile { get; set; }
         public Teacher? TeacherProfile { get; set; }

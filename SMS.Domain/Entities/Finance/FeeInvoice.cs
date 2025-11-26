@@ -7,8 +7,8 @@ namespace SMS.Domain.Entities.Finance
     public class FeeInvoice : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int StudentId { get; set; }
-        public int FeeTypeId { get; set; }
+        public Guid StudentId { get; set; }
+        public Guid FeeTypeId { get; set; }
 
         // Properties
         public required string InvoiceNumber { get; set; }

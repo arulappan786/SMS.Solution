@@ -24,7 +24,7 @@ namespace SMS.Application
             services.AddScoped<IValidator<CreateStudentCommand>, CreateStudentCommandValidator>();
             services.AddScoped<IValidationService, ValidationService>();
             services.AddScoped<IStudentCodeGeneratorService, StudentCodeGeneratorService>();
-            services.AddScoped<IStudentService, StudentService>();            
+            services.AddScoped<IStudentService, StudentService>();
 
             return services;
         }

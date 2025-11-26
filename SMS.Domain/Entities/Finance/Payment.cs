@@ -6,7 +6,7 @@ namespace SMS.Domain.Entities.Finance
     public class Payment : BaseEntity
     {
         // Foreign Key (FK)
-        public int InvoiceId { get; set; } // Links the payment to the specific invoice it is settling
+        public Guid InvoiceId { get; set; } // Links the payment to the specific invoice it is settling
 
         // Properties
         public decimal AmountPaid { get; set; }

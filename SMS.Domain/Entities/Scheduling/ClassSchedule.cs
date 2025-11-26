@@ -6,8 +6,8 @@ namespace SMS.Domain.Entities.Scheduling
     public class ClassSchedule : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int ClassSubjectId { get; set; } // Links to the Class and Subject being taught
-        public int RoomId { get; set; }
+        public Guid ClassSubjectId { get; set; } // Links to the Class and Subject being taught
+        public Guid RoomId { get; set; }
 
         // Properties
         public DayOfWeek DayOfWeek { get; set; } // Use the built-in C# Enum

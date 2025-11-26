@@ -4,7 +4,7 @@
     public interface IStudentHasInternalIds
     {
         // Make the property settable only within the assembly or derived classes
-        string? UserId { get; set; }
+        Guid? UserId { get; set; }
         string? StudentCode { get; set; }
     }
 }

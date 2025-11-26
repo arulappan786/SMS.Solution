@@ -8,9 +8,9 @@ namespace SMS.Domain.Entities.Attendance
     public class Attendance : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
         // Optional: Use ClassSubjectId to track attendance per scheduled class (more granular)
-        public int? ClassSubjectId { get; set; }
+        public Guid? ClassSubjectId { get; set; }
         // If ClassSubjectId is null, this attendance is recorded for the whole day
 
         // Properties

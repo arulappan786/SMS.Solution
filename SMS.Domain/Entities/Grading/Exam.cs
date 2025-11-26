@@ -6,7 +6,7 @@ namespace SMS.Domain.Entities.Grading
     public class Exam : BaseEntity
     {
         // Foreign Key (FK)
-        public int AcademicYearId { get; set; }
+        public Guid AcademicYearId { get; set; }
 
         // Properties
         public required string Name { get; set; } // e.g., "First Semester Final Exam", "Annual Comprehensive Test"
@@ -15,7 +15,7 @@ namespace SMS.Domain.Entities.Grading
         public bool IsPublished { get; set; } = false;
 
         // Navigation Properties
-        public AcademicYear AcademicYear { get; set; }
+        public AcademicYear? AcademicYear { get; set; }
         public ICollection<ExamResult> Results { get; set; } = new List<ExamResult>();
     }
 }

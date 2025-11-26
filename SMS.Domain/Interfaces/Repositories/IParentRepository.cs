@@ -8,14 +8,14 @@ public interface IParentRepository : IGenericRepository<Parent>
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<Parent?> GetByIdentityIdAsync(int userId);
+    Task<Parent?> GetByIdentityIdAsync(Guid userId);
 
     /// <summary>
     /// Get all parents associated with a specific student.
     /// </summary>
     /// <param name="studentId"></param>
     /// <returns></returns>
-    Task<IEnumerable<Parent>> GetByStudentIdAsync(int studentId);
+    Task<IEnumerable<Parent>> GetByStudentIdAsync(Guid studentId);
 
     /// <summary>
     /// Get a parent using the primary phone number.

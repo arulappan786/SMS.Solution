@@ -11,8 +11,8 @@ namespace SMS.Domain.Entities.Core
     public class Student : BaseEntity
     {
         // Foreign Key (FK) to link to the base identity
-        public string UserId { get; set; }
-        public int CurrentClassId { get; set; } // FK to the Class the student is currently enrolled in
+        public Guid? UserId { get; set; }
+        public Guid? CurrentClassId { get; set; } // FK to the Class the student is currently enrolled in
 
         // --- Demographic Properties ---
 
@@ -44,7 +44,7 @@ namespace SMS.Domain.Entities.Core
         // Public constructor for creating a new Student entity in the domain
         [SetsRequiredMembers]
         public Student(
-            string userId,
+            Guid? userId,
             FullName fullName,
             Address homeAddress,
             DateTime dateOfBirth,
@@ -53,9 +53,9 @@ namespace SMS.Domain.Entities.Core
             string studentCode,
             DateTime enrollmentDate)
         {
-            // Enforce invariants (basic checks)
-            if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID must be valid.", nameof(userId));
-            if (string.IsNullOrWhiteSpace(studentCode)) throw new ArgumentException("Student code is required.", nameof(studentCode));
+            //// Enforce invariants (basic checks)
+            //if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID must be valid.", nameof(userId));
+            //if (string.IsNullOrWhiteSpace(studentCode)) throw new ArgumentException("Student code is required.", nameof(studentCode));
 
             UserId = userId;
             FullName = fullName ?? throw new ArgumentNullException(nameof(fullName));

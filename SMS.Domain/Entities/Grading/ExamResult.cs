@@ -7,9 +7,9 @@ namespace SMS.Domain.Entities.Grading
     public class ExamResult : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int ExamId { get; set; }
-        public int StudentId { get; set; }
-        public int SubjectId { get; set; } // The subject for which the score is recorded
+        public Guid ExamId { get; set; }
+        public Guid StudentId { get; set; }
+        public Guid SubjectId { get; set; } // The subject for which the score is recorded
 
         // Properties
         public decimal ScoreObtained { get; set; }

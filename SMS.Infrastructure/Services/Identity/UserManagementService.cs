@@ -33,7 +33,7 @@ namespace SMS.Infrastructure.Services.Identity
 
             return new List<Claim> {
                 new Claim("DisplayName", _user!.DisplayName!.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, _user!.Id!),
+                new Claim(ClaimTypes.NameIdentifier, _user!.Id!.ToString()),
                 new Claim(ClaimTypes.Email, _user!.Email!),
                 new Claim(ClaimTypes.Role, userRole!)
             };

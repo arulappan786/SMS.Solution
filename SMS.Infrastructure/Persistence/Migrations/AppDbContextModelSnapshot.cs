@@ -102,12 +102,10 @@ namespace SMS.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -144,12 +142,10 @@ namespace SMS.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -161,11 +157,9 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.AcademicYear", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -187,14 +181,12 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.Class", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AcademicYearId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("MaxCapacity")
                         .HasColumnType("int");
@@ -212,20 +204,18 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.ClassSubject", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -240,11 +230,9 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.Subject", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -261,14 +249,12 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Attendance.Attendance", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ClassSubjectId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ClassSubjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -279,8 +265,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -293,11 +279,9 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Attendance.DisciplinaryAction", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ActionTaken")
                         .HasColumnType("nvarchar(max)");
@@ -314,11 +298,11 @@ namespace SMS.Infrastructure.Persistence.Migrations
                     b.Property<string>("Severity")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -331,11 +315,9 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.Parent", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -351,8 +333,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -361,14 +343,12 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.Student", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CurrentClassId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("CurrentClassId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -387,9 +367,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -400,20 +379,18 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.StudentParent", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ParentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ParentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("RelationshipToStudent")
                         .HasColumnType("int");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -427,11 +404,9 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.Teacher", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -454,8 +429,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -464,17 +439,15 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Assignment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AssignmentType")
                         .HasColumnType("int");
 
-                    b.Property<int>("ClassSubjectId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ClassSubjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -502,14 +475,12 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Grade", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateRecorded")
                         .HasColumnType("datetime2");
@@ -521,8 +492,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                         .HasPrecision(8, 4)
                         .HasColumnType("decimal(8,4)");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -575,8 +546,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("ParentProfileId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ParentProfileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -596,11 +567,11 @@ namespace SMS.Infrastructure.Persistence.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentProfileId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("StudentProfileId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("TeacherProfileId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("TeacherProfileId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -636,14 +607,12 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Scheduling.ClassSchedule", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClassSubjectId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ClassSubjectId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
@@ -651,8 +620,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
 
-                    b.Property<int>("RoomId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -668,11 +637,9 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Scheduling.Room", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
@@ -820,13 +787,12 @@ namespace SMS.Infrastructure.Persistence.Migrations
                     b.HasOne("SMS.Domain.Entities.Academic.Class", "CurrentClass")
                         .WithMany("Students")
                         .HasForeignKey("CurrentClassId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.OwnsOne("SMS.Domain.ValueObjects.Address", "HomeAddress", b1 =>
                         {
-                            b1.Property<int>("StudentId")
-                                .HasColumnType("int");
+                            b1.Property<Guid>("StudentId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("City")
                                 .IsRequired()
@@ -863,8 +829,8 @@ namespace SMS.Infrastructure.Persistence.Migrations
 
                     b.OwnsOne("SMS.Domain.ValueObjects.FullName", "FullName", b1 =>
                         {
-                            b1.Property<int>("StudentId")
-                                .HasColumnType("int");
+                            b1.Property<Guid>("StudentId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("FirstName")
                                 .IsRequired()

@@ -7,23 +7,23 @@ namespace SMS.Infrastructure.Repositories
 {
     public class StudentRepository(AppDbContext context) : GenericRepository<Student>(context), IStudentRepository
     {
-        public async Task<bool> ExistsByStudentCodeAsync(string studentCode)
+        public async Task<bool> ExistsByStudentCodeAsync(string studentCode, CancellationToken cancellationToken = default)
         {
             return await context.Students
                 .AsNoTracking()
-                .AnyAsync(s => s.StudentCode == studentCode);
+                .AnyAsync(s => s.StudentCode == studentCode, cancellationToken);
         }
 
-        public async Task<Student?> GetByEmailAsync(string email)
+        public async Task<Student?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
             return await context.Students
                 .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.Email == email);
+                .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);
         }
 
-        public async Task<int> GetTotalStudentCountAsync()
+        public async Task<int> GetTotalStudentCountAsync(CancellationToken cancellationToken = default)
         {
-            return await context.Students.CountAsync();
+            return await context.Students.CountAsync(cancellationToken);
         }
     }
 }

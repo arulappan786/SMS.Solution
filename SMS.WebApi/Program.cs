@@ -6,19 +6,21 @@ using SMS.Infrastructure;
 using SMS.Infrastructure.Persistence.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
 
-builder.Services.Configure<StudentSettings>(builder.Configuration.GetSection("StudentSettings"));
+builder.Services.Configure<StudentSettings>(config.GetSection("StudentSettings"));
 
-//Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
-//    .Console().WriteTo
-//    .File("log/log.txt", rollingInterval: RollingInterval.Day)
-//    .CreateLogger();
+Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
+    .Console().WriteTo
+    .File("log/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 builder.Host.UseSerilog();
+
 Log.Logger.Information("Application is building......!");
 
-builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication(config);
+builder.Services.AddInfrastructure(config);
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
@@ -41,7 +43,8 @@ try
 
     using (var scope = app.Services.CreateScope())
     {
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var roleManager = scope.ServiceProvider
+            .GetRequiredService<RoleManager<IdentityRole>>();
         await RoleSeeder.SeedRolesAsync(roleManager);
     }
 

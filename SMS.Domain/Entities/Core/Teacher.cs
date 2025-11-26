@@ -8,7 +8,7 @@ namespace SMS.Domain.Entities.Core
     public class Teacher : BaseEntity
     {
         // Foreign Key (FK)
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         // Properties
         public required string FirstName { get; set; }

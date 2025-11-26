@@ -6,8 +6,8 @@ namespace SMS.Domain.Entities.Attendance
     public class DisciplinaryAction : BaseEntity
     {
         // Foreign Keys (FKs)
-        public int StudentId { get; set; }
-        public int TeacherId { get; set; } // The staff member who reported/issued the action
+        public Guid StudentId { get; set; }
+        public Guid TeacherId { get; set; } // The staff member who reported/issued the action
 
         // Properties
         public DateTime Date { get; set; }

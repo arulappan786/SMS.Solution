@@ -6,82 +6,37 @@ namespace SMS.Infrastructure.Repositories
 {
     public class GenericRepository<TEntity>(AppDbContext dbContext) : IGenericRepository<TEntity> where TEntity : class
     {
-        /// <summary>
-        /// Generic repository method to add an entity to the underlying database entity/table.
-        /// </summary>
-        /// <param name="entity">This is the generic type that has to be passed by the caller</param>
-        /// <returns>Returns true if added, false if not added.</returns>
-        public async Task<bool> AddAsync(TEntity entity)
+        public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            await dbContext.AddAsync(entity);
-            var result = await dbContext.SaveChangesAsync();
-            return (result > 0);
+            await dbContext.Set<TEntity>().AddAsync(entity, cancellationToken);
         }
 
-        /// <summary>
-        /// Generic repository method to delete an entity from the underlying database entity/table.
-        /// </summary>
-        /// <param name="id">The primary/unique key based on which the entity record has to be found and deleted.</param>
-        /// <returns>Returns true if deleted, false if not deleted.</returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            // Step1: Find the entity first prior to deleting it. if not found return false to the caller.
-            var delEntity = await dbContext.Set<TEntity>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
-
+            var delEntity = await dbContext.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
             if (delEntity == null) return false;
-
-            // Step2: Delete the found entity. and save changes.
-            var remResult = dbContext.Set<TEntity>().Remove(delEntity);
-            var result = await dbContext.SaveChangesAsync();
-
-            return (result > 0);
+            dbContext.Set<TEntity>().Remove(delEntity);
+            return true;
         }
 
-        /// <summary>
-        /// Generic repository method to retrieve all records from the underlying database entity/table.
-        /// </summary>
-        /// <returns>Returns collection of entity records.</returns>
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await dbContext.Set<TEntity>().AsNoTracking().ToListAsync();
+            return await dbContext.Set<TEntity>().AsNoTracking().ToListAsync(cancellationToken);
         }
 
-
-        /// <summary>
-        /// Generic repository method to get an entity record from the underlying database entity/table.
-        /// </summary>
-        /// <param name="id">The primary/unique key based on which the entity record has to be found.</param>
-        /// <returns>Returns a single record if found, otherwise empty type.</returns>
-        public async Task<TEntity> GetAsync(Guid id)
+        public async Task<TEntity?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var result = await dbContext.Set<TEntity>()
+            return await dbContext.Set<TEntity>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
-            return result!;
+                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id), cancellationToken);
         }
 
-        /// <summary>
-        /// Generic repository method to update an entity record on the underlying database entity/table.
-        /// </summary>
-        /// <param name="id">The primary/unique key based on which the entity record has to be found.</param>
-        /// <param name="entity">The entity itself whose values have to be updated.</param>
-        /// <returns>Returns true if updated, false if not updated.</returns>
-        public async Task<bool> UpdateAsync(Guid id, TEntity entity)
+        public async Task<bool> UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
         {
-            // Step1: Find the entity first prior to updating it. if not found return false to the caller.
-            var upEntity = await dbContext.Set<TEntity>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+            var upEntity = await dbContext.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
             if (upEntity == null) return false;
-
-            // Step2: Update the entity with the suplied entity values.
-            dbContext.Set<TEntity>().Update(entity);
-            var result = await dbContext.SaveChangesAsync();
-
-            return (result > 0);
+            dbContext.Entry(upEntity).CurrentValues.SetValues(entity);
+            return true;
         }
-
     }
 }
