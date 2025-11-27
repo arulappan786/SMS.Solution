@@ -9,7 +9,7 @@ namespace SMS.Application.DTOs.Core
                              FullName FullName,
                              Address HomeAddress,
                              DateTime DateOfBirth,
-                             Gender Gender,
+                             string Gender,
                              string Email,
                              string StudentCode,
                              DateTime EnrollmentDate);

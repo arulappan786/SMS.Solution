@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using SMS.Application.CQRS.Core.Students.Commands;
+using SMS.Application.CQRS.Core.Students.Queries;
+using SMS.Application.DTOs.Common;
+using SMS.Application.DTOs.Core;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Interfaces.Common;
 using SMS.Application.Services.Interfaces.Core;
@@ -24,7 +27,50 @@ namespace SMS.Application.Services.Implements.Core
         IStudentOnboardingService onboardingService,
         IEmailSenderService emailService) : IStudentService
     {
-      
+        /// <summary>
+        /// To fetch all the students from the student store.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<PaginatedResultDto<StudentDto>> GetAllStudentAsync(GetAllStudentsQuery request, CancellationToken cancellationToken)
+        {
+            //var students = await studentRepository.GetAllAsync(cancellationToken);
+            //var mappedStudents = mapper.Map<IEnumerable<StudentDto>>(students);
+            //return mappedStudents;
+
+            // 1. Call Repository to get paged data and total count
+            var (students, totalCount) = await studentRepository.GetAllPaginatedAsync(
+                request.PageNumber, request.PageSize, cancellationToken);
+
+            // 2. Map the entities to DTOs
+            var studentDtos = mapper.Map<IEnumerable<StudentDto>>(students);
+
+            // 3. Construct the final PaginatedResultDto
+            var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+            return new PaginatedResultDto<StudentDto>
+            {
+                Items = studentDtos,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
+        }       
+
+        /// <summary>
+        /// To fetch a specific student by studentid.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<StudentDto> GetStudentByIdAsync(Guid id, CancellationToken cancellationToken)
+        {
+            var student = await studentRepository.GetAsync(id, cancellationToken);
+            var mappedStudent = mapper.Map<StudentDto>(student);
+            return mappedStudent;
+        }
+
         /// <summary>
         /// To onboard a new student into the system. This method acts as the Orchestrator.
         /// </summary>
