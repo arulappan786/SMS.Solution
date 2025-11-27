@@ -12,8 +12,8 @@ using SMS.Infrastructure.Persistence.Context;
 namespace SMS.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251126094840_New_Database")]
-    partial class New_Database
+    [Migration("20251127120017_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

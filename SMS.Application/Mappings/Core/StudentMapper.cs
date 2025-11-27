@@ -11,10 +11,15 @@ namespace SMS.Application.Mappings.Core
         {
             // Map: CreateStudentCommand (Source) -> Student (Destination)
             CreateMap<CreateStudentCommand, Student>()
-                .ConstructUsing(src =>                    
-                    new Student(src.UserId, src.FullName, src.HomeAddress, src.DateOfBirth, src.Gender, src.Email,
-                                src.StudentCode, DateTime.UtcNow)
-                    );
+                .ConstructUsing(src => 
+                new Student(src.UserId,
+                            src.FullName,
+                            src.HomeAddress,
+                            src.DateOfBirth,
+                            src.Gender,
+                            src.Email,
+                            src.StudentCode!,
+                            DateTime.UtcNow));
 
             // Read
             CreateMap<Student, StudentDto>();

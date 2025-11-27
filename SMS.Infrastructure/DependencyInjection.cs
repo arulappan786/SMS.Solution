@@ -10,6 +10,7 @@ using SMS.Domain.Interfaces.Repositories;
 using SMS.Infrastructure.Persistence.Context;
 using SMS.Infrastructure.Repositories;
 using SMS.Infrastructure.Services.Common;
+using SMS.Infrastructure.Services.Common.Utilities;
 using SMS.Infrastructure.Services.Identity;
 using SMS.Infrastructure.Services.Logging;
 
@@ -52,7 +53,7 @@ namespace SMS.Infrastructure
             services.AddScoped<ITokenManagementService, TokenManagementService>();
             services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
-            services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IEmailSenderService, EmailSenderService>();
             
 
             return services;

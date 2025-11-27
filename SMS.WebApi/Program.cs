@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 using SMS.Application;
-using SMS.Application.Services.Implements.Core;
+using SMS.Application.Configuration;
 using SMS.Infrastructure;
+using SMS.Infrastructure.Configuration;
 using SMS.Infrastructure.Persistence.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
-builder.Services.Configure<StudentSettings>(config.GetSection("StudentSettings"));
+builder.Services.Configure<StudentSettings>(config.GetSection(StudentSettings.SettingsKey));
+builder.Services.Configure<GmailSettings>(config.GetSection(GmailSettings.SettingsKey));
 
 Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
     .Console().WriteTo

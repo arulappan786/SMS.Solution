@@ -8,10 +8,29 @@
         public string ZipCode { get; private set; }
         public string Country { get; private set; }
 
-        private Address() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) { }
+        /// <summary>
+        /// Private constructor for ORM (like EF Core) materialization only.
+        /// It must be parameterless and empty to avoid running validation during object hydration.
+        /// </summary>
+        private Address() { } // FIX: Removed the 'this(...)' chain.
 
-        public static Address Empty { get { return new Address(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty); } }
+        /// <summary>
+        /// Provides a structurally valid, empty placeholder address for domain initialization.
+        /// Uses 'N/A' to satisfy the 'string.IsNullOrWhiteSpace' check.
+        /// </summary>
+        public static Address Empty
+        {
+            get
+            {
+                // FIX: Uses "N/A" placeholders to pass validation in the public constructor.
+                return new Address("N/A", "N/A", "N/A", "N/A", "N/A");
+            }
+        }
 
+        /// <summary>
+        /// Public constructor for creating new Address Value Objects in the domain.
+        /// Contains core domain validation logic.
+        /// </summary>
         public Address(string street, string city, string state, string zipCode, string country)
         {
             if (string.IsNullOrWhiteSpace(street))

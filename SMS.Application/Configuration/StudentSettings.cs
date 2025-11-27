@@ -1,7 +1,9 @@
-﻿namespace SMS.Application.Services.Implements.Core
+﻿namespace SMS.Application.Configuration
 {
     public record StudentSettings
     {
+        public const string SettingsKey = "StudentSettings";
+
         public required string CodePrefix { get; init; }
         public required int CodeLength { get; init; }
 

@@ -1,18 +1,21 @@
 ﻿using Microsoft.Extensions.Options;
+using SMS.Application.Configuration;
 using SMS.Application.Services.Interfaces.Core;
 using SMS.Domain.Interfaces.Repositories;
 
 namespace SMS.Application.Services.Implements.Core
 {
-    public class StudentCodeGeneratorService(IOptions<StudentSettings> options,
+    public class StudentCodeGeneratorService(IOptions<StudentSettings> studentOptions,
                                              IStudentRepository _repository) : IStudentCodeGeneratorService
     {
+        private readonly StudentSettings _settings = studentOptions.Value;
+
         public async Task<string> GenerateNewStudentCodeAsync(DateTime enrollmentDate)
         {
             string year = enrollmentDate.Year.ToString();
             int nextId = await _repository.GetTotalStudentCountAsync() + 1;
-            string sequentialPart = nextId.ToString($"D{options.Value.CodeLength}");
-            string newStudentCode = $"{options.Value.CodePrefix}{year}{sequentialPart}";
+            string sequentialPart = nextId.ToString($"D{_settings.CodeLength}");
+            string newStudentCode = $"{_settings.CodePrefix}{year}{sequentialPart}";
             return newStudentCode;
         }
     }
