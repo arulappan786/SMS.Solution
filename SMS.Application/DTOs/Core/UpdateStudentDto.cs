@@ -3,7 +3,7 @@ using SMS.Domain.ValueObjects;
 
 namespace SMS.Application.DTOs.Core
 {
-    public record UpdateStudentDto(int StudentId,
+    public record UpdateStudentDto(Guid StudentId,
                                    FullName FullName,
                                    Address HomeAddress,
                                    DateTime DateOfBirth,

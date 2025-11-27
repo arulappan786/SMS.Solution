@@ -8,7 +8,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands
     {
         public async Task<ServiceResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
         {
-            var result = await studentService.CreateStudentAsync(request, cancellationToken);
+            var result = await studentService.OnboardNewStudentAsync(request, cancellationToken);
             return result;
         }
     }

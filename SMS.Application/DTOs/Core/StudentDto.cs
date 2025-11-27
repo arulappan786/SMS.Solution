@@ -3,9 +3,9 @@ using SMS.Domain.ValueObjects;
 
 namespace SMS.Application.DTOs.Core
 {
-    public record StudentDto(int StudentId,
-                             int UserId,
-                             int CurrentClassId,
+    public record StudentDto(Guid StudentId,
+                             Guid UserId,
+                             Guid CurrentClassId,
                              FullName FullName,
                              Address HomeAddress,
                              DateTime DateOfBirth,

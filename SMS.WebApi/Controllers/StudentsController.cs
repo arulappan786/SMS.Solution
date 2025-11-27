@@ -12,8 +12,6 @@ namespace SMS.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateStudentCommand command)
         {
-            //int newId = await mediator.Send(command);
-            //return CreatedAtAction(nameof(Get), new { id = newId }, newId);
             return Ok(await mediator.Send(command));
         }
 
