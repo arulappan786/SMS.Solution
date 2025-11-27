@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using SMS.Application.Configuration;
 using SMS.Application.CQRS.Core.Students.Commands;
 using SMS.Application.Services.Implements.Core;
 using SMS.Application.Services.Interfaces.Core;
@@ -13,7 +15,8 @@ namespace SMS.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            
+            services.Configure<StudentSettings>(configuration.GetSection(StudentSettings.SettingsKey));
+
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());

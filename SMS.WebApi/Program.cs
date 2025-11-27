@@ -1,25 +1,21 @@
 using Microsoft.AspNetCore.Identity;
 using Serilog;
 using SMS.Application;
-using SMS.Application.Configuration;
 using SMS.Infrastructure;
-using SMS.Infrastructure.Configuration;
 using SMS.Infrastructure.Persistence.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
-builder.Services.Configure<StudentSettings>(config.GetSection(StudentSettings.SettingsKey));
-builder.Services.Configure<GmailSettings>(config.GetSection(GmailSettings.SettingsKey));
-
-Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().WriteTo
-    .Console().WriteTo
-    .File("log/log.txt", rollingInterval: RollingInterval.Day)
+// 1. Serilog Setup (Reading from configuration is best practice)
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(config) // Reads file sink, console, levels, etc., from appsettings.json
+    .Enrich.FromLogContext()
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-Log.Logger.Information("Application is building......!");
+// --- Configuration is moved to AddApplication/AddInfrastructure ---
 
 builder.Services.AddApplication(config);
 builder.Services.AddInfrastructure(config);
@@ -27,32 +23,31 @@ builder.Services.AddInfrastructure(config);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(builder =>
+// 2. CORS Setup (Reading origins from configuration)
+var allowedOrigins = config.GetSection("CorsOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
 {
-    builder.AddDefaultPolicy(option =>
+    options.AddDefaultPolicy(policy =>
     {
-        option
-        .WithOrigins("https://localhost:7076")
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
 try
 {
+    Log.Information("Starting web host (Building application)...");
     var app = builder.Build();
 
-    using (var scope = app.Services.CreateScope())
-    {
-        var roleManager = scope.ServiceProvider
-            .GetRequiredService<RoleManager<IdentityRole>>();
-        await RoleSeeder.SeedRolesAsync(roleManager);
-    }
+    // 3. Data Seeding is called immediately after build
+    await SeedDatabaseAsync(app);
+
+    // --- Middleware Pipeline ---
 
     app.UseCors();
-
-    Log.Logger.Information("Application is built......!");
 
     if (app.Environment.IsDevelopment())
     {
@@ -61,22 +56,34 @@ try
     }
 
     app.UseHttpsRedirection();
-
     app.UseAuthorization();
-
     app.MapControllers();
 
-    Log.Logger.Information("Application is running......!");
+    Log.Information("Application starting up and running!");
 
     app.Run();
-
 }
 catch (Exception ex)
 {
-
-    Log.Logger.Error(ex, "Applicaiton failed to start......!");
+    Log.Fatal(ex, "Applicaiton terminated unexpectedly during startup.");
 }
 finally
 {
     Log.CloseAndFlush();
+}
+
+// 4. Seeding Helper Function
+async Task SeedDatabaseAsync(WebApplication application)
+{
+    using var scope = application.Services.CreateScope();
+    try
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        await RoleSeeder.SeedRolesAsync(roleManager);
+        Log.Information("Identity roles seeded successfully.");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while seeding roles.");
+    }
 }

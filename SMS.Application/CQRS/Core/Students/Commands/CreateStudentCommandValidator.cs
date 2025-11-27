@@ -33,7 +33,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands
                 // Custom rule: Must be a date in the past
                 .LessThan(DateTime.Today).WithMessage("Date of birth cannot be a future date.")
                 // Custom rule: Must be less than 80 years old (e.g., if this is a university student system)
-                .Must(BeAValidAge).WithMessage("Student must be under 80 years old.");
+                .Must(BeAValidAge).WithMessage("Student must be between 4 and 79 years old.");
 
             // 4. Gender
             RuleFor(x => x.Gender)
@@ -52,7 +52,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands
         {
             int age = DateTime.Today.Year - dob.Year;
             if (dob.Date > DateTime.Today.AddYears(-age)) age--;
-            return age > 0 && age < 80;
+            return age > 3 && age < 80;
         }
     }
 }

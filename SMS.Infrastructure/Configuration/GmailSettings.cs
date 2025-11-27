@@ -2,7 +2,6 @@
 {
     public class GmailSettings
     {
-        // Must match the property names in appsettings.json
         public const string SettingsKey = "GmailSettings";
 
         public string SmtpHost { get; set; } = string.Empty;

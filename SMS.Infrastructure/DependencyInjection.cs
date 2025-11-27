@@ -2,15 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using SMS.Application.Services.Interfaces.Common;
 using SMS.Application.Services.Interfaces.Identity;
 using SMS.Application.Services.Interfaces.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
+using SMS.Infrastructure.Configuration;
 using SMS.Infrastructure.Persistence.Context;
 using SMS.Infrastructure.Repositories;
 using SMS.Infrastructure.Services.Common;
-using SMS.Infrastructure.Services.Common.Utilities;
 using SMS.Infrastructure.Services.Identity;
 using SMS.Infrastructure.Services.Logging;
 
@@ -18,10 +19,10 @@ namespace SMS.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<GmailSettings>(configuration.GetSection(GmailSettings.SettingsKey));
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(
