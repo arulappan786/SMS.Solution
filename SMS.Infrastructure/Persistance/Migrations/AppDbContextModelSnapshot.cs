@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SMS.Infrastructure.Persistance.Context;
 
-
 #nullable disable
 
 namespace SMS.Infrastructure.Persistance.Migrations

@@ -4,6 +4,7 @@ using SMS.Application.CQRS.Core.Students.Commands;
 using SMS.Application.CQRS.Core.Students.Queries;
 using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Core;
+using SMS.Application.DTOs.Service;
 using System.Net;
 
 [ApiController]
@@ -13,36 +14,49 @@ public class StudentsController(IMediator mediator) : ControllerBase
     // --- QUERY: Get All Students ---
 
     [HttpGet]
+    // Assume handler returns PaginatedResultDto (empty list if none found, never null)
     [ProducesResponseType(typeof(PaginatedResultDto<StudentDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllStudentsQuery query)
     {
         var students = await mediator.Send(query);
-        if (students == null) return NotFound($"No student record found");
-        else return Ok(students);
+        // Clean: Always returns 200 OK, with an empty list if no records exist.
+        return Ok(students);
     }
 
     // --- QUERY: Get Student by ID ---
 
-    [HttpGet("{id:guid}")] // Enforce GUID type constraint on the route
+    [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(StudentDto), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)] // Best handled by global filter
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetStudentByIdQuery { StudentId = id };
         var student = await mediator.Send(query);
-        if (student == null) return NotFound($"Student with ID {id} not found.");
-        else return Ok(student);
+
+        // If global exception handling is NOT used, keep this check:
+        if (student == null) return NotFound();
+
+        return Ok(student);
     }
 
     // --- COMMAND: Create Student ---
 
     [HttpPost]
-    [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.Created)] // Returns 201
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)] // For validation errors
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateStudentCommand command)
     {
         var serviceResponse = await mediator.Send(command);
-        if (serviceResponse.Success) return StatusCode((int)HttpStatusCode.Created);
-        else return BadRequest(serviceResponse);
+
+        if (serviceResponse.Success)
+        {
+            // Consistent: Return 201 Created with the ServiceResponse.
+            return StatusCode((int)HttpStatusCode.Created, serviceResponse);
+        }
+        else
+        {
+            // Consistent: Return 400 Bad Request with the ServiceResponse.
+            return BadRequest(serviceResponse);
+        }
     }
 }

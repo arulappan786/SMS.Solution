@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace SMS.Infrastructure.Persistance.Seed
+namespace SMS.Infrastructure.Persistance.Seeders
 {
     public static class RoleSeeder
     {
