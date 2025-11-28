@@ -7,20 +7,18 @@ using SMS.Application.DTOs.Core;
 using System.Net;
 
 [ApiController]
-[Route("api/students")] // Use a convention for the route
+[Route("api/students")]
 public class StudentsController(IMediator mediator) : ControllerBase
 {
     // --- QUERY: Get All Students ---
 
     [HttpGet]
     [ProducesResponseType(typeof(PaginatedResultDto<StudentDto>), (int)HttpStatusCode.OK)]
-    // ASP.NET Core automatically binds query string parameters to the GetAllStudentsQuery object
     public async Task<IActionResult> GetAll([FromQuery] GetAllStudentsQuery query)
     {
-        var dto = await mediator.Send(query);
-
-        // Returns 200 OK with the full pagination metadata
-        return Ok(dto);
+        var students = await mediator.Send(query);
+        if (students == null) return NotFound($"No student record found");
+        else return Ok(students);
     }
 
     // --- QUERY: Get Student by ID ---
@@ -31,16 +29,9 @@ public class StudentsController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetStudentByIdQuery { StudentId = id };
-
-        var dto = await mediator.Send(query);
-
-        // Check if the handler returned null (resource not found)
-        if (dto == null)
-        {
-            return NotFound($"Student with ID {id} not found."); // Returns 404 Not Found
-        }
-
-        return Ok(dto); // Returns 200 OK
+        var student = await mediator.Send(query);
+        if (student == null) return NotFound($"Student with ID {id} not found.");
+        else return Ok(student);
     }
 
     // --- COMMAND: Create Student ---
@@ -50,12 +41,8 @@ public class StudentsController(IMediator mediator) : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.BadRequest)] // For validation errors
     public async Task<IActionResult> Create([FromBody] CreateStudentCommand command)
     {
-        // Mediator sends the command to the handler. 
-        // We assume the handler returns the Guid of the newly created student.
-        var newStudentId = await mediator.Send(command);
-
-        // Returns 201 Created and provides the URI for the new resource.
-        // Route name 'Get' must match the name of the Get method above.
-        return CreatedAtAction(nameof(Get), new { id = newStudentId }, newStudentId);
+        var serviceResponse = await mediator.Send(command);
+        if (serviceResponse.Success) return StatusCode((int)HttpStatusCode.Created);
+        else return BadRequest(serviceResponse);
     }
 }
