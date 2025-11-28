@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using SMS.Domain.Interfaces.Repositories;
+using SMS.Domain.Interfaces.Repositories.Common;
 
 // Assuming AppDbContext is defined in this namespace or accessible here.
 // AppDbContext would need to be a generic DbContext (like IdentityDbContext) or a standard DbContext.

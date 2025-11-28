@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 
-namespace SMS.Domain.Interfaces.Repositories
+namespace SMS.Domain.Interfaces.Repositories.Common
 {
     public interface IUnitOfWork
     {

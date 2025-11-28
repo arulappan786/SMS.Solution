@@ -8,7 +8,8 @@ using SMS.Application.Services.Logging;
 using SMS.Application.Validations;
 using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;
-using SMS.Domain.Interfaces.Repositories;
+using SMS.Domain.Interfaces.Repositories.Common;
+using SMS.Domain.Interfaces.Repositories.Core;
 
 namespace SMS.Application.CQRS.Core.Students.Commands.CreateStudent
 {

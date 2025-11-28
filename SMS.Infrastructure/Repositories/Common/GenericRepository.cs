@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SMS.Domain.Interfaces.Repositories;
+using SMS.Domain.Interfaces.Repositories.Common;
 using SMS.Infrastructure.Persistance.Context;
 
-namespace SMS.Infrastructure.Repositories
+namespace SMS.Infrastructure.Repositories.Common
 {
-    public class GenericRepository<TEntity>(AppDbContext dbContext) : IGenericRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity>(AppDbContext dbContext) 
+        : IGenericRepository<TEntity> where TEntity : class
     {
         public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {

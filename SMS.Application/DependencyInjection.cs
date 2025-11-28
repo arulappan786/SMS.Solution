@@ -19,6 +19,7 @@ namespace SMS.Application
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
             });
+
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddAutoMapper(cfg => cfg.AddMaps(Assembly.GetExecutingAssembly()));                        
             services.AddScoped<IValidator<CreateStudentCommand>, CreateStudentCommandValidator>();

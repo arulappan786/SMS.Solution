@@ -1,19 +1,50 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SMS.Domain.Entities.Academic;
 using SMS.Domain.Entities.Attendance;
 using SMS.Domain.Entities.Core;
+using SMS.Domain.Entities.Finance;
 using SMS.Domain.Entities.Grading;
 using SMS.Domain.Entities.Identity;
+using SMS.Domain.Entities.Scheduling;
 
 namespace SMS.Infrastructure.Persistance.Context
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) 
         : IdentityDbContext<AppUser, IdentityRole, string>(options)
     {
+        // Academic
+        public DbSet<AcademicYear> AcademicYears { get; set; }
+        public DbSet<Class> Classs { get; set; }
+        public DbSet<ClassSubject> ClassSubjects { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
+
+        // Attendance
+        public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<DisciplinaryAction> DisciplinaryActions { get; set; }
+
+        // Core
+        public DbSet<Parent> Parents { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<StudentParent> StudentParents { get; set; }
+
+        // Finance
+        public DbSet<FeeInvoice> FeeInvoices { get; set; }
+        public DbSet<FeeType> FeeTypes { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+
+        // Grading
+        public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<Exam> Exams { get; set; }
+        public DbSet<ExamResult> ExamResults { get; set; }
+        public DbSet<Grade> Grades { get; set; }
+
+        // Scheduling
+        public DbSet<ClassSchedule> ClassSchedules { get; set; }
+        public DbSet<HolidayOrEvent> HolidayOrEvents { get; set; }
+        public DbSet<Room> Rooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

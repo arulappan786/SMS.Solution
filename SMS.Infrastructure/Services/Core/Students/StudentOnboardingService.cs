@@ -5,7 +5,8 @@ using SMS.Application.Services.Identity;
 using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Enums;
-using SMS.Domain.Interfaces.Repositories;
+using SMS.Domain.Interfaces.Repositories.Common;
+using SMS.Domain.Interfaces.Repositories.Core;
 
 namespace SMS.Infrastructure.Services.Core.Students
 {

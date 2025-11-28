@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SMS.Application.DTOs.Core.Students;
-using SMS.Domain.Interfaces.Repositories;
+using SMS.Domain.Interfaces.Repositories.Core;
 
 namespace SMS.Application.CQRS.Core.Students.Queries.GetStudentById
 {

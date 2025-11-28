@@ -1,4 +1,4 @@
-﻿namespace SMS.Domain.Interfaces.Repositories
+﻿namespace SMS.Domain.Interfaces.Repositories.Common
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {

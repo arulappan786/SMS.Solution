@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SMS.Domain.Entities.Core;
-using SMS.Domain.Interfaces.Repositories;
+using SMS.Domain.Interfaces.Repositories.Core;
 using SMS.Infrastructure.Persistance.Context;
+using SMS.Infrastructure.Repositories.Common;
 
-namespace SMS.Infrastructure.Repositories
+namespace SMS.Infrastructure.Repositories.Core
 {
-    public class StudentRepository(AppDbContext context) : GenericRepository<Student>(context), IStudentRepository
+    public class StudentRepository(AppDbContext dbContext) 
+        : GenericRepository<Student>(dbContext), IStudentRepository
     {
         public async Task<bool> ExistsByStudentCodeAsync(string studentCode, CancellationToken cancellationToken = default)
         {
-            return await context.Students
+            return await dbContext.Students
                 .AsNoTracking()
                 .AnyAsync(s => s.StudentCode == studentCode, cancellationToken);
         }
@@ -22,10 +24,10 @@ namespace SMS.Infrastructure.Repositories
             int skip = (pageNumber - 1) * pageSize;
 
             // 1. Get the total count (needed for pagination metadata)
-            var totalCount = await context.Students.CountAsync(cancellationToken);
+            var totalCount = await dbContext.Students.CountAsync(cancellationToken);
 
             // 2. Retrieve the specific page of items
-            var items = await context.Students
+            var items = await dbContext.Students
                 .AsNoTracking()
                 .OrderBy(s => s.StudentCode) // Always apply ordering for consistent pagination
                 .Skip(skip)
@@ -37,14 +39,14 @@ namespace SMS.Infrastructure.Repositories
 
         public async Task<Student?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
-            return await context.Students
+            return await dbContext.Students
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);
         }
 
         public async Task<int> GetTotalStudentCountAsync(CancellationToken cancellationToken = default)
         {
-            return await context.Students.CountAsync(cancellationToken);
+            return await dbContext.Students.CountAsync(cancellationToken);
         }
     }
 }

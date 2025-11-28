@@ -1,6 +1,7 @@
 ﻿using SMS.Domain.Entities.Core;
+using SMS.Domain.Interfaces.Repositories.Common;
 
-namespace SMS.Domain.Interfaces.Repositories
+namespace SMS.Domain.Interfaces.Repositories.Core
 {
     public interface ITeacherRepository : IGenericRepository<Teacher>
     {

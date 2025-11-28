@@ -12,8 +12,8 @@ using SMS.Infrastructure.Persistance.Context;
 namespace SMS.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251128051817_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20251128150327_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,7 +179,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AcademicYear");
+                    b.ToTable("AcademicYears");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.Class", b =>
@@ -202,7 +202,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("AcademicYearId");
 
-                    b.ToTable("Class");
+                    b.ToTable("Classs");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.ClassSubject", b =>
@@ -228,7 +228,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("ClassSubject");
+                    b.ToTable("ClassSubjects");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.Subject", b =>
@@ -247,7 +247,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subject");
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Attendance.Attendance", b =>
@@ -277,7 +277,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Attendance");
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Attendance.DisciplinaryAction", b =>
@@ -313,7 +313,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("DisciplinaryAction");
+                    b.ToTable("DisciplinaryActions");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.Parent", b =>
@@ -402,7 +402,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.HasIndex("StudentId", "ParentId")
                         .IsUnique();
 
-                    b.ToTable("StudentParent");
+                    b.ToTable("StudentParents");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.Teacher", b =>
@@ -440,6 +440,99 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.ToTable("Teachers");
                 });
 
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.FeeInvoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AmountDue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FeeTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("IssuedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeeTypeId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("FeeInvoices");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.FeeType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("BaseAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FeeTypes");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("FeeInvoiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TransactionReference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeeInvoiceId");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Assignment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -473,7 +566,71 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("ClassSubjectId");
 
-                    b.ToTable("Assignment");
+                    b.ToTable("Assignments");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Grading.Exam", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
+
+                    b.ToTable("Exams");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Grading.ExamResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ExamId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("MaxScore")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ScoreObtained")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("ExamResults");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Grade", b =>
@@ -504,7 +661,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Grade");
+                    b.ToTable("Grades");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Identity.AppUser", b =>
@@ -635,7 +792,32 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("ClassSchedule");
+                    b.ToTable("ClassSchedules");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Scheduling.HolidayOrEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HolidayOrEventName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HolidayOrEventType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HolidayOrEvents");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Scheduling.Room", b =>
@@ -656,7 +838,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Room");
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -881,6 +1063,35 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.FeeInvoice", b =>
+                {
+                    b.HasOne("SMS.Domain.Entities.Finance.FeeType", "FeeType")
+                        .WithMany("FeeInvoices")
+                        .HasForeignKey("FeeTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SMS.Domain.Entities.Core.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FeeType");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.Payment", b =>
+                {
+                    b.HasOne("SMS.Domain.Entities.Finance.FeeInvoice", "FeeInvoice")
+                        .WithMany("Payments")
+                        .HasForeignKey("FeeInvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FeeInvoice");
+                });
+
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Assignment", b =>
                 {
                     b.HasOne("SMS.Domain.Entities.Academic.ClassSubject", "ClassSubject")
@@ -890,6 +1101,44 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         .IsRequired();
 
                     b.Navigation("ClassSubject");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Grading.Exam", b =>
+                {
+                    b.HasOne("SMS.Domain.Entities.Academic.AcademicYear", "AcademicYear")
+                        .WithMany()
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AcademicYear");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Grading.ExamResult", b =>
+                {
+                    b.HasOne("SMS.Domain.Entities.Grading.Exam", "Exam")
+                        .WithMany("Results")
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SMS.Domain.Entities.Core.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SMS.Domain.Entities.Academic.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Grade", b =>
@@ -1005,9 +1254,24 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.FeeInvoice", b =>
+                {
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Finance.FeeType", b =>
+                {
+                    b.Navigation("FeeInvoices");
+                });
+
             modelBuilder.Entity("SMS.Domain.Entities.Grading.Assignment", b =>
                 {
                     b.Navigation("Grades");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Grading.Exam", b =>
+                {
+                    b.Navigation("Results");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Scheduling.Room", b =>

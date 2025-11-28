@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SMS.Infrastructure.Persistance.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Create : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AcademicYear",
+                name: "AcademicYears",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -23,7 +23,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AcademicYear", x => x.Id);
+                    table.PrimaryKey("PK_AcademicYears", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -38,6 +38,35 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FeeTypes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BaseAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsMandatory = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FeeTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HolidayOrEvents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    HolidayOrEventName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    HolidayOrEventType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HolidayOrEvents", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -57,7 +86,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Room",
+                name: "Rooms",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -67,11 +96,11 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Room", x => x.Id);
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Subject",
+                name: "Subjects",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -80,7 +109,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subject", x => x.Id);
+                    table.PrimaryKey("PK_Subjects", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,7 +131,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Class",
+                name: "Classs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -112,11 +141,33 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Class", x => x.Id);
+                    table.PrimaryKey("PK_Classs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Class_AcademicYear_AcademicYearId",
+                        name: "FK_Classs_AcademicYears_AcademicYearId",
                         column: x => x.AcademicYearId,
-                        principalTable: "AcademicYear",
+                        principalTable: "AcademicYears",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Exams",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AcademicYearId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Exams", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Exams_AcademicYears_AcademicYearId",
+                        column: x => x.AcademicYearId,
+                        principalTable: "AcademicYears",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -143,7 +194,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClassSubject",
+                name: "ClassSubjects",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -153,21 +204,21 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClassSubject", x => x.Id);
+                    table.PrimaryKey("PK_ClassSubjects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClassSubject_Class_ClassId",
+                        name: "FK_ClassSubjects_Classs_ClassId",
                         column: x => x.ClassId,
-                        principalTable: "Class",
+                        principalTable: "Classs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ClassSubject_Subject_SubjectId",
+                        name: "FK_ClassSubjects_Subjects_SubjectId",
                         column: x => x.SubjectId,
-                        principalTable: "Subject",
+                        principalTable: "Subjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ClassSubject_Teachers_TeacherId",
+                        name: "FK_ClassSubjects_Teachers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "Teachers",
                         principalColumn: "Id",
@@ -198,15 +249,15 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     table.PrimaryKey("PK_Students", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Students_Class_CurrentClassId",
+                        name: "FK_Students_Classs_CurrentClassId",
                         column: x => x.CurrentClassId,
-                        principalTable: "Class",
+                        principalTable: "Classs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Assignment",
+                name: "Assignments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -220,17 +271,17 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Assignment", x => x.Id);
+                    table.PrimaryKey("PK_Assignments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Assignment_ClassSubject_ClassSubjectId",
+                        name: "FK_Assignments_ClassSubjects_ClassSubjectId",
                         column: x => x.ClassSubjectId,
-                        principalTable: "ClassSubject",
+                        principalTable: "ClassSubjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClassSchedule",
+                name: "ClassSchedules",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -242,17 +293,17 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClassSchedule", x => x.Id);
+                    table.PrimaryKey("PK_ClassSchedules", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClassSchedule_ClassSubject_ClassSubjectId",
+                        name: "FK_ClassSchedules_ClassSubjects_ClassSubjectId",
                         column: x => x.ClassSubjectId,
-                        principalTable: "ClassSubject",
+                        principalTable: "ClassSubjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ClassSchedule_Room_RoomId",
+                        name: "FK_ClassSchedules_Rooms_RoomId",
                         column: x => x.RoomId,
-                        principalTable: "Room",
+                        principalTable: "Rooms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -309,7 +360,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Attendance",
+                name: "Attendances",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -321,15 +372,15 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Attendance", x => x.Id);
+                    table.PrimaryKey("PK_Attendances", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Attendance_ClassSubject_ClassSubjectId",
+                        name: "FK_Attendances_ClassSubjects_ClassSubjectId",
                         column: x => x.ClassSubjectId,
-                        principalTable: "ClassSubject",
+                        principalTable: "ClassSubjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Attendance_Students_StudentId",
+                        name: "FK_Attendances_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
@@ -337,7 +388,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DisciplinaryAction",
+                name: "DisciplinaryActions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -351,15 +402,15 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DisciplinaryAction", x => x.Id);
+                    table.PrimaryKey("PK_DisciplinaryActions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DisciplinaryAction_Students_StudentId",
+                        name: "FK_DisciplinaryActions_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_DisciplinaryAction_Teachers_TeacherId",
+                        name: "FK_DisciplinaryActions_Teachers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "Teachers",
                         principalColumn: "Id",
@@ -367,7 +418,73 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StudentParent",
+                name: "ExamResults",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ExamId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SubjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ScoreObtained = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MaxScore = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Comments = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExamResults", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExamResults_Exams_ExamId",
+                        column: x => x.ExamId,
+                        principalTable: "Exams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ExamResults_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ExamResults_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FeeInvoices",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FeeTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IssuedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AmountDue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FeeInvoices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FeeInvoices_FeeTypes_FeeTypeId",
+                        column: x => x.FeeTypeId,
+                        principalTable: "FeeTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FeeInvoices_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentParents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -377,15 +494,15 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentParent", x => x.Id);
+                    table.PrimaryKey("PK_StudentParents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StudentParent_Parents_ParentId",
+                        name: "FK_StudentParents_Parents_ParentId",
                         column: x => x.ParentId,
                         principalTable: "Parents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_StudentParent_Students_StudentId",
+                        name: "FK_StudentParents_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
@@ -393,7 +510,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Grade",
+                name: "Grades",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -405,15 +522,15 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Grade", x => x.Id);
+                    table.PrimaryKey("PK_Grades", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Grade_Assignment_AssignmentId",
+                        name: "FK_Grades_Assignments_AssignmentId",
                         column: x => x.AssignmentId,
-                        principalTable: "Assignment",
+                        principalTable: "Assignments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Grade_Students_StudentId",
+                        name: "FK_Grades_Students_StudentId",
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
@@ -505,6 +622,29 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InvoiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Method = table.Column<int>(type: "int", nullable: false),
+                    TransactionReference = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FeeInvoiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_FeeInvoices_FeeInvoiceId",
+                        column: x => x.FeeInvoiceId,
+                        principalTable: "FeeInvoices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -566,78 +706,113 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Assignment_ClassSubjectId",
-                table: "Assignment",
+                name: "IX_Assignments_ClassSubjectId",
+                table: "Assignments",
                 column: "ClassSubjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Attendance_ClassSubjectId",
-                table: "Attendance",
+                name: "IX_Attendances_ClassSubjectId",
+                table: "Attendances",
                 column: "ClassSubjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Attendance_StudentId",
-                table: "Attendance",
+                name: "IX_Attendances_StudentId",
+                table: "Attendances",
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Class_AcademicYearId",
-                table: "Class",
+                name: "IX_Classs_AcademicYearId",
+                table: "Classs",
                 column: "AcademicYearId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSchedule_ClassSubjectId",
-                table: "ClassSchedule",
+                name: "IX_ClassSchedules_ClassSubjectId",
+                table: "ClassSchedules",
                 column: "ClassSubjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSchedule_RoomId",
-                table: "ClassSchedule",
+                name: "IX_ClassSchedules_RoomId",
+                table: "ClassSchedules",
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSubject_ClassId",
-                table: "ClassSubject",
+                name: "IX_ClassSubjects_ClassId",
+                table: "ClassSubjects",
                 column: "ClassId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSubject_SubjectId",
-                table: "ClassSubject",
+                name: "IX_ClassSubjects_SubjectId",
+                table: "ClassSubjects",
                 column: "SubjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassSubject_TeacherId",
-                table: "ClassSubject",
+                name: "IX_ClassSubjects_TeacherId",
+                table: "ClassSubjects",
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DisciplinaryAction_StudentId",
-                table: "DisciplinaryAction",
+                name: "IX_DisciplinaryActions_StudentId",
+                table: "DisciplinaryActions",
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DisciplinaryAction_TeacherId",
-                table: "DisciplinaryAction",
+                name: "IX_DisciplinaryActions_TeacherId",
+                table: "DisciplinaryActions",
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Grade_AssignmentId",
-                table: "Grade",
+                name: "IX_ExamResults_ExamId",
+                table: "ExamResults",
+                column: "ExamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamResults_StudentId",
+                table: "ExamResults",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamResults_SubjectId",
+                table: "ExamResults",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Exams_AcademicYearId",
+                table: "Exams",
+                column: "AcademicYearId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FeeInvoices_FeeTypeId",
+                table: "FeeInvoices",
+                column: "FeeTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FeeInvoices_StudentId",
+                table: "FeeInvoices",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Grades_AssignmentId",
+                table: "Grades",
                 column: "AssignmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Grade_StudentId",
-                table: "Grade",
+                name: "IX_Grades_StudentId",
+                table: "Grades",
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentParent_ParentId",
-                table: "StudentParent",
+                name: "IX_Payments_FeeInvoiceId",
+                table: "Payments",
+                column: "FeeInvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentParents_ParentId",
+                table: "StudentParents",
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentParent_StudentId_ParentId",
-                table: "StudentParent",
+                name: "IX_StudentParents_StudentId_ParentId",
+                table: "StudentParents",
                 columns: new[] { "StudentId", "ParentId" },
                 unique: true);
 
@@ -666,19 +841,28 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Attendance");
+                name: "Attendances");
 
             migrationBuilder.DropTable(
-                name: "ClassSchedule");
+                name: "ClassSchedules");
 
             migrationBuilder.DropTable(
-                name: "DisciplinaryAction");
+                name: "DisciplinaryActions");
 
             migrationBuilder.DropTable(
-                name: "Grade");
+                name: "ExamResults");
 
             migrationBuilder.DropTable(
-                name: "StudentParent");
+                name: "Grades");
+
+            migrationBuilder.DropTable(
+                name: "HolidayOrEvents");
+
+            migrationBuilder.DropTable(
+                name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "StudentParents");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -687,31 +871,40 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Room");
+                name: "Rooms");
 
             migrationBuilder.DropTable(
-                name: "Assignment");
+                name: "Exams");
+
+            migrationBuilder.DropTable(
+                name: "Assignments");
+
+            migrationBuilder.DropTable(
+                name: "FeeInvoices");
 
             migrationBuilder.DropTable(
                 name: "Parents");
 
             migrationBuilder.DropTable(
+                name: "ClassSubjects");
+
+            migrationBuilder.DropTable(
+                name: "FeeTypes");
+
+            migrationBuilder.DropTable(
                 name: "Students");
 
             migrationBuilder.DropTable(
-                name: "ClassSubject");
-
-            migrationBuilder.DropTable(
-                name: "Class");
-
-            migrationBuilder.DropTable(
-                name: "Subject");
+                name: "Subjects");
 
             migrationBuilder.DropTable(
                 name: "Teachers");
 
             migrationBuilder.DropTable(
-                name: "AcademicYear");
+                name: "Classs");
+
+            migrationBuilder.DropTable(
+                name: "AcademicYears");
         }
     }
 }
