@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SMS.Application.Services.Interfaces.Identity;
 using SMS.Domain.Entities.Identity;
-using SMS.Infrastructure.Persistence.Context;
+using SMS.Infrastructure.Persistance.Context;
 using System.Security.Claims;
 
 namespace SMS.Infrastructure.Services.Identity

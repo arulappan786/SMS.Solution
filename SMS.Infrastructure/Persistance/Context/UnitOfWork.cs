@@ -8,7 +8,7 @@ using SMS.Domain.Interfaces.Repositories;
 // NOTE: Since this class uses AppDbContext, it belongs in the Infrastructure layer,
 // while IUnitOfWork remains in the Domain layer, adhering to DIP.
 
-namespace SMS.Infrastructure.Persistence.Context
+namespace SMS.Infrastructure.Persistance.Context
 {
     // The AppDbContext must be injected into the concrete UnitOfWork to control the transaction lifecycle.
     public class UnitOfWork(AppDbContext context) : IUnitOfWork

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SMS.Domain.Interfaces.Repositories;
-using SMS.Infrastructure.Persistence.Context;
+using SMS.Infrastructure.Persistance.Context;
 
 namespace SMS.Infrastructure.Repositories
 {

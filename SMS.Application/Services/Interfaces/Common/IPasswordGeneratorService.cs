@@ -2,7 +2,6 @@
 {
     public interface IPasswordGeneratorService
     {
-        // Define the contract method
         string GenerateSecurePassword();
     }
 }

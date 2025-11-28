@@ -46,7 +46,9 @@ namespace SMS.Domain.Entities.Core
 
         // Public constructor for creating a new Student entity in the domain
         [SetsRequiredMembers]
-        public Student(Guid? userId,
+        public Student(Guid studentId,
+                       Guid? userId,
+                       Guid? currentClassId,
                        FullName fullName,
                        Address homeAddress,
                        DateTime dateOfBirth,
@@ -55,6 +57,7 @@ namespace SMS.Domain.Entities.Core
                        string studentCode,
                        DateTime enrollmentDate)
         {
+
             // 1. Validation for UserId
             if (userId == Guid.Empty)
                 throw new ArgumentException("User ID must be a valid non-empty GUID.", nameof(userId));
@@ -90,8 +93,9 @@ namespace SMS.Domain.Entities.Core
 
 
             // --- Assignment if all validation passes ---
-
+            Id = studentId;
             UserId = userId;
+            CurrentClassId = currentClassId;
             DateOfBirth = dateOfBirth;
             Gender = gender;
             Email = email;

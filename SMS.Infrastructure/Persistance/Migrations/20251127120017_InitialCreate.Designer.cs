@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SMS.Infrastructure.Persistence.Context;
+using SMS.Infrastructure.Persistance.Context;
+
 
 #nullable disable
 
-namespace SMS.Infrastructure.Persistence.Migrations
+namespace SMS.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20251127120017_InitialCreate")]

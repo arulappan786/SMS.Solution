@@ -9,10 +9,12 @@ namespace SMS.Application.Mappings.Core
     {
         public StudentMapper()
         {
-            // Map: CreateStudentCommand (Source) -> Student (Destination)
+            // Create
             CreateMap<CreateStudentCommand, Student>()
                 .ConstructUsing(src =>
-                new Student(src.UserId,
+                new Student(Guid.NewGuid(), 
+                            src.UserId,
+                            Guid.Empty,
                             src.FullName,
                             src.HomeAddress,
                             src.DateOfBirth,
@@ -40,12 +42,22 @@ namespace SMS.Application.Mappings.Core
                     src.EnrollmentDate
                 ));
 
-            // Create
-            CreateMap<CreateStudentDto, Student>();
-
-
             // Update
-            CreateMap<UpdateStudentDto, Student>();
+            CreateMap<UpdateStudentDto, Student>()
+                // This tells AutoMapper exactly which constructor to call and what arguments to pass
+                .ConstructUsing(src =>
+                new Student(
+                    src.StudentId,
+                    src.UserId,
+                    src.CurrentClassId,
+                    src.FullName,
+                    src.HomeAddress,
+                    src.DateOfBirth,
+                    src.Gender,
+                    src.Email,
+                    src.StudentCode,
+                    src.EnrollmentDate
+                ));
         }
     }
 }

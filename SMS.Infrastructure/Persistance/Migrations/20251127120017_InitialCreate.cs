@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SMS.Infrastructure.Persistence.Migrations
+namespace SMS.Infrastructure.Persistance.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

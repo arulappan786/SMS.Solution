@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Serilog;
 using SMS.Application;
 using SMS.Infrastructure;
-using SMS.Infrastructure.Persistence.Seed;
+using SMS.Infrastructure.Persistance.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;

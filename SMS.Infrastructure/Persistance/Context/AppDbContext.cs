@@ -6,7 +6,7 @@ using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Grading;
 using SMS.Domain.Entities.Identity;
 
-namespace SMS.Infrastructure.Persistence.Context
+namespace SMS.Infrastructure.Persistance.Context
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) 
         : IdentityDbContext<AppUser, IdentityRole, string>(options)
