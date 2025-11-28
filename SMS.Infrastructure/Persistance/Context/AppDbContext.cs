@@ -116,7 +116,31 @@ namespace SMS.Infrastructure.Persistance.Context
 
             modelBuilder.Entity<Grade>()
                 .Property(g => g.MarksObtained)
-                .HasPrecision(8, 4);
+                .HasPrecision(8, 4);            
+
+            modelBuilder.Entity<FeeInvoice>()
+                .Property(f => f.AmountDue)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<FeeInvoice>()
+                .Property(f => f.AmountPaid)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.AmountPaid)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<FeeType>()
+                .Property(f => f.BaseAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<ExamResult>()
+                .Property(e => e.MaxScore)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<ExamResult>()
+                .Property(e => e.ScoreObtained)
+                .HasPrecision(18, 2);
         }
     }
 }

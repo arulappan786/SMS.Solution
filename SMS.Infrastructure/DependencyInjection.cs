@@ -2,15 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Identity;
 using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Identity;
+using SMS.Domain.Interfaces.Repositories.Academic;
 using SMS.Domain.Interfaces.Repositories.Common;
 using SMS.Domain.Interfaces.Repositories.Core;
 using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Persistance.Context;
+using SMS.Infrastructure.Repositories.Academic;
 using SMS.Infrastructure.Repositories.Core;
 using SMS.Infrastructure.Services.Common;
 using SMS.Infrastructure.Services.Core.Students;
@@ -49,7 +52,8 @@ namespace SMS.Infrastructure
                 options.Password.RequiredUniqueChars = 1;
             })
                 .AddEntityFrameworkStores<AppDbContext>();
-            
+
+            services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IRoleManagementService, RoleManagementService>();

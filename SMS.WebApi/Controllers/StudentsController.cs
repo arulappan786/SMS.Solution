@@ -8,8 +8,8 @@ using SMS.Application.DTOs.Service;
 using System.Net;
 using SMS.Application.DTOs.Core.Students;
 
+[Route("api/[controller]")]
 [ApiController]
-[Route("api/students")]
 public class StudentsController(IMediator mediator) : ControllerBase
 {
     // --- QUERY: Get All Students ---
