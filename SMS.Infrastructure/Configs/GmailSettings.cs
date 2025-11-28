@@ -1,4 +1,4 @@
-﻿namespace SMS.Infrastructure.Configuration
+﻿namespace SMS.Infrastructure.Configs
 {
     public class GmailSettings
     {

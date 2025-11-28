@@ -8,7 +8,7 @@ using SMS.Application.Services.Interfaces.Identity;
 using SMS.Application.Services.Interfaces.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
-using SMS.Infrastructure.Configuration;
+using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Persistence.Context;
 using SMS.Infrastructure.Repositories;
 using SMS.Infrastructure.Services.Common;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using SMS.Application.Configuration;
+using SMS.Application.Configs;
 using SMS.Application.Services.Interfaces.Core;
 using SMS.Domain.Interfaces.Repositories;
 

@@ -1,8 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using SMS.Application.Configuration;
+using SMS.Application.Configs;
 using SMS.Application.CQRS.Core.Students.Commands;
 using SMS.Application.Services.Implements.Core;
 using SMS.Application.Services.Interfaces.Core;

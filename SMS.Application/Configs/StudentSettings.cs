@@ -1,4 +1,4 @@
-﻿namespace SMS.Application.Configuration
+﻿namespace SMS.Application.Configs
 {
     public record StudentSettings
     {

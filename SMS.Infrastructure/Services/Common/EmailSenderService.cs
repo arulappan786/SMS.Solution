@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SMS.Application.Services.Interfaces.Common;
-using SMS.Infrastructure.Configuration;
+using SMS.Infrastructure.Configs;
 using System.Net;
 using System.Net.Mail;
 
