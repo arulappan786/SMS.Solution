@@ -3,7 +3,7 @@ using SMS.Application.DTOs.Service;
 using SMS.Domain.Enums;
 using SMS.Domain.ValueObjects;
 
-namespace SMS.Application.CQRS.Core.Students.Commands
+namespace SMS.Application.CQRS.Core.Students.Commands.CreateStudent
 {
     public record CreateStudentCommand : IRequest<ServiceResponse>, IStudentHasInternalIds
     {

@@ -2,7 +2,7 @@
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Interfaces.Core;
 
-namespace SMS.Application.CQRS.Core.Students.Commands
+namespace SMS.Application.CQRS.Core.Students.Commands.CreateStudent
 {
     public class CreateStudentCommandHandler(IStudentService studentService): IRequestHandler<CreateStudentCommand, ServiceResponse>
     {

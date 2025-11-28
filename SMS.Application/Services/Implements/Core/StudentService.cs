@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using SMS.Application.CQRS.Core.Students.Commands;
-using SMS.Application.CQRS.Core.Students.Queries;
+using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
+using SMS.Application.CQRS.Core.Students.Queries.GetStudentList;
 using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Core;
 using SMS.Application.DTOs.Service;

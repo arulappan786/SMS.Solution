@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace SMS.Application.CQRS.Core.Students.Commands
+namespace SMS.Application.CQRS.Core.Students.Commands.CreateStudent
 {
     public class CreateStudentCommandValidator : AbstractValidator<CreateStudentCommand>
     {

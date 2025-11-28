@@ -2,7 +2,7 @@
 using SMS.Application.DTOs.Core;
 using SMS.Application.Services.Interfaces.Core;
 
-namespace SMS.Application.CQRS.Core.Students.Queries
+namespace SMS.Application.CQRS.Core.Students.Queries.GetStudentById
 {
     public class GetStudentByIdQueryHandler(IStudentService studentService) : IRequestHandler<GetStudentByIdQuery, StudentDto>
     {
