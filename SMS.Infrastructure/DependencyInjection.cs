@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using SMS.Application.Services.Interfaces.Common;
+using SMS.Application.Services.Interfaces.Core.Students;
 using SMS.Application.Services.Interfaces.Identity;
 using SMS.Application.Services.Interfaces.Logging;
 using SMS.Domain.Entities.Identity;
@@ -12,6 +13,7 @@ using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Persistance.Context;
 using SMS.Infrastructure.Repositories;
 using SMS.Infrastructure.Services.Common;
+using SMS.Infrastructure.Services.Core.Students;
 using SMS.Infrastructure.Services.Identity;
 using SMS.Infrastructure.Services.Logging;
 
@@ -55,7 +57,8 @@ namespace SMS.Infrastructure
             services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
             services.AddSingleton<IEmailSenderService, EmailSenderService>();
-            
+            services.AddScoped<IStudentCodeGeneratorService, StudentCodeGeneratorService>();
+            services.AddScoped<IStudentOnboardingService, StudentOnboardingService>();
 
             return services;
         }

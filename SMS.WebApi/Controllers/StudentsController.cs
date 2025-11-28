@@ -1,12 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
-using SMS.Application.CQRS.Core.Students.Queries.GetStudentById;
 using SMS.Application.CQRS.Core.Students.Queries.GetStudentList;
+using SMS.Application.CQRS.Core.Students.Queries.GetStudentById;
 using SMS.Application.DTOs.Common;
-using SMS.Application.DTOs.Core;
 using SMS.Application.DTOs.Service;
 using System.Net;
+using SMS.Application.DTOs.Core.Students;
 
 [ApiController]
 [Route("api/students")]

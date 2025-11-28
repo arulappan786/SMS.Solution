@@ -1,14 +1,17 @@
-﻿using MediatR;
-using SMS.Application.DTOs.Core;
-using SMS.Application.Services.Interfaces.Core;
+﻿using AutoMapper;
+using MediatR;
+using SMS.Application.DTOs.Core.Students;
+using SMS.Domain.Interfaces.Repositories;
 
 namespace SMS.Application.CQRS.Core.Students.Queries.GetStudentById
 {
-    public class GetStudentByIdQueryHandler(IStudentService studentService) : IRequestHandler<GetStudentByIdQuery, StudentDto>
+    public class GetStudentByIdQueryHandler(IStudentRepository studentRepository, IMapper mapper) : IRequestHandler<GetStudentByIdQuery, StudentDto>
     {
-        public Task<StudentDto> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
+        public async Task<StudentDto> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
         {
-            return studentService.GetStudentByIdAsync(request.StudentId, cancellationToken);
+            var student = await studentRepository.GetAsync(request.StudentId, cancellationToken);
+            var mappedStudent = mapper.Map<StudentDto>(student);
+            return mappedStudent;
         }
     }
 }

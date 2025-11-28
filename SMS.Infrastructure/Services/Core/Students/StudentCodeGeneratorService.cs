@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using SMS.Application.Configs;
-using SMS.Application.Services.Interfaces.Core;
+using SMS.Application.Services.Interfaces.Core.Students;
 using SMS.Domain.Interfaces.Repositories;
 
-namespace SMS.Application.Services.Implements.Core
+namespace SMS.Infrastructure.Services.Core.Students
 {
     public class StudentCodeGeneratorService(IOptions<StudentSettings> studentOptions,
                                              IStudentRepository _repository) : IStudentCodeGeneratorService

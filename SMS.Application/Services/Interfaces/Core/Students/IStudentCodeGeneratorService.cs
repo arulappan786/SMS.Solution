@@ -1,4 +1,4 @@
-﻿namespace SMS.Application.Services.Interfaces.Core
+﻿namespace SMS.Application.Services.Interfaces.Core.Students
 {
     public interface IStudentCodeGeneratorService
     {

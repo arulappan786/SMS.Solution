@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
-using SMS.Application.DTOs.Core;
+using SMS.Application.DTOs.Core.Students;
 using SMS.Domain.Entities.Core;
 
 namespace SMS.Application.Mappings.Core

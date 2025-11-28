@@ -1,7 +1,7 @@
 ﻿using SMS.Domain.Enums;
 using SMS.Domain.ValueObjects;
 
-namespace SMS.Application.DTOs.Core
+namespace SMS.Application.DTOs.Core.Students
 {
     public record CreateStudentDto(FullName FullName,
                                    Address HomeAddress,
