@@ -2,11 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using SMS.Application.Services.Interfaces.Common;
-using SMS.Application.Services.Interfaces.Core.Students;
-using SMS.Application.Services.Interfaces.Identity;
-using SMS.Application.Services.Interfaces.Logging;
+using SMS.Application.Services.Common;
+using SMS.Application.Services.Core.Students;
+using SMS.Application.Services.Identity;
+using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories;
 using SMS.Infrastructure.Configs;

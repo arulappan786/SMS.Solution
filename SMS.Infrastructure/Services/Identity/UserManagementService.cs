@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using SMS.Application.Services.Interfaces.Identity;
+using SMS.Application.Services.Identity;
 using SMS.Domain.Entities.Identity;
 using SMS.Infrastructure.Persistance.Context;
 using System.Security.Claims;

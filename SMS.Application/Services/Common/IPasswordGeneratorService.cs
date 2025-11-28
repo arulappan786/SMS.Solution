@@ -1,4 +1,4 @@
-﻿namespace SMS.Application.Services.Interfaces.Common
+﻿namespace SMS.Application.Services.Common
 {
     public interface IPasswordGeneratorService
     {

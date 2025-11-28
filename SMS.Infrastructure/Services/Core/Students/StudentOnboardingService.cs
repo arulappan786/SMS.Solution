@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
-using SMS.Application.Services.Interfaces.Core.Students;
-using SMS.Application.Services.Interfaces.Identity;
-using SMS.Application.Services.Interfaces.Logging;
+using SMS.Application.Services.Core.Students;
+using SMS.Application.Services.Identity;
+using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Enums;
 using SMS.Domain.Interfaces.Repositories;

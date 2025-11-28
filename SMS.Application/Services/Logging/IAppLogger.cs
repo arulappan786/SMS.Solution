@@ -1,4 +1,4 @@
-﻿namespace SMS.Application.Services.Interfaces.Logging
+﻿namespace SMS.Application.Services.Logging
 {
     public interface IAppLogger<T>
     {

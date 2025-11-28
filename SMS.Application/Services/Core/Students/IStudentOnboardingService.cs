@@ -1,7 +1,7 @@
 ﻿using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
 using SMS.Domain.Entities.Identity;
 
-namespace SMS.Application.Services.Interfaces.Core.Students
+namespace SMS.Application.Services.Core.Students
 {
     // This interface groups together the critical onboarding functions that span multiple repositories (User, Student).
     public interface IStudentOnboardingService

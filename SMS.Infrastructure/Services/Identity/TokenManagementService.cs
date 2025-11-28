@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SMS.Application.Services.Interfaces.Identity;
+using SMS.Application.Services.Identity;
 using SMS.Infrastructure.Persistance.Context;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

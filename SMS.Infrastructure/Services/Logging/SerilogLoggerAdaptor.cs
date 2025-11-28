@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using SMS.Application.Services.Interfaces.Logging;
+using SMS.Application.Services.Logging;
 
 namespace SMS.Infrastructure.Services.Logging
 {

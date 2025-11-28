@@ -2,9 +2,9 @@
 using FluentValidation;
 using MediatR;
 using SMS.Application.DTOs.Service;
-using SMS.Application.Services.Interfaces.Common;
-using SMS.Application.Services.Interfaces.Core.Students;
-using SMS.Application.Services.Interfaces.Logging;
+using SMS.Application.Services.Common;
+using SMS.Application.Services.Core.Students;
+using SMS.Application.Services.Logging;
 using SMS.Application.Validations;
 using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;

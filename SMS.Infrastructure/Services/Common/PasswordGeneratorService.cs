@@ -1,4 +1,4 @@
-﻿using SMS.Application.Services.Interfaces.Common;
+﻿using SMS.Application.Services.Common;
 using SMS.Infrastructure.Services.Common.Utilities;
 
 namespace SMS.Infrastructure.Services.Common

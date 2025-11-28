@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using SMS.Application.Configs;
-using SMS.Application.Services.Interfaces.Core.Students;
+using SMS.Application.Services.Core.Students;
 using SMS.Domain.Interfaces.Repositories;
 
 namespace SMS.Infrastructure.Services.Core.Students
