@@ -22,38 +22,51 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands
         {
             try
             {
-                logger.LogInfo($"Starting Accademic Year creation: Validating Input");
+                // 1. Validation
+                logger.LogInfo($"Starting Academic Year creation: Validating Input.");
                 var validationResult = await validationService.ValidateAsync(request, validator);
-                if (!validationResult.Success) return validationResult;
+                if (!validationResult.Success)
+                {
+                    logger.LogWarning($"Academic Year creation failed validation for {request.Name}.");
+                    return validationResult;
+                }
 
-                var mapped = mapper.Map<AcademicYear>(request);
+                // 2. Uniqueness Check (Application Business Rule)
+                var existsResult = await repository.ExistsAsync(request.Name, request.StartDate, request.EndDate, cancellationToken);
+                if (existsResult)
+                {
+                    logger.LogWarning($"Academic Year creation failed: Duplicate entry detected for {request.Name}.");
+                    //return ServiceResponse.Failure("An Academic Year with this name or date range already exists in the system.");
+                    return new ServiceResponse { Success = false, Message = "An Academic Year with this name or date range already exists in the system." };
+                }
 
-                // Adding the student to the student store.
-                await repository.AddAsync(mapped, cancellationToken);
+                // 3. Mapping and Persistence
+                var academicYear = mapper.Map<AcademicYear>(request);
 
-                // Commiting the identity and student transactions.
+                await repository.AddAsync(academicYear, cancellationToken);
+
+                // 4. Commit Transaction
                 var result = await unitOfWork.CommitAsync(cancellationToken);
 
+                // Optional but robust check: If 0 rows were affected, throw a specific exception.
                 if (result <= 0)
-                    throw new InvalidOperationException($"Accademic Year record creation failed for {request.Name} during final commit.");
-
-                return new ServiceResponse()
                 {
-                    Success = true,
-                    Message = $"New Accademic Year is created with the name: {request.Name}."
-                };
+                    // This indicates a logical failure, not a database failure.
+                    throw new InvalidOperationException($"Academic Year creation failed for {request.Name}: No records were committed.");
+                }
+
+                // 5. Success
+                logger.LogInfo($"Successfully created Academic Year: {academicYear.Id} with name {request.Name}.");
+                return new ServiceResponse { Success = true, Message = $"New Academic Year is created with the name: {request.Name}." };
             }
             catch (Exception ex)
             {
+                // Log the exception details for developers/operations team
+                logger.LogError(ex, $"Error while creating Academic Year {request.Name} into the system.");
 
-                logger.LogError(ex, "Error while creating Accademic Year into the system.");
-
-                return new ServiceResponse()
-                {
-                    Success = false,
-                    Message = $"Error while Accademic Year into the system. {ex.Message}"
-                };
-            }            
+                // Return a clean, user-facing error response
+                return new ServiceResponse { Success = false, Message = $"An unexpected error occurred while creating the Academic Year. Please try again or contact support." };
+            }
         }
     }
 }
