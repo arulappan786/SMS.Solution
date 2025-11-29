@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
+using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Identity;
 using SMS.Application.Services.Logging;

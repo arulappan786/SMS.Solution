@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SMS.Application.Configs;
-using SMS.Application.CQRS.Accademic.AcademicYears.Commands.CreateAcademicYear;
-using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
+using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Create;
+using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Application.Validations;
 using System.Reflection;
 

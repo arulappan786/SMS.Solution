@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
+using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Application.DTOs.Core.Students;
 using SMS.Domain.Entities.Core;
 

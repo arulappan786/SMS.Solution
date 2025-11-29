@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SMS.Application.CQRS.Accademic.AcademicYears.Commands.CreateAcademicYear;
+using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Create;
 using SMS.Application.DTOs.Accademic.AcademicYears;
 using SMS.Domain.Entities.Academic;
 

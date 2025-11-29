@@ -1,4 +1,4 @@
-﻿using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
+﻿using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Domain.Entities.Identity;
 
 namespace SMS.Application.Services.Core.Students
