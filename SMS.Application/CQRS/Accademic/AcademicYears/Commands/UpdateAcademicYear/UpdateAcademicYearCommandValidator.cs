@@ -59,11 +59,11 @@ namespace SMS.Accademic.AcademicYears.Core.DeleteAcademicYear.Commands.UpdateStu
                     .WithMessage("The End Date must be after the Start Date.")
 
                 // Business Rule: Minimum Duration (at least 1 year / 365 days)
-                .Must((dto, endDate) => GetDateDifferenceInDays(dto.StartDate, endDate) >= 365)
-                    .WithMessage("The academic period must be at least one year (365 days) long.")
+                .Must((dto, endDate) => GetDateDifferenceInDays(dto.StartDate, endDate) >= 360)
+                    .WithMessage("The academic period must be at least one year (360 days) long.")
 
-                // Business Rule: Maximum Duration (less than or equal to 2 years / 730 days)
-                .Must((dto, endDate) => GetDateDifferenceInDays(dto.StartDate, endDate) <= 730)
+                // Business Rule: Maximum Duration (less than or equal to 2 years / 700 days)
+                .Must((dto, endDate) => GetDateDifferenceInDays(dto.StartDate, endDate) <= 700)
                     .WithMessage("The academic period duration cannot exceed 2 years.");
         }
     }

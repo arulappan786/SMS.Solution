@@ -5,8 +5,8 @@ namespace SMS.Domain.Interfaces.Repositories.Core
 {
     public interface IStudentRepository : IGenericRepository<Student>
     {
-        Task<(IEnumerable<Student> Items, int TotalCount)> GetAllPaginatedAsync(
-        int pageNumber, int pageSize, CancellationToken cancellationToken);
+        //Task<(IEnumerable<Student> Items, int TotalCount)> GetAllPaginatedAsync(
+        //int pageNumber, int pageSize, CancellationToken cancellationToken);
 
         /// <summary>
         /// To check if the same student code exists already.

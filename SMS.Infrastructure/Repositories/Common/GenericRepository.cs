@@ -2,6 +2,7 @@
 
 using SMS.Domain.Interfaces.Repositories.Common;
 using SMS.Infrastructure.Persistance.Context;
+using System.Linq.Expressions;
 
 namespace SMS.Infrastructure.Repositories.Common
 {
@@ -26,6 +27,40 @@ namespace SMS.Infrastructure.Repositories.Common
         public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await dbContext.Set<TEntity>().AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task<(IEnumerable<TEntity> Items, int TotalCount)> GetAllPaginatedAsync<TKey>(int pageNumber,
+                                                                                                   int pageSize,
+                                                                                                   Expression<Func<TEntity, TKey>> orderByExpression,
+                                                                                                   bool ascending = true,
+                                                                                                   CancellationToken cancellationToken = default)    
+        {
+            // Calculate how many records to skip
+            int skip = (pageNumber - 1) * pageSize;
+
+            // 1. Prepare the queryable
+            IQueryable<TEntity> query = dbContext.Set<TEntity>().AsNoTracking();
+
+            // 2. Get the total count
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            // 3. Apply ordering dynamically
+            if (ascending)
+            {
+                query = query.OrderBy(orderByExpression);
+            }
+            else
+            {
+                query = query.OrderByDescending(orderByExpression);
+            }
+
+            // 4. Apply pagination and retrieve items
+            var items = await query
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
 
         public async Task<TEntity?> GetAsync(Guid id, CancellationToken cancellationToken = default)

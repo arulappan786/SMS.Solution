@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SMS.Domain.Entities.Academic;
-using SMS.Domain.Entities.Core;
 using SMS.Domain.Interfaces.Repositories.Academic;
 using SMS.Infrastructure.Persistance.Context;
 using SMS.Infrastructure.Repositories.Common;
@@ -34,24 +33,24 @@ namespace SMS.Infrastructure.Repositories.Academic
             return isDuplicate;
         }
 
-        public async Task<(IEnumerable<AcademicYear> Items, int TotalCount)> GetAllPaginatedAsync(
-            int pageNumber, int pageSize, CancellationToken cancellationToken)
-        {
-            // Calculate how many records to skip
-            int skip = (pageNumber - 1) * pageSize;
+        //public async Task<(IEnumerable<AcademicYear> Items, int TotalCount)> GetAllPaginatedAsync(
+        //    int pageNumber, int pageSize, CancellationToken cancellationToken)
+        //{
+        //    // Calculate how many records to skip
+        //    int skip = (pageNumber - 1) * pageSize;
 
-            // 1. Get the total count (needed for pagination metadata)
-            var totalCount = await dbContext.AcademicYears.CountAsync(cancellationToken);
+        //    // 1. Get the total count (needed for pagination metadata)
+        //    var totalCount = await dbContext.AcademicYears.CountAsync(cancellationToken);
 
-            // 2. Retrieve the specific page of items
-            var items = await dbContext.AcademicYears
-                .AsNoTracking()
-                .OrderBy(s => s.Id) // Always apply ordering for consistent pagination
-                .Skip(skip)
-                .Take(pageSize)
-                .ToListAsync(cancellationToken);
+        //    // 2. Retrieve the specific page of items
+        //    var items = await dbContext.AcademicYears
+        //        .AsNoTracking()
+        //        .OrderBy(s => s.Id) // Always apply ordering for consistent pagination
+        //        .Skip(skip)
+        //        .Take(pageSize)
+        //        .ToListAsync(cancellationToken);
 
-            return (items, totalCount);
-        }
+        //    return (items, totalCount);
+        //}
     }
 }

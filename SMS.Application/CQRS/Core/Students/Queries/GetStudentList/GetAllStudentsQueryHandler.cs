@@ -13,7 +13,7 @@ namespace SMS.Application.CQRS.Core.Students.Queries.GetStudentList
         {
             // 1. Call Repository to get paged data and total count
             var (students, totalCount) = await studentRepository.GetAllPaginatedAsync(
-                request.PageNumber, request.PageSize, cancellationToken);
+                pageNumber: request.PageNumber, pageSize: request.PageSize, orderByExpression: s => s.StudentCode, cancellationToken: cancellationToken);
 
             // 2. Map the entities to DTOs
             var studentDtos = mapper.Map<IEnumerable<StudentDto>>(students);
