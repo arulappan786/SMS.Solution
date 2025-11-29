@@ -4,70 +4,56 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands
 {
     public class CreateAcademicYearCommandValidator : AbstractValidator<CreateAcademicYearCommand>
     {
+        // Define a constant for time conversion to ensure reusability
+        private static readonly TimeOnly Midnight = new TimeOnly(0, 0);
+
+        // Helper method to calculate TotalDays difference between two DateOnly objects
+        private static double GetDateDifferenceInDays(DateOnly startDate, DateOnly endDate)
+        {
+            // Convert to DateTime using a fixed TimeOnly (Midnight) for accurate day difference
+            var startDateTime = startDate.ToDateTime(Midnight);
+            var endDateTime = endDate.ToDateTime(Midnight);
+            return (endDateTime - startDateTime).TotalDays;
+        }
+
         public CreateAcademicYearCommandValidator()
         {
-            // --- 1. Name Validation ---
-
+            // --- 1. 🏷️ Academic Year Name Validation ---
             RuleFor(x => x.Name)
                 .NotEmpty()
                     .WithMessage("The Academic Year Name is required.")
                 .MaximumLength(20)
                     .WithMessage("The Academic Year Name must not exceed 20 characters.")
-                // Custom Rule: The Name must be derived from StartDate (YYYY) and EndDate (YYYY)
-                .Must((dto, name) =>
-                {
-                    // Calculate expected name: Start year to End year
-                    string expectedName = $"{dto.StartDate.Year}-{dto.EndDate.Year}";
-                    return name.Equals(expectedName, StringComparison.Ordinal);
-                })
-                    .WithMessage(dto => $"The Academic Year Name '{dto.Name}' must match the format derived from the dates: {dto.StartDate.Year}-{dto.EndDate.Year}.");
+                // Custom Rule: Name must match the expected 'YYYY-YYYY' format from the dates
+                .Must((dto, name) => name.Equals(
+                    $"{dto.StartDate.Year}-{dto.EndDate.Year}",
+                    StringComparison.Ordinal))
+                    .WithMessage(dto => $"The Name must match the date format: {dto.StartDate.Year}-{dto.EndDate.Year}.");
 
-
-            //RuleFor(x => x.Name)
-            //    .NotEmpty()
-            //        .WithMessage("The Academic Year Name is required.")
-            //    .MaximumLength(20)
-            //        .WithMessage("The Academic Year Name must not exceed 20 characters.")
-            //    // Example of a format validation (e.g., must be YYYY-YYYY)
-            //    .Matches(@"^\d{4}-\d{4}$")
-            //        .WithMessage("The Academic Year Name must be in the format 'YYYY-YYYY', e.g., 2024-2025.");
-
-            // --- 2. Date Validation (Sequencing and Time) ---
-
+            // --- 2. 🗓️ Date Range Validation: Start Date ---
             RuleFor(x => x.StartDate)
                 .NotEmpty()
                     .WithMessage("The Start Date is required.")
-                // Business Rule: Start Date should not be in the past (unless for historical data entry)
-                .Must(date => date.Date >= DateTime.Today.Date)
-                    .When(x => !x.IsCurrent) // Only enforce for non-historical/non-current entry if necessary
+                // Business Rule: Start Date cannot be in the past (unless for historical/current entry)
+                .Must(date => date >= DateOnly.FromDateTime(DateTime.Today))
+                    .When(x => !x.IsCurrent)
                     .WithMessage("The Start Date cannot be in the past.");
 
+            // --- 3. 📅 Date Range Validation: End Date (All EndDate rules chained here) ---
             RuleFor(x => x.EndDate)
                 .NotEmpty()
                     .WithMessage("The End Date is required.")
                 // Business Rule: EndDate must be strictly after StartDate
                 .GreaterThan(x => x.StartDate)
-                    .WithMessage("The End Date must be after the Start Date.");
+                    .WithMessage("The End Date must be after the Start Date.")
 
-            // Business Rule: Ensure the period is reasonable (e.g., must be less than 2 years)
-            RuleFor(x => x.EndDate)
-                .Must((dto, endDate) => (endDate - dto.StartDate).TotalDays <= 730) // Max 2 years
+                // Business Rule: Minimum Duration (at least 1 year / 365 days)
+                .Must((dto, endDate) => GetDateDifferenceInDays(dto.StartDate, endDate) >= 365)
+                    .WithMessage("The academic period must be at least one year (365 days) long.")
+
+                // Business Rule: Maximum Duration (less than or equal to 2 years / 730 days)
+                .Must((dto, endDate) => GetDateDifferenceInDays(dto.StartDate, endDate) <= 730)
                     .WithMessage("The academic period duration cannot exceed 2 years.");
-
-            // --- 3. IsCurrent Flag Validation ---
-
-            // While simple boolean checks are often sufficient, here is an example of a 
-            // business rule validation that might require further context from the database:
-
-            // RuleFor(x => x.IsCurrent)
-            //     .Must((dto, isCurrent) => 
-            //     {
-            //         // HYPOTHETICAL RULE: If the user sets IsCurrent to true, 
-            //         // we must ensure no other active year in the DB has IsCurrent = true.
-            //         // This check usually requires injecting a Repository/Service into the validator 
-            //         // or handling the uniqueness check in the Command Handler.
-            //         return true; // Simple boolean validation, no internal checks needed here
-            //     });
         }
     }
 }

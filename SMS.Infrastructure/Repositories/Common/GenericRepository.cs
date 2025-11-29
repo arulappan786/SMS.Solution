@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using SMS.Domain.Interfaces.Repositories.Common;
 using SMS.Infrastructure.Persistance.Context;
 
@@ -9,11 +10,13 @@ namespace SMS.Infrastructure.Repositories.Common
     {
         public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(entity);
             await dbContext.Set<TEntity>().AddAsync(entity, cancellationToken);
         }
 
         public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            if (id == Guid.Empty) throw new ArgumentNullException(nameof(id));
             var delEntity = await dbContext.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
             if (delEntity == null) return false;
             dbContext.Set<TEntity>().Remove(delEntity);
@@ -27,6 +30,7 @@ namespace SMS.Infrastructure.Repositories.Common
 
         public async Task<TEntity?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            if (id == Guid.Empty) throw new ArgumentNullException(nameof(id));
             return await dbContext.Set<TEntity>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id), cancellationToken);
@@ -34,9 +38,11 @@ namespace SMS.Infrastructure.Repositories.Common
 
         public async Task<bool> UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
         {
+            if (id == Guid.Empty) throw new ArgumentNullException(nameof(id));           
+            ArgumentNullException.ThrowIfNull(entity);
             var upEntity = await dbContext.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
             if (upEntity == null) return false;
-            dbContext.Entry(upEntity).CurrentValues.SetValues(entity);
+            dbContext.Entry(upEntity).CurrentValues.SetValues(entity);            
             return true;
         }
     }

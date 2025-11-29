@@ -11,6 +11,7 @@ namespace SMS.Infrastructure.Repositories.Core
     {
         public async Task<bool> ExistsByStudentCodeAsync(string studentCode, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(studentCode, nameof(studentCode));
             return await dbContext.Students
                 .AsNoTracking()
                 .AnyAsync(s => s.StudentCode == studentCode, cancellationToken);
@@ -39,6 +40,7 @@ namespace SMS.Infrastructure.Repositories.Core
 
         public async Task<Student?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(email, nameof(email));
             return await dbContext.Students
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Email == email, cancellationToken);

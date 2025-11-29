@@ -6,8 +6,9 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands
     public class CreateAcademicYearCommand : IRequest<ServiceResponse>
     {
         public required string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public bool IsCurrent { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public bool IsCurrent => StartDate <= DateOnly.FromDateTime(DateTime.Today) &&
+                          EndDate >= DateOnly.FromDateTime(DateTime.Today);
     }
 }

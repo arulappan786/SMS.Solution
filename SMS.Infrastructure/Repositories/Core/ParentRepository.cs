@@ -11,18 +11,21 @@ namespace SMS.Infrastructure.Repositories.Core
     {
         public async Task<Parent?> GetByContactNumberAsync(string phoneNumber)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(phoneNumber, nameof(phoneNumber));
             return await dbContext.Parents.AsNoTracking()
                                .FirstOrDefaultAsync(p => p.PrimaryPhone == phoneNumber);
         }
 
         public async Task<Parent?> GetByIdentityIdAsync(Guid userId)
         {
+            if(userId == Guid.Empty) throw new ArgumentNullException(nameof(userId));
             return await dbContext.Parents.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.UserId == userId);
         }
 
         public async Task<IEnumerable<Parent>> GetByStudentIdAsync(Guid studentId)
         {
+            if (studentId == Guid.Empty) throw new ArgumentNullException(nameof(studentId));
             return await dbContext.Parents.AsNoTracking()
                                .Where(p => p.StudentParents.Any(s => s.StudentId == studentId))
                                .ToListAsync();

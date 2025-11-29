@@ -11,6 +11,7 @@ namespace SMS.Infrastructure.Repositories.Core
     {
         public async Task<Teacher?> GetByEmailAsync(string email)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(email, nameof(email));
             return await dbContext.Teachers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Email == email);
@@ -18,6 +19,7 @@ namespace SMS.Infrastructure.Repositories.Core
 
         public async Task<Teacher?> GetByTeacherCodeAsync(string teacherCode)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(teacherCode, nameof(teacherCode));
             return await dbContext.Teachers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.TeacherCode == teacherCode);
