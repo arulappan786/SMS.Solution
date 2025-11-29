@@ -23,11 +23,8 @@ namespace SMS.Application.Mappings.Core
                             src.StudentCode!,
                             DateTime.UtcNow));
 
-            // Read
-            //CreateMap<Student, StudentDto>();
-            // Define the mapping from the source entity (Student) to the destination record (StudentDto)
+            // Read           
             CreateMap<Student, StudentDto>()
-                // This tells AutoMapper exactly which constructor to call and what arguments to pass
                 .ConstructUsing(src =>
                 new StudentDto(
                     src.Id,              // Assuming the entity's ID maps to StudentId
@@ -37,23 +34,6 @@ namespace SMS.Application.Mappings.Core
                     src.HomeAddress,   // Maps the Address Value Object
                     src.DateOfBirth,
                     src.Gender.ToString(),
-                    src.Email,
-                    src.StudentCode,
-                    src.EnrollmentDate
-                ));
-
-            // Update
-            CreateMap<UpdateStudentDto, Student>()
-                // This tells AutoMapper exactly which constructor to call and what arguments to pass
-                .ConstructUsing(src =>
-                new Student(
-                    src.StudentId,
-                    src.UserId,
-                    src.CurrentClassId,
-                    src.FullName,
-                    src.HomeAddress,
-                    src.DateOfBirth,
-                    src.Gender,
                     src.Email,
                     src.StudentCode,
                     src.EnrollmentDate

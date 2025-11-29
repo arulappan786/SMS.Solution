@@ -31,7 +31,6 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update
                 accademicYearToUpdate.StartDate = request.StartDate ?? accademicYearToUpdate.StartDate;
                 accademicYearToUpdate.EndDate = request.EndDate ?? accademicYearToUpdate.EndDate;
 
-
                 // 3. Update the repository (often unnecessary if entity is tracked, but good practice)
                 await repository.UpdateAsync(request.Id, accademicYearToUpdate, cancellationToken);
 
