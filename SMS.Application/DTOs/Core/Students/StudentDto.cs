@@ -1,5 +1,4 @@
-﻿using SMS.Domain.Enums;
-using SMS.Domain.ValueObjects;
+﻿using SMS.Domain.ValueObjects;
 
 namespace SMS.Application.DTOs.Core.Students
 {
@@ -8,7 +7,7 @@ namespace SMS.Application.DTOs.Core.Students
                              Guid CurrentClassId,
                              FullName FullName,
                              Address HomeAddress,
-                             DateTime DateOfBirth,
+                             DateOnly DateOfBirth,
                              string Gender,
                              string Email,
                              string StudentCode,

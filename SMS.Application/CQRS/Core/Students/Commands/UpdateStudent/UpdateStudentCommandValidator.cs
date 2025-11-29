@@ -1,11 +1,16 @@
 ﻿using FluentValidation;
 
-namespace SMS.Application.CQRS.Core.Students.Commands.CreateStudent
+namespace SMS.Application.CQRS.Core.Students.Commands.UpdateStudent
 {
-    public class CreateStudentCommandValidator : AbstractValidator<CreateStudentCommand>
+    public class UpdateStudentCommandValidator : AbstractValidator<UpdateStudentCommand>
     {
-        public CreateStudentCommandValidator()
+        public UpdateStudentCommandValidator()
         {
+            // 1. ID Validation (Essential)
+            RuleFor(x => x.Id)
+                .NotEmpty()
+                .WithMessage("The Student ID is required for updating the record.");
+
             // 1. FullName (Assuming FullName is a Value Object with FirstName and LastName)
             RuleFor(x => x.FullName).NotNull().WithMessage("Full name is required.");
 

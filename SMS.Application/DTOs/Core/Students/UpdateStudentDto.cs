@@ -8,7 +8,7 @@ namespace SMS.Application.DTOs.Core.Students
                                    Guid CurrentClassId,
                                    FullName FullName,
                                    Address HomeAddress,
-                                   DateTime DateOfBirth,
+                                   DateOnly DateOfBirth,
                                    Gender Gender,
                                    string Email,
                                    string StudentCode,

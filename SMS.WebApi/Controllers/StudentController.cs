@@ -1,12 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SMS.Application.CQRS.Core.Students.Commands.CreateStudent;
-using SMS.Application.CQRS.Core.Students.Queries.GetStudentList;
+using SMS.Application.CQRS.Core.Students.Commands.DeleteStudent;
+using SMS.Application.CQRS.Core.Students.Commands.UpdateStudent;
 using SMS.Application.CQRS.Core.Students.Queries.GetStudentById;
+using SMS.Application.CQRS.Core.Students.Queries.GetStudentList;
 using SMS.Application.DTOs.Common;
+using SMS.Application.DTOs.Core.Students;
 using SMS.Application.DTOs.Service;
 using System.Net;
-using SMS.Application.DTOs.Core.Students;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -57,6 +59,73 @@ public class StudentController(IMediator mediator) : ControllerBase
         else
         {
             // Consistent: Return 400 Bad Request with the ServiceResponse.
+            return BadRequest(serviceResponse);
+        }
+    }
+
+    // --- COMMAND: Update Student ---
+
+    [HttpPut("{id}")] // Use HTTP PUT for full resource replacement/update
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)] // Added for clarity
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStudentCommand command)
+    {
+        // 1. Ensure the ID in the route matches the ID in the command body
+        if (id != command.Id)
+        {
+            return BadRequest(new ServiceResponse { Success = false, Message = "ID mismatch: The ID in the route does not match the ID in the request body." });
+        }
+
+        // 2. Send the command to MediatR
+        var serviceResponse = await mediator.Send(command);
+
+        if (serviceResponse.Success)
+        {
+            // Consistent: Return 200 OK on successful update.
+            return Ok(serviceResponse);
+        }
+        else
+        {
+            // Check for NotFound message from the handler
+            if (serviceResponse.Message.Contains("not found", System.StringComparison.OrdinalIgnoreCase))
+            {
+                // Return 404 Not Found if the record doesn't exist.
+                return NotFound(serviceResponse);
+            }
+
+            // Consistent: Return 400 Bad Request for validation or other business rule failures.
+            return BadRequest(serviceResponse);
+        }
+    }
+
+
+    // --- COMMAND: Delete Student ---
+
+    [HttpDelete("{id}")] // Use HTTP DELETE
+    [ProducesResponseType((int)HttpStatusCode.NoContent)] // 204 No Content is standard for successful deletion
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var command = new DeleteStudentCommand { Id = id };
+
+        var serviceResponse = await mediator.Send(command);
+
+        if (serviceResponse.Success)
+        {
+            // Standard REST practice: 204 No Content on successful deletion
+            return NoContent();
+        }
+        else
+        {
+            // Check for NotFound message from the handler
+            if (serviceResponse.Message.Contains("not found", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return NotFound(serviceResponse);
+            }
+
+            // Return 400 Bad Request for validation errors or unexpected failures
             return BadRequest(serviceResponse);
         }
     }

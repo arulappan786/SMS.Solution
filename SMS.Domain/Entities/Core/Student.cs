@@ -21,7 +21,7 @@ namespace SMS.Domain.Entities.Core
         public FullName FullName { get; private set; }
         public Address HomeAddress { get; private set; }
 
-        public DateTime DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
         public Gender Gender { get; set; }
 
         public required string Email { get; set; }
@@ -51,7 +51,7 @@ namespace SMS.Domain.Entities.Core
                        Guid? currentClassId,
                        FullName fullName,
                        Address homeAddress,
-                       DateTime dateOfBirth,
+                       DateOnly dateOfBirth,
                        Gender gender,
                        string email,
                        string studentCode,
@@ -69,8 +69,12 @@ namespace SMS.Domain.Entities.Core
 
             // 3. Validation for DateOfBirth
             // Assuming a minimum age of 3 years is required for enrollment
-            if (dateOfBirth == default || dateOfBirth.AddYears(3) > DateTime.Today)
-                throw new ArgumentException("Date of Birth is invalid or the student is too young for enrollment (minimum 3 years old).", nameof(dateOfBirth));
+            if (dateOfBirth == default ||
+                // FIX: Compare the DateOnly result with the current DateOnly (DateOnly.FromDateTime(DateTime.Today))
+                dateOfBirth.AddYears(3) > DateOnly.FromDateTime(DateTime.Today))
+            {
+                throw new ArgumentException("Date of Birth is invalid or does not meet the minimum age requirement.", nameof(dateOfBirth));
+            }
 
             // 4. Validation for Email
             if (string.IsNullOrWhiteSpace(email))
@@ -111,9 +115,23 @@ namespace SMS.Domain.Entities.Core
         public ICollection<Attendance.Attendance> AttendanceRecords { get; set; } = new List<Attendance.Attendance>();
         public ICollection<Grade> Grades { get; set; } = new List<Grade>();
 
-        public void UpdateHomeAddress(Address newAddress)
+        public void UpdatePersonalInfo(FullName newFullName, DateOnly newDateOfBirth, Gender newGender, string newEmail)
         {
-            HomeAddress = newAddress ?? throw new ArgumentNullException(nameof(newAddress));
+            // Apply domain rules or validation here if necessary
+
+            // The private setter is accessible within the class
+            this.FullName = newFullName;
+            this.DateOfBirth = newDateOfBirth;
+            this.Gender = newGender;
+            this.Email = newEmail;
+
+            // NOTE: The LastUpdatedDate/By fields are handled automatically by the DbContext (Auditing).
+        }
+
+        public void ChangeAddress(Address newAddress)
+        {
+            // The private setter is accessible within the class
+            this.HomeAddress = newAddress;
         }
     }
 }
