@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SMS.Application.DTOs.Service;
 
-namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands
+namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.CreateAcademicYear
 {
     public class CreateAcademicYearCommand : IRequest<ServiceResponse>
     {

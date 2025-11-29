@@ -8,7 +8,7 @@ using SMS.Domain.Entities.Academic;
 using SMS.Domain.Interfaces.Repositories.Academic;
 using SMS.Domain.Interfaces.Repositories.Common;
 
-namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands
+namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.CreateAcademicYear
 {
     public class CreateAcademicYearCommandHandler(IAcademicYearRepository repository,
                                                   IUnitOfWork unitOfWork,

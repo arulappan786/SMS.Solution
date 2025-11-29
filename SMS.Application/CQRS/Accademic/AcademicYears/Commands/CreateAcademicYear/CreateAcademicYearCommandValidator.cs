@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands
+namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.CreateAcademicYear
 {
     public class CreateAcademicYearCommandValidator : AbstractValidator<CreateAcademicYearCommand>
     {

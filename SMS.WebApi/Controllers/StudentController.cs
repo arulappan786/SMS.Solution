@@ -33,7 +33,7 @@ public class StudentController(IMediator mediator) : ControllerBase
     [ProducesResponseType((int)HttpStatusCode.NotFound)] // Best handled by global filter
     public async Task<IActionResult> Get(Guid id)
     {
-        var query = new GetStudentByIdQuery { StudentId = id };
+        var query = new GetStudentByIdQuery { Id = id };
         var student = await mediator.Send(query);
 
         // If global exception handling is NOT used, keep this check:
