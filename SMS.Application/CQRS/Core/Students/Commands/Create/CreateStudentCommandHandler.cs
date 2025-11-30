@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Hangfire;
 using MediatR;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
+using SMS.Application.Services.Jobs;
 using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;
@@ -103,9 +105,21 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 }
 
                 // --- 8. Decoupled Actions (Email) ---
-                // NOTE: Email sending logic should be triggered by a Domain Event or background job
-                // to avoid blocking the API and improve reliability. We log its state here.
-                logger.LogInfo($"Student {request.Email} successfully onboarded. Email notification process initiated.");
+                try
+                {
+                    logger.LogInfo("Enqueuing welcome email job via Hangfire.");
+                    
+                    // The key line: Hangfire finds the EmailJobService via DI later.
+                    BackgroundJob.Enqueue<IEmailJobService>(job => 
+                        job.SendWelcomeEmailAsync(request.Email, $"Welcome {request.FullName}", newPassword, true));
+
+                    logger.LogInfo($"Welcome email job successfully enqueued for {request.Email}.");
+                }
+                catch (Exception ex)
+                {
+                    // Log fatal error if Hangfire can't even enqueue the job (DB connection, serialization issue)
+                    logger.LogCritical(ex, $"FATAL: Could not enqueue email job for {request.Email}. Manual intervention required.");
+                }
 
                 // --- 9. Success ---
                 return ServiceResponse.Success(

@@ -1,10 +1,12 @@
+using Hangfire;
+using Hangfire.SqlServer;
 using Serilog;
 using SMS.Application;
 using SMS.Infrastructure;
 using SMS.Infrastructure.Persistence.Seeders;
 
 // --------------------------------------------------------------------------------
-// ASP.NET Core Host Initialization
+// I. HOST INITIALIZATION & CONFIGURATION
 // --------------------------------------------------------------------------------
 
 // Initializes a new instance of the WebApplicationBuilder, which is the starting point
@@ -38,7 +40,7 @@ Log.Information("Starting application...");
 builder.Host.UseSerilog();
 
 // --------------------------------------------------------------------------------
-// 2. Dependency Injection / Service Registration (Composition Root)
+// II. SERVICE REGISTRATION (Dependency Injection)
 // --------------------------------------------------------------------------------
 
 // Logs the intent to register services for clarity in the startup logs.
@@ -61,6 +63,25 @@ builder.Services.AddControllers();
 
 // Registers the required services for Swagger/OpenAPI generation.
 builder.Services.AddSwaggerGen();
+
+// --- Hangfire Background Job Setup ---
+var hangfireConnectionString = builder.Configuration.GetConnectionString("HangfireConnection");
+
+// Registers Hangfire services and configures the SQL Server storage provider.
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseSqlServerStorage(hangfireConnectionString, new SqlServerStorageOptions
+    {
+        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+        QueuePollInterval = TimeSpan.Zero, // Poll continuously
+        UseRecommendedIsolationLevel = true,
+        DisableGlobalLocks = true // Optimization for modern SQL Server
+    })
+);
+
+// Registers the Hangfire background worker process (the component that executes the jobs).
+builder.Services.AddHangfireServer();
 
 // --------------------------------------------------------------------------------
 // 3. CORS Configuration
@@ -88,7 +109,7 @@ builder.Services.AddCors(options =>
 });
 
 // --------------------------------------------------------------------------------
-// 4. Application Build and Middleware Pipeline Setup
+// III. APPLICATION BUILD AND RUNTIME PIPELINE
 // --------------------------------------------------------------------------------
 
 // Starts a global exception block to catch critical startup failures.
@@ -108,6 +129,13 @@ try
     await app.SeedDatabaseAsync();
 
     // --- Middleware Pipeline ---
+
+    // Configures the Hangfire Dashboard UI (Web Interface)
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        // Restrict access to administrators only in a real app!
+        // Authorization = new[] { new HangfireAuthorizationFilter() } 
+    });
 
     // Adds the CORS middleware to the pipeline, applying the default policy defined above.
     app.UseCors();
@@ -140,7 +168,7 @@ try
 catch (Exception ex)
 {
     // Logs a fatal error message and the exception details using the static Serilog logger.
-    Log.Fatal(ex, "Applicaiton terminated unexpectedly during startup.");
+    Log.Fatal(ex, "Application terminated unexpectedly during startup.");
 }
 // Ensures this block executes regardless of whether an exception was thrown.
 finally

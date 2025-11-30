@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Identity;
+using SMS.Application.Services.Jobs;
 using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories.Academic;
@@ -17,6 +18,7 @@ using SMS.Infrastructure.Repositories.Core;
 using SMS.Infrastructure.Services.Common;
 using SMS.Infrastructure.Services.Core.Students;
 using SMS.Infrastructure.Services.Identity;
+using SMS.Infrastructure.Services.Jobs;
 using SMS.Infrastructure.Services.Logging;
 
 namespace SMS.Infrastructure
@@ -71,7 +73,8 @@ namespace SMS.Infrastructure
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IRoleManagementService, RoleManagementService>();
             services.AddScoped<ITokenManagementService, TokenManagementService>();
-            
+
+            services.AddScoped<IEmailJobService, EmailJobService>();
 
             return services;
         }
