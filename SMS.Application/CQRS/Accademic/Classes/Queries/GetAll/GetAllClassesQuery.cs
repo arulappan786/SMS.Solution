@@ -4,7 +4,7 @@ using SMS.Application.DTOs.Common;
 
 namespace SMS.Application.CQRS.Accademic.Classes.Queries.GetAll
 {
-    public class GetAllClasssesQuery : PaginationQuery, IRequest<PaginatedResultDto<ClassesDto>>
+    public class GetAllClassesQuery : PaginationQuery, IRequest<PaginatedResultDto<ClassesDto>>
     {
 
     }

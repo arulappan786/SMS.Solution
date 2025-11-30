@@ -18,5 +18,12 @@ namespace SMS.Application.Services.Identity
         Task<bool> CreateUserWithTransactionAsync(AppUser user, string password, IDbContextTransaction transaction);
 
         Task<IdentityResult> LinkStudentProfileToUserAsync(AppUser user, Guid studentProfileId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Deletes the user from the identity store.
+        /// </summary>
+        /// <param name="user">The AppUser entity to be deleted.</param>
+        /// <returns>IdentityResult indicating success or failure of the deletion.</returns>
+        Task<IdentityResult> DeleteUserAsync(AppUser user);
     }
 }

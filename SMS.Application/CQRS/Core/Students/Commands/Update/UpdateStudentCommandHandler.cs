@@ -8,52 +8,67 @@ using SMS.Domain.Interfaces.Repositories.Core;
 namespace SMS.Application.CQRS.Core.Students.Commands.Update
 {
     public class UpdateStudentCommandHandler(IStudentRepository repository,
-            IUnitOfWork unitOfWork,
-            IAppLogger<UpdateStudentCommandHandler> logger) : IRequestHandler<UpdateStudentCommand, ServiceResponse>
+                                             IUnitOfWork unitOfWork,
+                                             IAppLogger<UpdateStudentCommandHandler> logger)
+        : IRequestHandler<UpdateStudentCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(UpdateStudentCommand request, CancellationToken cancellationToken)
         {
+            logger.LogInfo($"Starting student update for ID: {request.Id}");
+
             try
             {
-                logger.LogInfo($"Starting student update for ID: {request.Id}");
-
                 // 1. Retrieve the existing entity
                 var studentToUpdate = await repository.GetAsync(request.Id, cancellationToken);
 
                 if (studentToUpdate == null)
                 {
-                    return new ServiceResponse { Succeeded = false, Message = $"Student with ID {request.Id} not found."};
+                    logger.LogWarning($"Student update failed: ID {request.Id} not found.");
+                    // Use ServiceResponse.Failure for Not Found
+                    return ServiceResponse.Failure($"Student with ID {request.Id} not found.");
                 }
 
                 // 2. Apply updates from the command to the entity
-                // Use the entity methods to trigger the state change
-                studentToUpdate.UpdatePersonalInfo(request.FullName ?? studentToUpdate.FullName,
-                                                   request.DateOfBirth ?? studentToUpdate.DateOfBirth,
-                                                   request.Gender ?? studentToUpdate.Gender,
-                                                   request.Email ?? studentToUpdate.Email);
+                // The null-coalescing operator (??) ensures properties are updated only if provided in the request.
+                // NOTE: This assumes FullName, DateOfBirth, Gender, and Email are nullable in the UpdateStudentCommand.
+                studentToUpdate.UpdatePersonalInfo(
+                    request.FullName ?? studentToUpdate.FullName,
+                    request.DateOfBirth ?? studentToUpdate.DateOfBirth,
+                    request.Gender ?? studentToUpdate.Gender,
+                    request.Email ?? studentToUpdate.Email);
+
                 studentToUpdate.ChangeAddress(request.HomeAddress ?? studentToUpdate.HomeAddress);
 
-                // 3. Update the repository (often unnecessary if entity is tracked, but good practice)
-                await repository.UpdateAsync(request.Id, studentToUpdate, cancellationToken);
+                // 3. Update the repository (optional but good practice)
+                // Note: Changed to pass the entity as the repository should handle tracking efficiently.
+                await repository.UpdateAsync(studentToUpdate.Id, studentToUpdate, cancellationToken);
 
                 // 4. Commit transaction
                 await unitOfWork.CommitAsync(cancellationToken);
 
                 logger.LogInfo($"Successfully updated student: {request.Id}");
 
-                return new ServiceResponse { Succeeded = true, Message = $"Student '{request.FullName}' was successfully updated." };
+                // Use ServiceResponse.Success
+                return ServiceResponse.Success(
+                    $"Student '{studentToUpdate.FullName.FirstName} {studentToUpdate.FullName.LastName}' was successfully updated.",
+                    new { StudentId = studentToUpdate.Id } // Return updated ID
+                );
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                // Handle concurrency conflicts (e.g., another user updated the record simultaneously)
+                // Handle concurrency conflicts
                 logger.LogError(ex, $"Concurrency error during update of Student ID: {request.Id}");
-                return new ServiceResponse { Succeeded = false, Message = $"The record you are trying to update has been modified by another user. Please refresh and try again." };
+
+                // Use ServiceResponse.Failure
+                return ServiceResponse.Failure("The record you are trying to update has been modified by another user. Please refresh and try again.");
             }
             catch (Exception ex)
             {
                 // Log all other unexpected errors
                 logger.LogError(ex, $"Error occurred while updating Student ID: {request.Id}");
-                return new ServiceResponse { Succeeded = false, Message = $"An unexpected error occurred during the student update process." };
+
+                // Use ServiceResponse.Failure
+                return ServiceResponse.Failure("An unexpected error occurred during the student update process. Please contact support.");
             }
         }
     }

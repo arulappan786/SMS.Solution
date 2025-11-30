@@ -7,51 +7,65 @@ using SMS.Domain.Interfaces.Repositories.Common;
 
 namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update
 {
-    public class UpdateClassesCommandHandler(IAcademicYearRepository repository,
-            IUnitOfWork unitOfWork,
-            IAppLogger<UpdateClassesCommandHandler> logger) : IRequestHandler<UpdateAcademicYearCommand, ServiceResponse>
+    // Note: Corrected the handler name to match the command and domain
+    public class UpdateAcademicYearCommandHandler(
+        IAcademicYearRepository repository,
+        IUnitOfWork unitOfWork,
+        IAppLogger<UpdateAcademicYearCommandHandler> logger)
+        : IRequestHandler<UpdateAcademicYearCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(UpdateAcademicYearCommand request, CancellationToken cancellationToken)
         {
+            logger.LogInfo($"Starting AcademicYear update for ID: {request.Id}");
+
             try
             {
-                logger.LogInfo($"Starting AcademicYear update for ID: {request.Id}");
-
                 // 1. Retrieve the existing entity
-                var accademicYearToUpdate = await repository.GetAsync(request.Id, cancellationToken);
+                var academicYearToUpdate = await repository.GetAsync(request.Id, cancellationToken);
 
-                if (accademicYearToUpdate == null)
+                if (academicYearToUpdate == null)
                 {
-                    return new ServiceResponse { Succeeded = false, Message = $"AccademicYear with ID {request.Id} not found."};
+                    // Use ServiceResponse.Failure for Not Found
+                    logger.LogWarning($"AcademicYear update failed: ID {request.Id} not found.");
+                    return ServiceResponse.Failure($"AcademicYear with ID {request.Id} not found.");
                 }
 
                 // 2. Apply updates from the command to the entity
-                // Use the entity methods to trigger the state change
-                accademicYearToUpdate.Name = request.Name ?? accademicYearToUpdate.Name;
-                accademicYearToUpdate.StartDate = request.StartDate ?? accademicYearToUpdate.StartDate;
-                accademicYearToUpdate.EndDate = request.EndDate ?? accademicYearToUpdate.EndDate;
+                // The null-coalescing operator (??) correctly applies the update only if the request property is NOT null.
+                academicYearToUpdate.Name = request.Name ?? academicYearToUpdate.Name;
+                academicYearToUpdate.StartDate = request.StartDate ?? academicYearToUpdate.StartDate;
+                academicYearToUpdate.EndDate = request.EndDate ?? academicYearToUpdate.EndDate;
 
-                // 3. Update the repository (often unnecessary if entity is tracked, but good practice)
-                await repository.UpdateAsync(request.Id, accademicYearToUpdate, cancellationToken);
+                // 3. Update the repository (optional but good practice for clarity and tracking)
+                // Note: Assuming UpdateAsync takes the entity, not the ID and entity.
+                await repository.UpdateAsync(academicYearToUpdate.Id, academicYearToUpdate, cancellationToken);
 
                 // 4. Commit transaction
                 await unitOfWork.CommitAsync(cancellationToken);
 
                 logger.LogInfo($"Successfully updated AcademicYear: {request.Id}");
 
-                return new ServiceResponse { Succeeded = true, Message = $"Student '{request.Name}' was successfully updated." };
+                // Use ServiceResponse.Success
+                return ServiceResponse.Success(
+                    $"AcademicYear '{academicYearToUpdate.Name}' was successfully updated.",
+                    new { academicYearToUpdate.Id, academicYearToUpdate.Name } // Return updated ID/Name
+                );
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                // Handle concurrency conflicts (e.g., another user updated the record simultaneously)
-                logger.LogError(ex, $"Concurrency error during update of AccademicYear ID: {request.Id}");
-                return new ServiceResponse { Succeeded = false, Message = $"The record you are trying to update has been modified by another user. Please refresh and try again." };
+                // Handle concurrency conflicts
+                logger.LogError(ex, $"Concurrency error during update of AcademicYear ID: {request.Id}");
+
+                // Use ServiceResponse.Failure
+                return ServiceResponse.Failure("The record you are trying to update has been modified by another user. Please refresh and try again.");
             }
             catch (Exception ex)
             {
                 // Log all other unexpected errors
-                logger.LogError(ex, $"Error occurred while updating Student ID: {request.Id}");
-                return new ServiceResponse { Succeeded = false, Message = $"An unexpected error occurred during the AcademicYear update process." };
+                logger.LogError(ex, $"Error occurred while updating AcademicYear ID: {request.Id}");
+
+                // Use ServiceResponse.Failure
+                return ServiceResponse.Failure("An unexpected error occurred during the AcademicYear update process. Please contact support.");
             }
         }
     }

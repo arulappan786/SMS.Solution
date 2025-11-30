@@ -3,9 +3,7 @@ using MediatR;
 
 namespace SMS.Application.Validations
 {
-    public class ValidationBehavior<TRequest, TResponse>
-    : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
     {
         private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -14,10 +12,9 @@ namespace SMS.Application.Validations
             _validators = validators;
         }
 
-        public async Task<TResponse> Handle(
-            TRequest request,
-            RequestHandlerDelegate<TResponse> next,
-            CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(TRequest request,
+                                            RequestHandlerDelegate<TResponse> next,
+                                            CancellationToken cancellationToken)
         {
             var context = new ValidationContext<TRequest>(request);
 

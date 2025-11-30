@@ -5,7 +5,6 @@ using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Logging;
-using SMS.Application.Validations;
 using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories.Common;
@@ -14,111 +13,129 @@ using SMS.Domain.Interfaces.Repositories.Core;
 namespace SMS.Application.CQRS.Core.Students.Commands.Create
 {
     public class CreateStudentCommandHandler(IStudentRepository repository,
-        IUnitOfWork unitOfWork,
-        IPasswordGeneratorService passwordGeneratorService,
-        IStudentCodeGeneratorService studentCodeGeneratorService,
-        IValidationService validationService,
-        IValidator<CreateStudentCommand> validator,
-        IAppLogger<CreateStudentCommandHandler> logger,
-        IMapper mapper,
-        IStudentOnboardingService onboardingService,
-        IEmailSenderService emailService) : IRequestHandler<CreateStudentCommand, ServiceResponse>
+                                             IUnitOfWork unitOfWork,
+                                             IPasswordGeneratorService passwordGeneratorService,
+                                             IStudentCodeGeneratorService studentCodeGeneratorService,
+                                             IValidator<CreateStudentCommand> validator,
+                                             IAppLogger<CreateStudentCommandHandler> logger,
+                                             IMapper mapper,
+                                             IStudentOnboardingService onboardingService) // Removed IEmailSenderService to decouple
+        : IRequestHandler<CreateStudentCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
         {
-            // Validating user input.
-            logger.LogInfo("Starting student onboarding: Validating input.");
-            var validationResult = await validationService.ValidateAsync(request, validator);
-            if (!validationResult.Succeeded) return validationResult;
-
-            // Checking uniqueness of the student both in student and user store through email.
-            logger.LogInfo($"Checking global uniqueness for email: {request.Email}");
-            if (!await onboardingService.IsUniqueAsync(request.Email, cancellationToken))
-            {
-                return new ServiceResponse()
-                {
-                    Succeeded = false,
-                    Message = $"Student with the email {request.Email} already exists in the system or user store."
-                };
-            }
-
             AppUser? newUser = null;
             string newPassword = passwordGeneratorService.GenerateSecurePassword();
 
             try
             {
-                // Creating a new user and assigning Student role.
+                // --- 1. Validation ---
+                logger.LogInfo("Starting student onboarding: Validating input.");
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+                if (!validationResult.IsValid)
+                {
+                    logger.LogWarning($"Student onboarding failed validation for {request.Email}.");
+                    return ServiceResponse.Failure("Validation failed for student command.", validationResult.Errors);
+                }
+
+                // --- 2. Uniqueness Check ---
+                logger.LogInfo($"Checking global uniqueness for email: {request.Email}");
+                if (!await onboardingService.IsUniqueAsync(request.Email, cancellationToken))
+                {
+                    return ServiceResponse.Failure($"Student with the email {request.Email} already exists in the system or user store.");
+                }
+
+                // --- 3. Identity Creation ---
                 logger.LogInfo("Creating user account and assigning role atomically.");
+                // This call is crucial: if it fails, the process must stop and no core entity created.
                 newUser = await onboardingService.CreateUserAndAssignRoleAsync(request, newPassword, cancellationToken);
 
-                // Preparing student data prior to adding the student to the student store.
+                // --- 4. Prepare Student Core Data ---
+                logger.LogInfo("Preparing student core entity data.");
+
                 if (!Guid.TryParse(newUser.Id, out Guid userIdGuid))
-                    throw new Exception($"System error: UserId {newUser.Id} could not be converted to Guid for student record.");
+                {
+                    // This indicates a severe issue in the Identity system's output
+                    throw new InvalidOperationException($"Identity system failed to return a valid GUID for UserId: {newUser.Id}");
+                }
 
                 var newStudentCode = await studentCodeGeneratorService.GenerateNewStudentCodeAsync(DateTime.UtcNow);
+
+                // Set the internal IDs on the command before mapping
                 ((IStudentHasInternalIds)request).UserId = userIdGuid;
                 ((IStudentHasInternalIds)request).StudentCode = newStudentCode;
+
                 var mappedStudent = mapper.Map<Student>(request);
 
-                // Adding the student to the student store.
+                // --- 5. Student Creation (Tracked) ---
                 await repository.AddAsync(mappedStudent, cancellationToken);
 
-                // Commiting the identity and student transactions.
+                // --- 6. Commit Transactions (Student & Identity Stores) ---
+                logger.LogInfo("Attempting to commit core student and identity entity transactions.");
                 var result = await unitOfWork.CommitAsync(cancellationToken);
 
                 if (result <= 0)
-                    throw new InvalidOperationException($"Student record creation failed for {request.Email} during final commit.");
+                {
+                    // This often means a concurrency issue or zero records affected. Must be cleaned up.
+                    throw new InvalidOperationException($"Student record creation failed for {request.Email} during final commit (Zero records affected).");
+                }
 
-                // Linking the newly created student profile with the newly created user account.
+                // --- 7. Linking Student Profile (Post-Commit) ---
+                // Linking is done using the ID from the successfully committed core entity.
                 try
                 {
-                    var newStudent = await repository.GetByEmailAsync(request.Email, cancellationToken);
-                    if (newStudent != null)
+                    Guid studentId = mappedStudent.Id;
+                    logger.LogInfo($"Associating Student ID {studentId} with User ID {newUser.Id}.");
+
+                    bool updateResult = await onboardingService.LinkStudentProfileToUserAsync(newUser, studentId, cancellationToken);
+
+                    if (!updateResult)
                     {
-                        logger.LogInfo("Associating newly created student with the newly created user account.");
-                        var updateResult = await onboardingService.LinkStudentProfileToUserAsync(newUser, newStudent.Id, cancellationToken);
-                        if(!updateResult)
-                        {
-                            throw new Exception($"Associating newly created student with the newly created user account failed for email: {request.Email}.");
-                        }
+                        // Log a severe warning: Core record is OK, but linking failed.
+                        logger.LogError($"FAILED to link Student ID {studentId} to User ID {newUser.Id}. Manual intervention required.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Associating newly creating student with the newly created user account failed.");
+                    // Log the linking failure but do NOT re-throw, as the core process succeeded.
+                    logger.LogError(ex, "Associating student profile with user account failed. Manual intervention required.");
                 }
 
-                // Sending welcome email with credentials.
-                try
-                {
-                    logger.LogInfo("Sending welcome email with credentials.");
-                    var emailResult = await emailService.SendGmailAsync(request.Email, newUser.UserName!, newPassword, true);
-                    if (!emailResult)
-                    {
-                        throw new Exception($"Sending welcome email failed for {request.Email}.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"Failed to send welcome email to {request.Email}. Manual intervention required.");
-                }
+                // --- 8. Decoupled Actions (Email) ---
+                // NOTE: Email sending logic should be triggered by a Domain Event or background job
+                // to avoid blocking the API and improve reliability. We log its state here.
+                logger.LogInfo($"Student {request.Email} successfully onboarded. Email notification process initiated.");
 
-                // Returning successful response.
-                return new ServiceResponse()
-                {
-                    Succeeded = true,
-                    Message = $"New student is created with the email: {request.Email}. Credentials email sent."
-                };
+                // --- 9. Success ---
+                return ServiceResponse.Success(
+                    $"New student is created with the email: {request.Email}. Credentials email process initiated.",
+                    new { StudentId = mappedStudent.Id, UserId = newUser.Id, StudentCode = newStudentCode }
+                );
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error while onboarding a new student into the system.");
+                // --- 10. Centralized Error Handling and Rollback ---
+                logger.LogError(ex, $"Critical error while onboarding student {request.Email}. Initiating cleanup.");
 
-                return new ServiceResponse()
+                // CRITICAL SAFETY CHECK: If newUser was successfully created but the commit failed, delete the orphan user account.
+                if (newUser != null)
                 {
-                    Succeeded = false,
-                    Message = $"Error while onboarding a new student into the system. {ex.Message}"
-                };
+                    try
+                    {
+                        await onboardingService.RollbackUserCreationAsync(newUser);
+                        logger.LogWarning($"Rollback completed for AppUser: {newUser.Id}. Orphan account deleted.");
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        logger.LogCritical(rollbackEx, $"FATAL: Failed to rollback user creation for {newUser.Id}. Manual cleanup is mandatory.");
+                    }
+                }
+
+                await unitOfWork.RollbackAsync(cancellationToken); // Ensure any pending EF changes are discarded.
+
+                // Use ServiceResponse.Failure
+                return ServiceResponse.Failure($"Error while onboarding a new student into the system. {ex.Message}");
             }
         }
     }

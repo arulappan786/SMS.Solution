@@ -1,16 +1,31 @@
 ﻿using AutoMapper;
 using MediatR;
 using SMS.Application.DTOs.Accademic.AcademicYears;
+using SMS.Application.Exceptions;
 using SMS.Domain.Interfaces.Repositories.Academic;
 
 namespace SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetById
 {
-    public class GetClassesByIdQueryHandler(IAcademicYearRepository repository, IMapper mapper) : IRequestHandler<GetAcademicYearByIdQuery, AcademicYearDto>
+    // The handler now returns the concrete DTO type
+    public class GetAcademicYearByIdQueryHandler(IAcademicYearRepository repository, IMapper mapper)
+        : IRequestHandler<GetAcademicYearByIdQuery, AcademicYearDto>
     {
         public async Task<AcademicYearDto> Handle(GetAcademicYearByIdQuery request, CancellationToken cancellationToken)
         {
-            var accademicyear = await repository.GetAsync(request.Id, cancellationToken);
-            var mapped = mapper.Map<AcademicYearDto>(accademicyear);
+            // 1. Retrieve the entity
+            var academicYear = await repository.GetAsync(request.Id, cancellationToken);
+
+            // 2. Handle Not Found by throwing an exception
+            if (academicYear == null)
+            {
+                // Throw a custom application-level exception.
+                // You must define EntityNotFoundException in your application.
+                throw new EntityNotFoundException($"Academic Year with ID {request.Id} not found.");
+            }
+
+            // 3. Map and return the concrete DTO
+            var mapped = mapper.Map<AcademicYearDto>(academicYear);
+
             return mapped;
         }
     }

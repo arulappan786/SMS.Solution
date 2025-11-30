@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using SMS.Application.CQRS.Core.Students.Commands.Create;
+﻿using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Domain.Entities.Identity;
-using System.Threading;
 
 namespace SMS.Application.Services.Core.Students
 {
@@ -27,5 +25,10 @@ namespace SMS.Application.Services.Core.Students
         Task<AppUser> CreateUserAndAssignRoleAsync(CreateStudentCommand studentCommand, string password, CancellationToken cancellationToken);
 
         Task<bool> LinkStudentProfileToUserAsync(AppUser user, Guid studentProfileId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Compensating transaction: Deletes the AppUser account if the core student entity creation fails.
+        /// </summary>
+        Task RollbackUserCreationAsync(AppUser user);
     }
 }

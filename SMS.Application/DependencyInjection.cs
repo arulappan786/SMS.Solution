@@ -29,10 +29,7 @@ namespace SMS.Application
             });
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-            services.AddAutoMapper(cfg => cfg.AddMaps(Assembly.GetExecutingAssembly()));
-
-            // Validation Services
-            services.AddScoped<IValidationService, ValidationService>();
+            services.AddAutoMapper(cfg => cfg.AddMaps(Assembly.GetExecutingAssembly()));            
 
             // Individual Validators
             services.AddScoped<IValidator<CreateStudentCommand>, CreateStudentCommandValidator>();

@@ -24,6 +24,18 @@ namespace SMS.Infrastructure.Services.Identity
             return result.Succeeded;
         }
 
+        public async Task<IdentityResult> DeleteUserAsync(AppUser user)
+        {
+            if (user == null)
+            {
+                // Return a failed result if the user object is null
+                return IdentityResult.Failed(new IdentityError { Description = "Cannot delete a null user object." });
+            }
+
+            // The core deletion call using the Identity framework's UserManager
+            return await userManager.DeleteAsync(user);
+        }
+
         public async Task<AppUser?> GetUserByEmailAsync(string email)
         {
             return await userManager.FindByEmailAsync(email);

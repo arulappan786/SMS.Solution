@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
 using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Identity;
@@ -102,6 +103,33 @@ namespace SMS.Infrastructure.Services.Core.Students
         {
            var result = await userManagement.LinkStudentProfileToUserAsync(user, studentProfileId, cancellationToken);
             return result.Succeeded;
+        }
+
+        public async Task RollbackUserCreationAsync(AppUser user)
+        {
+            if (user == null)
+            {
+                logger.LogWarning("Rollback called with a null AppUser. Aborting rollback.");
+                return;
+            }
+
+            // 1. Execute the deletion
+            IdentityResult result = await userManagement.DeleteUserAsync(user);
+
+            // 2. Check the result of the deletion
+            if (!result.Succeeded)
+            {
+                // Log detailed errors if the delete operation fails (a true critical issue)
+                string errors = string.Join(", ", result.Errors.Select(e => e.Description));
+
+                // Use LogCritical because the compensation step for a failed transaction has failed.
+                logger.LogCritical($"FATAL: Compensation failed. Could not delete orphaned user ID {user.Id}. Manual cleanup is MANDATORY. Errors: {errors}");
+
+                // Re-throw the exception to ensure the main error handling path is aware of the severe failure
+                throw new InvalidOperationException($"Critical rollback failed for user ID {user.Id}. Errors: {errors}");
+            }
+
+            logger.LogInfo($"Successfully deleted orphaned user ID {user.Id} during rollback.");
         }
     }
 }

@@ -19,7 +19,7 @@ public class ClassController(IMediator mediator) : ControllerBase
     [HttpGet]
     // Assume handler returns PaginatedResultDto (empty list if none found, never null)
     [ProducesResponseType(typeof(PaginatedResultDto<ClassesDto>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetAll([FromQuery] GetAllClasssesQuery query)
+    public async Task<IActionResult> GetAll([FromQuery] GetAllClassesQuery query)
     {
         var students = await mediator.Send(query);
         // Clean: Always returns 200 OK, with an empty list if no records exist.
