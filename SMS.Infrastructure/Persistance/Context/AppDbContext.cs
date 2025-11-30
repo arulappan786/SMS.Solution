@@ -50,20 +50,32 @@ namespace SMS.Infrastructure.Persistance.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Student>().OwnsOne(s => s.HomeAddress, address =>
+            modelBuilder.Entity<Student>().OwnsOne(s => s.HomeAddress, addr =>
             {
-                address.Property(a => a.Street).HasColumnName("Home_Street");
-                address.Property(a => a.City).HasColumnName("Home_City");
-                address.Property(a => a.State).HasColumnName("Home_State");
-                address.Property(a => a.ZipCode).HasColumnName("Home_ZipCode");
-                address.Property(a => a.Country).HasColumnName("Home_Country");
+                addr.Property(a => a.Street).HasColumnName("Home_Street");
+                addr.Property(a => a.City).HasColumnName("Home_City");
+                addr.Property(a => a.State).HasColumnName("Home_State");
+                addr.Property(a => a.ZipCode).HasColumnName("Home_ZipCode");
+                addr.Property(a => a.Country).HasColumnName("Home_Country");
 
             });
 
-            modelBuilder.Entity<Student>().OwnsOne(s => s.FullName, fullname =>
+            modelBuilder.Entity<Student>().OwnsOne(s => s.FullName, fln =>
             {
-                fullname.Property(fn => fn.FirstName).HasColumnName("FullName_FirstName");
-                fullname.Property(fn => fn.LastName).HasColumnName("FullName_LastName");
+                fln.Property(fn => fn.FirstName).HasColumnName("FullName_FirstName");
+                fln.Property(fn => fn.LastName).HasColumnName("FullName_LastName");
+            });
+
+            modelBuilder.Entity<Parent>().OwnsOne(s => s.FullName, fln =>
+            {
+                fln.Property(fn => fn.FirstName).HasColumnName("FullName_FirstName");
+                fln.Property(fn => fn.LastName).HasColumnName("FullName_LastName");
+            });
+
+            modelBuilder.Entity<Teacher>().OwnsOne(s => s.FullName, fln =>
+            {
+                fln.Property(fn => fn.FirstName).HasColumnName("FullName_FirstName");
+                fln.Property(fn => fn.LastName).HasColumnName("FullName_LastName");
             });
 
             modelBuilder.Entity<Grade>()

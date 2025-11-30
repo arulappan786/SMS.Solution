@@ -2,6 +2,7 @@
 using SMS.Domain.Entities.Attendance;
 using SMS.Domain.Entities.EntityBase;
 using SMS.Domain.Entities.Identity;
+using SMS.Domain.ValueObjects;
 
 namespace SMS.Domain.Entities.Core
 {
@@ -11,9 +12,8 @@ namespace SMS.Domain.Entities.Core
         public Guid UserId { get; set; }
 
         // Properties
-        public required string FirstName { get; set; }
-        public string? LastName { get; set; }
-        public DateTime HireDate { get; set; }
+        public required FullName FullName { get; set; }
+        public DateOnly HireDate { get; set; }
         public string? Specialization { get; set; } // e.g., "High School Math"
         public required string TeacherCode { get; set; }
         public required string Email { get; set; }

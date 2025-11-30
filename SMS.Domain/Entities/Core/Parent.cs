@@ -1,5 +1,6 @@
 ﻿using SMS.Domain.Entities.EntityBase;
 using SMS.Domain.Entities.Identity;
+using SMS.Domain.ValueObjects;
 
 namespace SMS.Domain.Entities.Core
 {
@@ -9,8 +10,7 @@ namespace SMS.Domain.Entities.Core
         public Guid UserId { get; set; }
 
         // Properties
-        public required string FirstName { get; set; }
-        public string? LastName { get; set; }
+        public required FullName FullName { get; set; }
         public required string PrimaryPhone { get; set; }
         public string? Occupation { get; set; }
 
