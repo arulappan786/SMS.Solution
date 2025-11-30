@@ -340,7 +340,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CurrentClassId")
+                    b.Property<Guid>("CurrentClassId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly>("DateOfBirth")
@@ -360,7 +360,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -990,7 +990,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.HasOne("SMS.Domain.Entities.Academic.Classes", "CurrentClass")
                         .WithMany("Students")
                         .HasForeignKey("CurrentClassId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.OwnsOne("SMS.Domain.ValueObjects.FullName", "FullName", b1 =>
                         {

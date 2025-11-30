@@ -12,8 +12,8 @@ using SMS.Infrastructure.Persistance.Context;
 namespace SMS.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251130025608_Small_Field_Correction")]
-    partial class Small_Field_Correction
+    [Migration("20251130084328_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -182,29 +182,6 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.ToTable("AcademicYears");
                 });
 
-            modelBuilder.Entity("SMS.Domain.Entities.Academic.Class", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AcademicYearId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("MaxCapacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
-
-                    b.ToTable("Classs");
-                });
-
             modelBuilder.Entity("SMS.Domain.Entities.Academic.ClassSubject", b =>
                 {
                     b.Property<Guid>("Id")
@@ -229,6 +206,29 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("ClassSubjects");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Academic.Classes", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AcademicYearId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MaxCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcademicYearId");
+
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.Subject", b =>
@@ -343,7 +343,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CurrentClassId")
+                    b.Property<Guid>("CurrentClassId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateOnly>("DateOfBirth")
@@ -363,7 +363,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -884,20 +884,9 @@ namespace SMS.Infrastructure.Persistance.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SMS.Domain.Entities.Academic.Class", b =>
-                {
-                    b.HasOne("SMS.Domain.Entities.Academic.AcademicYear", "AcademicYear")
-                        .WithMany("Classes")
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AcademicYear");
-                });
-
             modelBuilder.Entity("SMS.Domain.Entities.Academic.ClassSubject", b =>
                 {
-                    b.HasOne("SMS.Domain.Entities.Academic.Class", "Class")
+                    b.HasOne("SMS.Domain.Entities.Academic.Classes", "Class")
                         .WithMany("ClassSubjects")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -920,6 +909,17 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.Navigation("Subject");
 
                     b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Academic.Classes", b =>
+                {
+                    b.HasOne("SMS.Domain.Entities.Academic.AcademicYear", "AcademicYear")
+                        .WithMany("Classes")
+                        .HasForeignKey("AcademicYearId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AcademicYear");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Attendance.Attendance", b =>
@@ -990,10 +990,11 @@ namespace SMS.Infrastructure.Persistance.Migrations
 
             modelBuilder.Entity("SMS.Domain.Entities.Core.Student", b =>
                 {
-                    b.HasOne("SMS.Domain.Entities.Academic.Class", "CurrentClass")
+                    b.HasOne("SMS.Domain.Entities.Academic.Classes", "CurrentClass")
                         .WithMany("Students")
                         .HasForeignKey("CurrentClassId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.OwnsOne("SMS.Domain.ValueObjects.FullName", "FullName", b1 =>
                         {
@@ -1258,18 +1259,18 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.Navigation("Classes");
                 });
 
-            modelBuilder.Entity("SMS.Domain.Entities.Academic.Class", b =>
-                {
-                    b.Navigation("ClassSubjects");
-
-                    b.Navigation("Students");
-                });
-
             modelBuilder.Entity("SMS.Domain.Entities.Academic.ClassSubject", b =>
                 {
                     b.Navigation("Assignments");
 
                     b.Navigation("Schedules");
+                });
+
+            modelBuilder.Entity("SMS.Domain.Entities.Academic.Classes", b =>
+                {
+                    b.Navigation("ClassSubjects");
+
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("SMS.Domain.Entities.Academic.Subject", b =>

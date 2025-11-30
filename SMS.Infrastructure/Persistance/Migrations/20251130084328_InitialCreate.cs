@@ -17,8 +17,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    EndDate = table.Column<DateOnly>(type: "date", nullable: false),
                     IsCurrent = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -46,7 +46,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BaseAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BaseAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     IsMandatory = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -75,8 +75,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName_FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName_LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PrimaryPhone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Occupation = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -118,9 +118,9 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HireDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FullName_FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName_LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HireDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Specialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TeacherCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -131,7 +131,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Classs",
+                name: "Classes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -141,9 +141,9 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Classs", x => x.Id);
+                    table.PrimaryKey("PK_Classes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Classs_AcademicYears_AcademicYearId",
+                        name: "FK_Classes_AcademicYears_AcademicYearId",
                         column: x => x.AcademicYearId,
                         principalTable: "AcademicYears",
                         principalColumn: "Id",
@@ -206,9 +206,9 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     table.PrimaryKey("PK_ClassSubjects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClassSubjects_Classs_ClassId",
+                        name: "FK_ClassSubjects_Classes_ClassId",
                         column: x => x.ClassId,
-                        principalTable: "Classs",
+                        principalTable: "Classes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -230,8 +230,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CurrentClassId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CurrentClassId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FullName_FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FullName_LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Home_Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -239,7 +239,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     Home_State = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Home_ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Home_Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StudentCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -249,9 +249,9 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     table.PrimaryKey("PK_Students", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Students_Classs_CurrentClassId",
+                        name: "FK_Students_Classes_CurrentClassId",
                         column: x => x.CurrentClassId,
-                        principalTable: "Classs",
+                        principalTable: "Classes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -425,8 +425,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     ExamId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ScoreObtained = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MaxScore = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ScoreObtained = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    MaxScore = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -462,8 +462,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IssuedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AmountDue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountDue = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -628,7 +628,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     InvoiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Method = table.Column<int>(type: "int", nullable: false),
                     TransactionReference = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -721,8 +721,8 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Classs_AcademicYearId",
-                table: "Classs",
+                name: "IX_Classes_AcademicYearId",
+                table: "Classes",
                 column: "AcademicYearId");
 
             migrationBuilder.CreateIndex(
@@ -901,7 +901,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 name: "Teachers");
 
             migrationBuilder.DropTable(
-                name: "Classs");
+                name: "Classes");
 
             migrationBuilder.DropTable(
                 name: "AcademicYears");

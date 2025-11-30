@@ -25,4 +25,8 @@
     <ProjectReference Include="..\SMS.Application\SMS.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Jobs\" />
+  </ItemGroup>
+
 </Project>
