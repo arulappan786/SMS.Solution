@@ -21,7 +21,8 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                                              IValidator<CreateStudentCommand> validator,
                                              IAppLogger<CreateStudentCommandHandler> logger,
                                              IMapper mapper,
-                                             IStudentOnboardingService onboardingService) // Removed IEmailSenderService to decouple
+                                             IStudentOnboardingService onboardingService,
+                                             IEmailTemplatesLoader templateLoader) // Removed IEmailSenderService to decouple
         : IRequestHandler<CreateStudentCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
@@ -108,10 +109,11 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 try
                 {
                     logger.LogInfo("Enqueuing welcome email job via Hangfire.");
-                    
+                    string htmlBody = PrepareEmailBody(request, newPassword);
+
                     // The key line: Hangfire finds the EmailJobService via DI later.
-                    BackgroundJob.Enqueue<IEmailJobService>(job => 
-                        job.SendWelcomeEmailAsync(request.Email, $"Welcome {request.FullName}", newPassword, true));
+                    BackgroundJob.Enqueue<IEmailJobService>(job =>
+                        job.SendWelcomeEmailAsync(request.Email, $"Welcome {request.FullName}", htmlBody, true));
 
                     logger.LogInfo($"Welcome email job successfully enqueued for {request.Email}.");
                 }
@@ -151,6 +153,20 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 // Use ServiceResponse.Failure
                 return ServiceResponse.Failure($"Error while onboarding a new student into the system. {ex.Message}");
             }
+        }
+
+        private string PrepareEmailBody(CreateStudentCommand request, string newPassword)
+        {
+            string htmlBody = templateLoader.LoadEmailTemplate("StudentWelcomeEmailTemplate.html");
+            htmlBody = htmlBody.Replace("[USERNAME]", request.Email);
+            htmlBody = htmlBody.Replace("[PASSWORD]", newPassword);
+            htmlBody = htmlBody.Replace("[STUDENT_NAME]", request.FullName.ToString());
+            // Fetch configuration for the login URL
+            //string loginUrl = _configuration["ClientSettings:LoginUrl"];
+            string loginUrl = "https://smsclient.example.com/login"; // Placeholder for actual config retrieval
+            htmlBody = htmlBody.Replace("[LOGIN_URL]", loginUrl);
+            htmlBody = htmlBody.Replace("[CURRENT_YEAR]", DateTime.UtcNow.Year.ToString());
+            return htmlBody;
         }
     }
 }

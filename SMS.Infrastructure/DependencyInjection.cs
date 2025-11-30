@@ -75,6 +75,7 @@ namespace SMS.Infrastructure
             services.AddScoped<ITokenManagementService, TokenManagementService>();
 
             services.AddScoped<IEmailJobService, EmailJobService>();
+            services.AddScoped<IEmailTemplatesLoader, EmailTemplatesLoader>();
 
             return services;
         }
