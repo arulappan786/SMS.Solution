@@ -7,7 +7,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Update
     {
         public required Guid Id { get; set; }
 
-        public Guid? AcademicYearId { get; set; }
+        public Guid AcademicYearId { get; set; }
 
         public string? Name { get; set; }
 

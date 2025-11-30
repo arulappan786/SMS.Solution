@@ -9,24 +9,25 @@ namespace SMS.Infrastructure.Repositories.Academic
     public class AcademicYearRepository(AppDbContext dbContext)
         : GenericRepository<AcademicYear>(dbContext), IAcademicYearRepository
     {
-        /// <summary>
-        /// Returns true if there exists any entry in the AcademicYear store with the same name and or with the startdate and enddate.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="startDate"></param>
-        /// <param name="endDate"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public async Task<bool> ExistsAsync(string name, DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken)
+        public async Task<bool> ExistsAsync(string name,
+                                            DateOnly? startDate,
+                                            DateOnly? endDate,
+                                            CancellationToken cancellationToken,
+                                            Guid? excludedId = null)
         {
             string lowerName = name.ToLower();
 
             var isDuplicate = await dbContext.AcademicYears
                 .AsNoTracking()
                 .AnyAsync(a =>
-                    a.Name.ToLower() == lowerName ||
+                    // 1. Exclusion Clause: Ignore the entity being updated if excludedId is present
+                    (excludedId == null || a.Id != excludedId.Value) &&
 
-                    (a.StartDate == startDate && a.EndDate == endDate),
+                    // 2. Conflict Check: Look for matching Name OR matching Date Range
+                    (
+                        a.Name.ToLower() == lowerName ||
+                        (a.StartDate == startDate && a.EndDate == endDate)
+                    ),
 
                     cancellationToken);
 

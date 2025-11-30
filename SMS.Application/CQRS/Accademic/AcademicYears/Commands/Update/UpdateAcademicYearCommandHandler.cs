@@ -20,6 +20,17 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update
 
             try
             {
+                // --- 1. Uniqueness Check (Application Business Rule) ---
+                var existsResult = await repository.ExistsAsync(request.Name, request.StartDate, request.EndDate, cancellationToken, request.Id);
+
+                if (existsResult)
+                {
+                    logger.LogWarning($"Academic Year updation failed: Duplicate entry detected for {request.Name}.");
+
+                    // Use ServiceResponse.Failure for business rule violation
+                    return ServiceResponse.Failure("An Academic Year with this name or date range already exists in the system.");
+                }
+
                 // 1. Retrieve the existing entity
                 var academicYearToUpdate = await repository.GetAsync(request.Id, cancellationToken);
 

@@ -20,6 +20,17 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Update
 
             try
             {
+                // --- 0. Uniqueness Check (Application Business Rule) ---
+                var existsResult = await repository.ExistsAsync(request.Name!, request.AcademicYearId, cancellationToken, request.Id);
+
+                if (existsResult)
+                {
+                    logger.LogWarning($"Class updating failed: Duplicate entry detected for {request.Name}.");
+
+                    // Use ServiceResponse.Failure for business rule violation
+                    return ServiceResponse.Failure("A Class with this name already exists in the system.");
+                }
+
                 // 1. Retrieve the existing entity
                 var classesToUpdate = await repository.GetAsync(request.Id, cancellationToken);
 
@@ -32,8 +43,8 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Update
 
                 // 2. Apply updates from the command to the entity
                 // The null-coalescing operator (??) ensures properties are updated only if provided in the request (i.e., not null).
+                classesToUpdate.AcademicYearId = request.AcademicYearId;
                 classesToUpdate.Name = request.Name ?? classesToUpdate.Name;
-                classesToUpdate.AcademicYearId = request.AcademicYearId ?? classesToUpdate.AcademicYearId;
                 classesToUpdate.MaxCapacity = request.MaxCapacity ?? classesToUpdate.MaxCapacity;
 
                 // 3. Update the repository (often unnecessary if tracked, but kept for explicit marking)

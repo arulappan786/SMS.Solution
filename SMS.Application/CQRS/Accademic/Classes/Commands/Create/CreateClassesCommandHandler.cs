@@ -36,7 +36,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Create
                 }
 
                 // --- 2. Uniqueness Check (Application Business Rule) ---
-                var existsResult = await repository.ExistsAsync(request.Name, cancellationToken);
+                var existsResult = await repository.ExistsAsync(request.Name, request.AcademicYearId, cancellationToken);
 
                 if (existsResult)
                 {

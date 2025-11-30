@@ -4,6 +4,6 @@ namespace SMS.Domain.Interfaces.Repositories.Academic
 {
     public interface IClassesRepository : IGenericRepository<Entities.Academic.Classes>
     {
-        Task<bool> ExistsAsync(string name, CancellationToken cancellationToken);
+        Task<bool> ExistsAsync(string name, Guid academicYearId, CancellationToken cancellationToken, Guid? excludedId = null);
     }
 }

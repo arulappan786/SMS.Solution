@@ -48,7 +48,35 @@ namespace SMS.Infrastructure.Persistance.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);            
+
+            modelBuilder.Entity<AcademicYear>(entity =>
+            {
+                // Enforces that the 'Name' property must be unique across all records.
+                entity.HasIndex(a => a.Name)
+               .IsUnique()
+               .HasDatabaseName("IX_AcademicYear_Name_Unique");
+
+                // Enforces that the COMBINATION of StartDate and EndDate must be unique.
+                entity.HasIndex(a => new { a.StartDate, a.EndDate })
+                      .IsUnique()
+                      .HasDatabaseName("IX_AcademicYear_Dates_Unique");
+            });
+
+            modelBuilder.Entity<Classes>(entity =>
+            {
+                entity.HasIndex(c => new { c.Name, c.AcademicYearId })
+                      .IsUnique()
+                      .HasDatabaseName("IX_Classes_Name_AcademicYearId_Unique");
+            });
+
+            modelBuilder.Entity<Student>(entity =>
+            {
+                // Enforces that the 'Email' property must be unique across all records.
+                entity.HasIndex(s => s.Email)
+                      .IsUnique()
+                      .HasDatabaseName("IX_Student_Email_Unique");
+            });
 
             modelBuilder.Entity<Student>().OwnsOne(s => s.HomeAddress, addr =>
             {
