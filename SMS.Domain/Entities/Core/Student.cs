@@ -12,8 +12,8 @@ namespace SMS.Domain.Entities.Core
     public class Student : BaseEntity
     {
         // Foreign Key (FK) to link to the base identity
-        public Guid? UserId { get; set; }
-        public Guid? CurrentClassId { get; set; } // FK to the Class the student is currently enrolled in
+        public Guid UserId { get; set; }
+        public Guid CurrentClassId { get; set; } // FK to the Class the student is currently enrolled in
 
         // --- Demographic Properties ---
 
@@ -47,8 +47,8 @@ namespace SMS.Domain.Entities.Core
         // Public constructor for creating a new Student entity in the domain
         [SetsRequiredMembers]
         public Student(Guid studentId,
-                       Guid? userId,
-                       Guid? currentClassId,
+                       Guid userId,
+                       Guid currentClassId,
                        FullName fullName,
                        Address homeAddress,
                        DateOnly dateOfBirth,
@@ -61,6 +61,9 @@ namespace SMS.Domain.Entities.Core
             // 1. Validation for UserId
             if (userId == Guid.Empty)
                 throw new ArgumentException("User ID must be a valid non-empty GUID.", nameof(userId));
+
+            if (currentClassId == Guid.Empty)
+                throw new ArgumentException("Current Class ID must be a valid non-empty GUID.", nameof(currentClassId));
 
             // 2. Validation for Value Objects (Null Checks)
             FullName = fullName ?? throw new ArgumentNullException(nameof(fullName));

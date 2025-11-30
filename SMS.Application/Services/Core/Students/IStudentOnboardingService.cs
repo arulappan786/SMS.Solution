@@ -1,5 +1,7 @@
-﻿using SMS.Application.CQRS.Core.Students.Commands.Create;
+﻿using Microsoft.AspNetCore.Identity;
+using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Domain.Entities.Identity;
+using System.Threading;
 
 namespace SMS.Application.Services.Core.Students
 {
@@ -23,5 +25,7 @@ namespace SMS.Application.Services.Core.Students
         /// <returns>The newly created AppUser entity.</returns>
         /// <exception cref="InvalidOperationException">Throws if user creation or role assignment fails.</exception>
         Task<AppUser> CreateUserAndAssignRoleAsync(CreateStudentCommand studentCommand, string password, CancellationToken cancellationToken);
+
+        Task<bool> LinkStudentProfileToUserAsync(AppUser user, Guid studentProfileId, CancellationToken cancellationToken);
     }
 }

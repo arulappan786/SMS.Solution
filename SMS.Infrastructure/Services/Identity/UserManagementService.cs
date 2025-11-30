@@ -4,83 +4,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 using SMS.Application.Services.Identity;
 using SMS.Domain.Entities.Identity;
 using SMS.Infrastructure.Persistance.Context;
-using System.Security.Claims;
 
 namespace SMS.Infrastructure.Services.Identity
 {
-    public class UserManagementService(IRoleManagementService roleManagement,
-        UserManager<AppUser> userManager,
-        AppDbContext dbContext) : IUserManagementService
+    public class UserManagementService(UserManager<AppUser> userManager,
+                                       AppDbContext dbContext) : IUserManagementService
     {
 
-
-
-        //public async Task<bool> CreateUserAsync(AppUser user)
-        //{
-        //    AppUser? _user = await GetUserByEmailAsync(user.Email!);
-        //    if (_user != null) return false;
-
-        //    var result = await userManager.CreateAsync(user, user.PasswordHash!);
-
-        //    return result.Succeeded;
-        //}
-
-        //public async Task<IEnumerable<AppUser>?> GetAllUsersAsync()
-        //{
-        //    return await dbContext.Users.ToListAsync();
-        //}
-
-        //public async Task<List<Claim>> GetClaimsByEmailAsync(string email)
-        //{
-        //    var _user = await GetUserByEmailAsync(email);
-        //    string? userRole = await roleManagement.GetUserRoleAsync(_user!.Email!);
-
-        //    return new List<Claim> {
-        //        new Claim("DisplayName", _user!.DisplayName!.ToString()),
-        //        new Claim(ClaimTypes.NameIdentifier, _user!.Id!.ToString()),
-        //        new Claim(ClaimTypes.Email, _user!.Email!),
-        //        new Claim(ClaimTypes.Role, userRole!)
-        //    };
-        //}
-
-        //public async Task<AppUser?> GetUserByEmailAsync(string email)
-        //{
-        //    return await userManager.FindByEmailAsync(email);
-        //}
-
-        //public async Task<AppUser> GetUserByIdAsync(string userId)
-        //{
-        //    var user = await userManager.FindByIdAsync(userId);
-        //    return user!;
-        //}
-
-        //public async Task<AppUser> GetUserByNameAsync(string userName)
-        //{
-        //    var user = await userManager.FindByNameAsync(userName);
-        //    return user!;
-        //}
-
-        //public async Task<bool> LoginUserAsync(AppUser user, string password)
-        //{
-        //    var _user = await GetUserByEmailAsync(user!.Email!);
-        //    if (_user is null) return false;
-
-        //    string? roleName = await roleManagement.GetUserRoleAsync(user!.Email!);
-        //    if (string.IsNullOrEmpty(roleName)) return false;
-
-        //    var result = await userManager.CheckPasswordAsync(user, password);
-
-        //    return result;
-        //}
-
-        //public async Task<bool> RemoveUserByEmailAsync(string email)
-        //{
-        //    var _user = await dbContext.Users.FirstOrDefaultAsync(_ => _.Email == email);
-        //    dbContext.Users.Remove(_user!);
-        //    var result = await dbContext.SaveChangesAsync();
-        //    return result > 0;
-        //}
-       
         public async Task<bool> CreateUserWithTransactionAsync(AppUser user, string password, IDbContextTransaction transaction)
         {
             // IMPORTANT: Attach the transaction handle to the DbContext used by the UserManager
@@ -97,6 +27,34 @@ namespace SMS.Infrastructure.Services.Identity
         public async Task<AppUser?> GetUserByEmailAsync(string email)
         {
             return await userManager.FindByEmailAsync(email);
+        }
+
+        /// <summary>
+        /// Updates properties of a provided AppUser, including linking the Student Profile ID.
+        /// </summary>
+        /// <param name="user">The AppUser entity retrieved from the identity store.</param>
+        /// <param name="studentProfileId">The Student Profile ID (GUID) to link to the user.</param>
+        /// <returns>An IdentityResult indicating success or failure.</returns>
+        public async Task<IdentityResult> LinkStudentProfileToUserAsync(AppUser user, Guid studentProfileId, CancellationToken cancellationToken)
+        {
+            // 1. Validation Check
+            if (user == null)
+            {
+                // Should not happen if the calling code retrieved it properly, but good defensive check
+                return IdentityResult.Failed(new IdentityError { Description = "Provided AppUser object is null." });
+            }
+
+            // 2. Apply Custom Property Update
+            // Check if the ID is different to avoid unnecessary database writes
+            if (user.StudentProfileId != studentProfileId)
+            {
+                user.StudentProfileId = studentProfileId;
+            }
+
+            // 3. Persist all changes to the user store
+            // This is the essential step. It tells the UserManager to save the changes 
+            // to the underlying IdentityDbContext.
+            return await userManager.UpdateAsync(user);
         }
     }
 }

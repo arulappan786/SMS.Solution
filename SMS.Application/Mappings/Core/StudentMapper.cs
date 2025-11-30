@@ -14,7 +14,7 @@ namespace SMS.Application.Mappings.Core
                 .ConstructUsing(src =>
                 new Student(Guid.NewGuid(), 
                             src.UserId,
-                            Guid.Empty,
+                            src.CurrentClassId,
                             src.FullName,
                             src.HomeAddress,
                             src.DateOfBirth,
@@ -27,11 +27,11 @@ namespace SMS.Application.Mappings.Core
             CreateMap<Student, StudentDto>()
                 .ConstructUsing(src =>
                 new StudentDto(
-                    src.Id,              // Assuming the entity's ID maps to StudentId
-                    src.UserId ?? Guid.Empty, // Handle nullable Guid
-                    src.CurrentClassId ?? Guid.Empty, // Handle nullable Guid
-                    src.FullName,         // Maps the FullName Value Object
-                    src.HomeAddress,   // Maps the Address Value Object
+                    src.Id,
+                    src.UserId,
+                    src.CurrentClassId,
+                    src.FullName,
+                    src.HomeAddress,
                     src.DateOfBirth,
                     src.Gender.ToString(),
                     src.Email,

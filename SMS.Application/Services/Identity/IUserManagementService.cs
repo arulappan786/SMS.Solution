@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
 using SMS.Domain.Entities.Identity;
 
 namespace SMS.Application.Services.Identity
@@ -6,6 +7,7 @@ namespace SMS.Application.Services.Identity
     public interface IUserManagementService
     {
         Task<AppUser?> GetUserByEmailAsync(string email);
+
         /// <summary>
         /// Creates a new application user with the specified credentials, using an existing transaction.
         /// </summary>
@@ -14,5 +16,7 @@ namespace SMS.Application.Services.Identity
         /// <param name="transaction">The active database transaction to include this operation in.</param>
         /// <returns>True if creation succeeded, false otherwise.</returns>
         Task<bool> CreateUserWithTransactionAsync(AppUser user, string password, IDbContextTransaction transaction);
+
+        Task<IdentityResult> LinkStudentProfileToUserAsync(AppUser user, Guid studentProfileId, CancellationToken cancellationToken);
     }
 }

@@ -97,5 +97,11 @@ namespace SMS.Infrastructure.Services.Core.Students
                 throw;
             }
         }
+
+        public async Task<bool> LinkStudentProfileToUserAsync(AppUser user, Guid studentProfileId, CancellationToken cancellationToken)
+        {
+           var result = await userManagement.LinkStudentProfileToUserAsync(user, studentProfileId, cancellationToken);
+            return result.Succeeded;
+        }
     }
 }

@@ -69,16 +69,41 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 if (result <= 0)
                     throw new InvalidOperationException($"Student record creation failed for {request.Email} during final commit.");
 
+                // Linking the newly created student profile with the newly created user account.
+                try
+                {
+                    var newStudent = await repository.GetByEmailAsync(request.Email, cancellationToken);
+                    if (newStudent != null)
+                    {
+                        logger.LogInfo("Associating newly created student with the newly created user account.");
+                        var updateResult = await onboardingService.LinkStudentProfileToUserAsync(newUser, newStudent.Id, cancellationToken);
+                        if(!updateResult)
+                        {
+                            throw new Exception($"Associating newly created student with the newly created user account failed for email: {request.Email}.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Associating newly creating student with the newly created user account failed.");
+                }
+
+                // Sending welcome email with credentials.
                 try
                 {
                     logger.LogInfo("Sending welcome email with credentials.");
-                    await emailService.SendGmailAsync(request.Email, newUser.UserName!, newPassword, true);
+                    var emailResult = await emailService.SendGmailAsync(request.Email, newUser.UserName!, newPassword, true);
+                    if (!emailResult)
+                    {
+                        throw new Exception($"Sending welcome email failed for {request.Email}.");
+                    }
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, $"Failed to send welcome email to {request.Email}. Manual intervention required.");
                 }
 
+                // Returning successful response.
                 return new ServiceResponse()
                 {
                     Success = true,
