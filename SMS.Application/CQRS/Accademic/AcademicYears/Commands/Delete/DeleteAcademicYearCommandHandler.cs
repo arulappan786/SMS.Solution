@@ -6,9 +6,9 @@ using SMS.Domain.Interfaces.Repositories.Common;
 
 namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Delete
 {
-    public class DeleteAcademicYearCommandHandler(IAcademicYearRepository repository,
+    public class DeleteClassesCommandHandler(IAcademicYearRepository repository,
             IUnitOfWork unitOfWork,
-            IAppLogger<DeleteAcademicYearCommandHandler> logger) : IRequestHandler<DeleteAcademicYearCommand, ServiceResponse>
+            IAppLogger<DeleteClassesCommandHandler> logger) : IRequestHandler<DeleteAcademicYearCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(DeleteAcademicYearCommand request, CancellationToken cancellationToken)
         {

@@ -10,6 +10,6 @@ namespace SMS.Domain.Entities.Academic
         public bool IsCurrent { get; set; } // True if this is the active year
 
         // Navigation Property (Inverse of Class.AcademicYear)
-        public ICollection<Class> Classes { get; set; } = new List<Class>();
+        public ICollection<Classes> Classes { get; set; } = new List<Classes>();
     }
 }

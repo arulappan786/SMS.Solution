@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Identity;
@@ -53,16 +52,26 @@ namespace SMS.Infrastructure
             })
                 .AddEntityFrameworkStores<AppDbContext>();
 
+            // Common Services
+            services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
+            services.AddSingleton<IEmailSenderService, EmailSenderService>();
+
+            // Academic Repositories and Services
             services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
+            services.AddScoped<IClassesRepository, ClassesRepository>();
+            services.AddScoped<ISubjectRepository, SubjectRepository>();
+
+            // Core Repositories and Services
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
+            services.AddScoped<IStudentCodeGeneratorService, StudentCodeGeneratorService>();
+            services.AddScoped<IStudentOnboardingService, StudentOnboardingService>();
+
+            // Identity Services
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IRoleManagementService, RoleManagementService>();
             services.AddScoped<ITokenManagementService, TokenManagementService>();
-            services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
-            services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
-            services.AddSingleton<IEmailSenderService, EmailSenderService>();
-            services.AddScoped<IStudentCodeGeneratorService, StudentCodeGeneratorService>();
-            services.AddScoped<IStudentOnboardingService, StudentOnboardingService>();
+            
 
             return services;
         }

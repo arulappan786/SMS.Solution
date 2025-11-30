@@ -5,7 +5,7 @@ using SMS.Domain.Interfaces.Repositories.Academic;
 
 namespace SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetById
 {
-    public class GetAcademicYearByIdQueryHandler(IAcademicYearRepository repository, IMapper mapper) : IRequestHandler<GetAcademicYearByIdQuery, AcademicYearDto>
+    public class GetClassesByIdQueryHandler(IAcademicYearRepository repository, IMapper mapper) : IRequestHandler<GetAcademicYearByIdQuery, AcademicYearDto>
     {
         public async Task<AcademicYearDto> Handle(GetAcademicYearByIdQuery request, CancellationToken cancellationToken)
         {

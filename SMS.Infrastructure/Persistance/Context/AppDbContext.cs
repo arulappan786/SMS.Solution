@@ -16,7 +16,7 @@ namespace SMS.Infrastructure.Persistance.Context
     {
         // Academic
         public DbSet<AcademicYear> AcademicYears { get; set; }
-        public DbSet<Class> Classs { get; set; }
+        public DbSet<Classes> Classes { get; set; }
         public DbSet<ClassSubject> ClassSubjects { get; set; }
         public DbSet<Subject> Subjects { get; set; }
 

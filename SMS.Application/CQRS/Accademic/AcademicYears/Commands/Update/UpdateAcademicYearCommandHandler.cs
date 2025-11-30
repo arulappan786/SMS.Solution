@@ -7,9 +7,9 @@ using SMS.Domain.Interfaces.Repositories.Common;
 
 namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update
 {
-    public class UpdateAcademicYearCommandHandler(IAcademicYearRepository repository,
+    public class UpdateClassesCommandHandler(IAcademicYearRepository repository,
             IUnitOfWork unitOfWork,
-            IAppLogger<UpdateAcademicYearCommandHandler> logger) : IRequestHandler<UpdateAcademicYearCommand, ServiceResponse>
+            IAppLogger<UpdateClassesCommandHandler> logger) : IRequestHandler<UpdateAcademicYearCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(UpdateAcademicYearCommand request, CancellationToken cancellationToken)
         {

@@ -14,7 +14,7 @@ namespace SMS.Domain.Entities.Academic
         public Guid TeacherId { get; set; }
 
         // Navigation Properties
-        public Class? Class { get; set; }
+        public Classes? Class { get; set; }
         public Subject? Subject { get; set; }
         public Teacher? Teacher { get; set; } // The teacher assigned to this specific subject/class combination
 

@@ -3,7 +3,7 @@ using SMS.Domain.Entities.EntityBase;
 
 namespace SMS.Domain.Entities.Academic
 {
-    public class Class : BaseEntity
+    public class Classes : BaseEntity
     {
         // Properties
         public required string Name { get; set; } // e.g., "Grade 10 - Section A"

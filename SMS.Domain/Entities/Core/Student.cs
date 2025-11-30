@@ -110,7 +110,7 @@ namespace SMS.Domain.Entities.Core
         // --- Navigation Properties ---
 
         public AppUser? AppUser { get; set; }
-        public Class? CurrentClass { get; set; }
+        public Classes? CurrentClass { get; set; }
         public ICollection<StudentParent> StudentParents { get; set; } = new List<StudentParent>(); // Guardians
         public ICollection<Attendance.Attendance> AttendanceRecords { get; set; } = new List<Attendance.Attendance>();
         public ICollection<Grade> Grades { get; set; } = new List<Grade>();
