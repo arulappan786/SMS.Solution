@@ -20,7 +20,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Delete
             if (studentToDelete == null)
             {
                 logger.LogWarning("Delete failed: Student ID {StudentId} not found.", request.Id);
-                return new ServiceResponse { Success = false, Message = $"Student with ID {request.Id} not found." };
+                return new ServiceResponse { Succeeded = false, Message = $"Student with ID {request.Id} not found." };
             }
 
             // 2. Remove the entity
@@ -31,7 +31,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Delete
 
             logger.LogInformation("Successfully deleted student: {StudentId}", request.Id);
 
-            return new ServiceResponse { Success = false, Message = $"Student with ID {request.Id} was successfully deleted." };
+            return new ServiceResponse { Succeeded = false, Message = $"Student with ID {request.Id} was successfully deleted." };
         }
     }
 }

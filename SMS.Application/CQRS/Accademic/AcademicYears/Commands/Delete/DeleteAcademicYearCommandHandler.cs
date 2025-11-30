@@ -20,7 +20,7 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Delete
             if (studentToDelete == null)
             {
                 logger.LogInfo($"Starting AcademicYear deletion for ID: {request.Id}");
-                return new ServiceResponse { Success = false, Message = $"AcademicYear with ID {request.Id} not found." };
+                return new ServiceResponse { Succeeded = false, Message = $"AcademicYear with ID {request.Id} not found." };
             }
 
             // 2. Remove the entity
@@ -31,7 +31,7 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Delete
 
             logger.LogInfo($"Starting AcademicYear deletion for ID: {request.Id}");
 
-            return new ServiceResponse { Success = false, Message = $"AcademicYear with ID {request.Id} was successfully deleted." };
+            return new ServiceResponse { Succeeded = false, Message = $"AcademicYear with ID {request.Id} was successfully deleted." };
         }
     }
 }

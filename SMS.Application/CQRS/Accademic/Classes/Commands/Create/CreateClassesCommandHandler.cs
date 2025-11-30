@@ -25,7 +25,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Create
                 // 1. Validation
                 logger.LogInfo($"Starting Class creation: Validating Input.");
                 var validationResult = await validationService.ValidateAsync(request, validator);
-                if (!validationResult.Success)
+                if (!validationResult.Succeeded)
                 {
                     logger.LogWarning($"Class creation failed validation for {request.Name}.");
                     return validationResult;
@@ -37,7 +37,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Create
                 {
                     logger.LogWarning($"Class creation failed: Duplicate entry detected for {request.Name}.");
                     //return ServiceResponse.Failure("An Class with this name or date range already exists in the system.");
-                    return new ServiceResponse { Success = false, Message = "An Class with this name already exists in the system." };
+                    return new ServiceResponse { Succeeded = false, Message = "An Class with this name already exists in the system." };
                 }
 
                 // 3. Mapping and Persistence
@@ -57,7 +57,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Create
 
                 // 5. Success
                 logger.LogInfo($"Successfully created Class: {classess.Id} with name {request.Name}.");
-                return new ServiceResponse { Success = true, Message = $"New Class is created with the name: {request.Name}." };
+                return new ServiceResponse { Succeeded = true, Message = $"New Class is created with the name: {request.Name}." };
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Create
                 logger.LogError(ex, $"Error while creating Class {request.Name} into the system.");
 
                 // Return a clean, user-facing error response
-                return new ServiceResponse { Success = false, Message = $"An unexpected error occurred while creating the Class. Please try again or contact support." };
+                return new ServiceResponse { Succeeded = false, Message = $"An unexpected error occurred while creating the Class. Please try again or contact support." };
             }
         }
     }

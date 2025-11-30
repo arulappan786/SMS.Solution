@@ -51,7 +51,7 @@ public class StudentController(IMediator mediator) : ControllerBase
     {
         var serviceResponse = await mediator.Send(command);
 
-        if (serviceResponse.Success)
+        if (serviceResponse.Succeeded)
         {
             // Consistent: Return 201 Created with the ServiceResponse.
             return StatusCode((int)HttpStatusCode.Created, serviceResponse);
@@ -74,13 +74,13 @@ public class StudentController(IMediator mediator) : ControllerBase
         // 1. Ensure the ID in the route matches the ID in the command body
         if (id != command.Id)
         {
-            return BadRequest(new ServiceResponse { Success = false, Message = "ID mismatch: The ID in the route does not match the ID in the request body." });
+            return BadRequest(new ServiceResponse { Succeeded = false, Message = "ID mismatch: The ID in the route does not match the ID in the request body." });
         }
 
         // 2. Send the command to MediatR
         var serviceResponse = await mediator.Send(command);
 
-        if (serviceResponse.Success)
+        if (serviceResponse.Succeeded)
         {
             // Consistent: Return 200 OK on successful update.
             return Ok(serviceResponse);
@@ -112,7 +112,7 @@ public class StudentController(IMediator mediator) : ControllerBase
 
         var serviceResponse = await mediator.Send(command);
 
-        if (serviceResponse.Success)
+        if (serviceResponse.Succeeded)
         {
             // Standard REST practice: 204 No Content on successful deletion
             return NoContent();

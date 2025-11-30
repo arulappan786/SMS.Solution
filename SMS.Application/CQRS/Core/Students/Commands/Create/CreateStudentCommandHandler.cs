@@ -29,7 +29,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
             // Validating user input.
             logger.LogInfo("Starting student onboarding: Validating input.");
             var validationResult = await validationService.ValidateAsync(request, validator);
-            if (!validationResult.Success) return validationResult;
+            if (!validationResult.Succeeded) return validationResult;
 
             // Checking uniqueness of the student both in student and user store through email.
             logger.LogInfo($"Checking global uniqueness for email: {request.Email}");
@@ -37,7 +37,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
             {
                 return new ServiceResponse()
                 {
-                    Success = false,
+                    Succeeded = false,
                     Message = $"Student with the email {request.Email} already exists in the system or user store."
                 };
             }
@@ -106,7 +106,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 // Returning successful response.
                 return new ServiceResponse()
                 {
-                    Success = true,
+                    Succeeded = true,
                     Message = $"New student is created with the email: {request.Email}. Credentials email sent."
                 };
             }
@@ -116,7 +116,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
 
                 return new ServiceResponse()
                 {
-                    Success = false,
+                    Succeeded = false,
                     Message = $"Error while onboarding a new student into the system. {ex.Message}"
                 };
             }

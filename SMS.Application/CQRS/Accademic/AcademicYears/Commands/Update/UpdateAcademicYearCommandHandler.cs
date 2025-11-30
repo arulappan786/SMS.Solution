@@ -22,7 +22,7 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update
 
                 if (accademicYearToUpdate == null)
                 {
-                    return new ServiceResponse { Success = false, Message = $"AccademicYear with ID {request.Id} not found."};
+                    return new ServiceResponse { Succeeded = false, Message = $"AccademicYear with ID {request.Id} not found."};
                 }
 
                 // 2. Apply updates from the command to the entity
@@ -39,19 +39,19 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update
 
                 logger.LogInfo($"Successfully updated AcademicYear: {request.Id}");
 
-                return new ServiceResponse { Success = true, Message = $"Student '{request.Name}' was successfully updated." };
+                return new ServiceResponse { Succeeded = true, Message = $"Student '{request.Name}' was successfully updated." };
             }
             catch (DbUpdateConcurrencyException ex)
             {
                 // Handle concurrency conflicts (e.g., another user updated the record simultaneously)
                 logger.LogError(ex, $"Concurrency error during update of AccademicYear ID: {request.Id}");
-                return new ServiceResponse { Success = false, Message = $"The record you are trying to update has been modified by another user. Please refresh and try again." };
+                return new ServiceResponse { Succeeded = false, Message = $"The record you are trying to update has been modified by another user. Please refresh and try again." };
             }
             catch (Exception ex)
             {
                 // Log all other unexpected errors
                 logger.LogError(ex, $"Error occurred while updating Student ID: {request.Id}");
-                return new ServiceResponse { Success = false, Message = $"An unexpected error occurred during the AcademicYear update process." };
+                return new ServiceResponse { Succeeded = false, Message = $"An unexpected error occurred during the AcademicYear update process." };
             }
         }
     }

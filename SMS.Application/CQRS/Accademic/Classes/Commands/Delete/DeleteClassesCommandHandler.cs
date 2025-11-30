@@ -21,7 +21,7 @@ namespace SMS.Application.CQRS.Accademic.Classess.Commands.Delete
             if (studentToDelete == null)
             {
                 logger.LogInfo($"Starting Class deletion for ID: {request.Id}");
-                return new ServiceResponse { Success = false, Message = $"Class with ID {request.Id} not found." };
+                return new ServiceResponse { Succeeded = false, Message = $"Class with ID {request.Id} not found." };
             }
 
             // 2. Remove the entity
@@ -32,7 +32,7 @@ namespace SMS.Application.CQRS.Accademic.Classess.Commands.Delete
 
             logger.LogInfo($"Starting Class deletion for ID: {request.Id}");
 
-            return new ServiceResponse { Success = false, Message = $"Class with ID {request.Id} was successfully deleted." };
+            return new ServiceResponse { Succeeded = false, Message = $"Class with ID {request.Id} was successfully deleted." };
         }
     }
 }

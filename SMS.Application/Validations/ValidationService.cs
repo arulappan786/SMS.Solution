@@ -13,10 +13,10 @@ namespace SMS.Application.Validations
             {
                 var errors = _validation.Errors.Select(e => e.ErrorMessage).ToList();
                 var errorMessage = string.Join("; ", errors);
-                return new ServiceResponse { Success = false, Message = errorMessage };
+                return new ServiceResponse { Succeeded = false, Message = errorMessage };
             }
 
-            return new ServiceResponse { Success = true, Message = "Validation successful" };
+            return new ServiceResponse { Succeeded = true, Message = "Validation successful" };
         }
     }
 }
