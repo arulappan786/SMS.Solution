@@ -4,6 +4,7 @@ using Serilog;
 using SMS.Application;
 using SMS.Infrastructure;
 using SMS.Infrastructure.Persistence.Seeders;
+using SMS.WebApi.Filters;
 
 // --------------------------------------------------------------------------------
 // I. HOST INITIALIZATION & CONFIGURATION
@@ -59,7 +60,11 @@ Log.Information("Registering Infrastructure services...");
 builder.Services.AddInfrastructure(config);
 
 // Registers MVC controllers as services, enabling them to be used by the application.
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // Add the custom filter to the MVC options
+    options.Filters.Add(typeof(ApiExceptionFilterAttribute));
+});
 
 // Registers the required services for Swagger/OpenAPI generation.
 builder.Services.AddSwaggerGen();
