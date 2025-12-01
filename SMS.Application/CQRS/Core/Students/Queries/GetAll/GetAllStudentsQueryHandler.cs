@@ -2,15 +2,16 @@
 using MediatR;
 using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Core.Students;
+using SMS.Application.DTOs.Service;
 using SMS.Domain.Interfaces.Repositories.Core;
 
 namespace SMS.Application.CQRS.Core.Students.Queries.GetAll
 {
     // Handler returns the concrete PaginatedResultDto<StudentDto>
     public class GetAllStudentsQueryHandler(IStudentRepository studentRepository, IMapper mapper)
-        : IRequestHandler<GetAllStudentsQuery, PaginatedResultDto<StudentDto>>
+        : IRequestHandler<GetAllStudentsQuery, ServiceResponse<PaginatedResultDto<StudentDto>>>
     {
-        public async Task<PaginatedResultDto<StudentDto>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
+        public async Task<ServiceResponse<PaginatedResultDto<StudentDto>>> Handle(GetAllStudentsQuery request, CancellationToken cancellationToken)
         {
             // 1. Call Repository to get paged data and total count
             var (students, totalCount) = await studentRepository.GetAllPaginatedAsync(
@@ -27,15 +28,15 @@ namespace SMS.Application.CQRS.Core.Students.Queries.GetAll
             // Calculate total pages safely
             var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 
-            // Direct return of the structured data is the best practice for successful queries.
-            return new PaginatedResultDto<StudentDto>
+            return ServiceResponse<PaginatedResultDto<StudentDto>>
+                .Success(data: new PaginatedResultDto<StudentDto>
             {
                 Items = studentDtos,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
                 TotalCount = totalCount,
                 TotalPages = totalPages
-            };
+            });
         }
     }
 }

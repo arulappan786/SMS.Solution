@@ -2,14 +2,15 @@
 using MediatR;
 using SMS.Application.DTOs.Accademic.Classes;
 using SMS.Application.DTOs.Common;
+using SMS.Application.DTOs.Service;
 using SMS.Domain.Interfaces.Repositories.Academic;
 
 namespace SMS.Application.CQRS.Accademic.Classes.Queries.GetAll
 {
     public class GetAllClassesQueryHandler(IClassesRepository repository, IMapper mapper)
-        : IRequestHandler<GetAllClassesQuery, PaginatedResultDto<ClassesDto>>
+        : IRequestHandler<GetAllClassesQuery, ServiceResponse<PaginatedResultDto<ClassesDto>>>
     {
-        public async Task<PaginatedResultDto<ClassesDto>> Handle(GetAllClassesQuery request, CancellationToken cancellationToken)
+        public async Task<ServiceResponse<PaginatedResultDto<ClassesDto>>> Handle(GetAllClassesQuery request, CancellationToken cancellationToken)
         {
             // 1. Call Repository to get paged data and total count
             var (classes, totalCount) = await repository.GetAllPaginatedAsync(
@@ -26,14 +27,14 @@ namespace SMS.Application.CQRS.Accademic.Classes.Queries.GetAll
             var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 
             // Direct return of the structured data is the best practice for successful queries.
-            return new PaginatedResultDto<ClassesDto>
+            return ServiceResponse<PaginatedResultDto<ClassesDto>>.Success(data: new PaginatedResultDto<ClassesDto>
             {
                 Items = classesDto,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
                 TotalCount = totalCount,
                 TotalPages = totalPages
-            };
+            });
         }
     }
 }

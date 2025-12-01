@@ -2,14 +2,16 @@
 using MediatR;
 using SMS.Application.DTOs.Accademic.AcademicYears;
 using SMS.Application.DTOs.Common;
+using SMS.Application.DTOs.Service;
 using SMS.Domain.Interfaces.Repositories.Academic;
 
 namespace SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetAll
 {
     // Handler signature remains focused on the data structure
-    public class GetAllAcademicYearsQueryHandler(IAcademicYearRepository repository, IMapper mapper) : IRequestHandler<GetAllAcademicYearsQuery, PaginatedResultDto<AcademicYearDto>>
+    public class GetAllAcademicYearsQueryHandler(IAcademicYearRepository repository, IMapper mapper) 
+        : IRequestHandler<GetAllAcademicYearsQuery, ServiceResponse<PaginatedResultDto<AcademicYearDto>>>
     {
-        public async Task<PaginatedResultDto<AcademicYearDto>> Handle(GetAllAcademicYearsQuery request, CancellationToken cancellationToken)
+        public async Task<ServiceResponse<PaginatedResultDto<AcademicYearDto>>> Handle(GetAllAcademicYearsQuery request, CancellationToken cancellationToken)
         {
             // 1. Call Repository to get paged data and total count
             var (academicYears, totalCount) = await repository.GetAllPaginatedAsync(
@@ -22,14 +24,14 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetAll
             var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 
             // Direct return of the data structure is clean for successful queries
-            return new PaginatedResultDto<AcademicYearDto>
+            return ServiceResponse<PaginatedResultDto<AcademicYearDto>>.Success(data: new PaginatedResultDto<AcademicYearDto>
             {
                 Items = academicYearsDtos,
                 PageNumber = request.PageNumber,
                 PageSize = request.PageSize,
                 TotalCount = totalCount,
                 TotalPages = totalPages
-            };
+            });
         }
     }
 }
