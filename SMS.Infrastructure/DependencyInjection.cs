@@ -12,6 +12,7 @@ using SMS.Domain.Interfaces.Repositories.Academic;
 using SMS.Domain.Interfaces.Repositories.Common;
 using SMS.Domain.Interfaces.Repositories.Core;
 using SMS.Infrastructure.Configs;
+using SMS.Infrastructure.Middlewares;
 using SMS.Infrastructure.Persistance.Context;
 using SMS.Infrastructure.Repositories.Academic;
 using SMS.Infrastructure.Repositories.Core;
@@ -58,6 +59,10 @@ namespace SMS.Infrastructure
             // Common Services
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
             services.AddSingleton<IEmailSenderService, EmailSenderService>();
+            services.AddScoped<IEmailJobService, EmailJobService>();
+            services.AddScoped<IEmailTemplatesLoader, EmailTemplatesLoader>();
+            services.AddScoped<ExceptionHandlingMiddleware>();
+            services.AddScoped<RequestLoggingMiddleware>();
 
             // Academic Repositories and Services
             services.AddScoped<IAcademicYearRepository, AcademicYearRepository>();
@@ -73,10 +78,7 @@ namespace SMS.Infrastructure
             // Identity Services
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IRoleManagementService, RoleManagementService>();
-            services.AddScoped<ITokenManagementService, TokenManagementService>();
-
-            services.AddScoped<IEmailJobService, EmailJobService>();
-            services.AddScoped<IEmailTemplatesLoader, EmailTemplatesLoader>();
+            services.AddScoped<ITokenManagementService, TokenManagementService>();            
 
             return services;
         }

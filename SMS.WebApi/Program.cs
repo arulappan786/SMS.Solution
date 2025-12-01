@@ -3,6 +3,7 @@ using Hangfire.SqlServer;
 using Serilog;
 using SMS.Application;
 using SMS.Infrastructure;
+using SMS.Infrastructure.Middlewares;
 using SMS.Infrastructure.Persistence.Seeders;
 using SMS.WebApi.Filters;
 
@@ -125,6 +126,9 @@ try
 
     // Builds the application host, resolving all configured services and creating the WebApplication instance.
     var app = builder.Build();
+
+    app.UseExceptionHandlingMiddleware();
+    app.UseRequestLoggingMiddleware();
 
     // Logs the intent to run the database seeding logic.
     Log.Information("Attempting database seeding...");
