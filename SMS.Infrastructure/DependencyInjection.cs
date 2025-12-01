@@ -28,6 +28,7 @@ namespace SMS.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<GmailSettings>(configuration.GetSection(GmailSettings.SettingsKey));
+            services.Configure<ClientSettings>(configuration.GetSection(ClientSettings.SettingsKey));
 
             services.AddDbContext<AppDbContext>(options =>
             {

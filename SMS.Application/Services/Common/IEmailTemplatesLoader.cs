@@ -1,7 +1,9 @@
-﻿namespace SMS.Application.Services.Common
+﻿using SMS.Application.CQRS.Core.Students.Commands.Create;
+
+namespace SMS.Application.Services.Common
 {
     public interface IEmailTemplatesLoader
     {
-        string LoadEmailTemplate(string templateName);
+        string LoadEmailTemplate(CreateStudentCommand request, string newPassword, string templateName);
     }
 }

@@ -10,27 +10,25 @@ using SMS.Application.DTOs.Core.Students;
 using SMS.Application.DTOs.Service;
 using System.Net;
 
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 public class StudentController(IMediator mediator) : ControllerBase
 {
     // --- QUERY: Get All Students ---
 
     [HttpGet]
-    // Assume handler returns PaginatedResultDto (empty list if none found, never null)
     [ProducesResponseType(typeof(PaginatedResultDto<StudentDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllStudentsQuery query)
     {
         var students = await mediator.Send(query);
-        // Clean: Always returns 200 OK, with an empty list if no records exist.
         return Ok(students);
     }
 
     // --- QUERY: Get Student by ID ---
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:guid}", Name = "GetStudentById")]
     [ProducesResponseType(typeof(StudentDto), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)] // Best handled by global filter
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetStudentByIdQuery { Id = id };
@@ -44,31 +42,58 @@ public class StudentController(IMediator mediator) : ControllerBase
 
     // --- COMMAND: Create Student ---
 
+    /// <summary>
+    /// Handles the creation of a new student resource.
+    /// </summary>
+    /// <param name="command">The command containing data needed to create the student.</param>
+    /// <returns>
+    /// A 201 Created response with the Location header for the new resource,
+    /// or a 400 Bad Request if the creation failed due to validation or business logic errors.
+    /// </returns>
     [HttpPost]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateStudentCommand command)
     {
+        // Send the creation command to the mediator (CQRS handler) for processing.
         var serviceResponse = await mediator.Send(command);
 
+        // Check if the business operation executed successfully.
         if (serviceResponse.Succeeded)
         {
-            // Consistent: Return 201 Created with the ServiceResponse.
-            return StatusCode((int)HttpStatusCode.Created, serviceResponse);
+            // Use pattern matching to safely cast the response data to the expected DTO record (CreatedStudentDto).
+            if (serviceResponse.Data is CreatedStudentDto createdStudent)
+            {
+                // Successful creation: Return 201 Created with the Location header.
+                // CreatedAtAction builds the full URI for the GET endpoint (named 'Get') 
+                // using the newly created StudentId, adhering to REST best practices.
+                return CreatedAtAction(
+                    nameof(Get),
+                    new { Id = createdStudent.StudentId }, // Assuming property is StudentId or Id
+                    serviceResponse
+                );
+            }
+            else
+            {
+                // Fallback: If data structure is unexpectedly missing or incorrect, 
+                // return a simple 201 Created without the Location header (less RESTful).
+                return StatusCode((int)HttpStatusCode.Created, serviceResponse);
+            }
         }
         else
         {
-            // Consistent: Return 400 Bad Request with the ServiceResponse.
+            // Failure: Return 400 Bad Request, including the ServiceResponse 
+            // which contains the specific error message(s).
             return BadRequest(serviceResponse);
         }
     }
 
     // --- COMMAND: Update Student ---
 
-    [HttpPut("{id}")] // Use HTTP PUT for full resource replacement/update
+    [HttpPut("{id:guid}")] // 👈 Added :guid constraint for route safety
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)] // Added for clarity
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStudentCommand command)
     {
         // 1. Ensure the ID in the route matches the ID in the command body
@@ -88,7 +113,7 @@ public class StudentController(IMediator mediator) : ControllerBase
         else
         {
             // Check for NotFound message from the handler
-            if (serviceResponse.Message.Contains("not found", System.StringComparison.OrdinalIgnoreCase))
+            if (serviceResponse.Message?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
             {
                 // Return 404 Not Found if the record doesn't exist.
                 return NotFound(serviceResponse);
@@ -102,7 +127,7 @@ public class StudentController(IMediator mediator) : ControllerBase
 
     // --- COMMAND: Delete Student ---
 
-    [HttpDelete("{id}")] // Use HTTP DELETE
+    [HttpDelete("{id:guid}")] // 👈 Added :guid constraint for route safety
     [ProducesResponseType((int)HttpStatusCode.NoContent)] // 204 No Content is standard for successful deletion
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
@@ -120,7 +145,7 @@ public class StudentController(IMediator mediator) : ControllerBase
         else
         {
             // Check for NotFound message from the handler
-            if (serviceResponse.Message.Contains("not found", System.StringComparison.OrdinalIgnoreCase))
+            if (serviceResponse.Message?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
             {
                 return NotFound(serviceResponse);
             }

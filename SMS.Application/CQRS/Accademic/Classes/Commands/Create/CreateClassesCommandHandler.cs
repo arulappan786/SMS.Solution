@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using MediatR;
+using SMS.Application.DTOs.Accademic.Classes;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Logging;
 using SMS.Domain.Interfaces.Repositories.Academic;
@@ -69,7 +70,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Commands.Create
                 // Use ServiceResponse.Success
                 return ServiceResponse.Success(
                     $"New Class is created with the name: {request.Name}.",
-                    new { ClassId = newClass.Id, newClass.Name } // Return created ID/Name
+                    new CreatedClassesDto(ClassId : newClass.Id, Name: newClass.Name)
                 );
             }
             catch (Exception ex)

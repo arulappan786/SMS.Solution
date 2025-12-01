@@ -10,40 +10,40 @@ using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Service;
 using System.Net;
 
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [ApiController]
 public class AcademicYearController(IMediator mediator) : ControllerBase
 {
-    // --- QUERY: Get All AcademicYears ---
+    // --- QUERY: Get All AcademicYears --- 📚
 
     [HttpGet]
-    // Assume handler returns PaginatedResultDto (empty list if none found, never null)
     [ProducesResponseType(typeof(PaginatedResultDto<AcademicYearDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllAcademicYearsQuery query)
     {
-        var students = await mediator.Send(query);
-        // Clean: Always returns 200 OK, with an empty list if no records exist.
-        return Ok(students);
+        var academicYears = await mediator.Send(query);
+        return Ok(academicYears);
     }
 
     // --- QUERY: Get AcademicYear by ID ---
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:guid}", Name = "GetAcademicYearById")]
     [ProducesResponseType(typeof(AcademicYearDto), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)] // Best handled by global filter
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetAcademicYearByIdQuery { Id = id };
-        var student = await mediator.Send(query);
-
-        // If global exception handling is NOT used, keep this check:
-        if (student == null) return NotFound();
-
-        return Ok(student);
+        var academicYear = await mediator.Send(query);
+        if (academicYear == null) return NotFound();
+        return Ok(academicYear);
     }
 
-    // --- COMMAND: Create AcademicYear ---
+    // --- COMMAND: Create AcademicYear --- ✨
 
+    /// <summary>
+    /// Handles the creation of a new Academic Year resource.
+    /// </summary>
+    /// <param name="command">The command containing data needed to create the Academic Year.</param>
+    /// <returns>A 201 Created response with the Location header for the new resource.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
@@ -53,22 +53,31 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
 
         if (serviceResponse.Succeeded)
         {
-            // Consistent: Return 201 Created with the ServiceResponse.
-            return StatusCode((int)HttpStatusCode.Created, serviceResponse);
+            if (serviceResponse.Data is CreatedAcademicYearDto createdYear)
+            {
+                return CreatedAtAction(
+                    nameof(Get),
+                    new { Id = createdYear.AcademicYearId },
+                    serviceResponse
+                );
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.Created, serviceResponse);
+            }
         }
         else
         {
-            // Consistent: Return 400 Bad Request with the ServiceResponse.
             return BadRequest(serviceResponse);
         }
     }
 
-    // --- COMMAND: Update AcademicYear ---
+    // --- COMMAND: Update AcademicYear --- 🔄
 
-    [HttpPut("{id}")] // Use HTTP PUT for full resource replacement/update
+    [HttpPut("{id:guid}")] // 👈 Added :guid constraint for safety
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)] // Added for clarity
+    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAcademicYearCommand command)
     {
         // 1. Ensure the ID in the route matches the ID in the command body
@@ -88,7 +97,7 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
         else
         {
             // Check for NotFound message from the handler
-            if (serviceResponse.Message.Contains("not found", System.StringComparison.OrdinalIgnoreCase))
+            if (serviceResponse.Message?.Contains("not found", System.StringComparison.OrdinalIgnoreCase) == true)
             {
                 // Return 404 Not Found if the record doesn't exist.
                 return NotFound(serviceResponse);
@@ -99,11 +108,10 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
         }
     }
 
+    // --- COMMAND: Delete AcademicYear --- 🗑️
 
-    // --- COMMAND: Delete AcademicYear ---
-
-    [HttpDelete("{id}")] // Use HTTP DELETE
-    [ProducesResponseType((int)HttpStatusCode.NoContent)] // 204 No Content is standard for successful deletion
+    [HttpDelete("{id:guid}")] // 👈 Added :guid constraint
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Delete(Guid id)
@@ -120,7 +128,7 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
         else
         {
             // Check for NotFound message from the handler
-            if (serviceResponse.Message.Contains("not found", System.StringComparison.OrdinalIgnoreCase))
+            if (serviceResponse.Message?.Contains("not found", System.StringComparison.OrdinalIgnoreCase) == true)
             {
                 return NotFound(serviceResponse);
             }

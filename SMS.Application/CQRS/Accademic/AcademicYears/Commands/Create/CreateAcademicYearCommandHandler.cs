@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using MediatR;
+using SMS.Application.DTOs.Accademic.AcademicYears;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Academic;
@@ -68,7 +69,7 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Commands.Create
                 // Use ServiceResponse.Success
                 return ServiceResponse.Success(
                     $"New Academic Year is created with the name: {request.Name}.",
-                    new { AcademicYearId = academicYear.Id, Name = academicYear.Name } // Optional: return new ID
+                    new CreatedAcademicYearDto(AcademicYearId : academicYear.Id, Name : academicYear.Name)
                 );
             }
             catch (Exception ex)

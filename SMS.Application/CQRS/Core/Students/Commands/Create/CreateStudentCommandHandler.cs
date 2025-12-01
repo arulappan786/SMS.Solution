@@ -2,6 +2,7 @@
 using FluentValidation;
 using Hangfire;
 using MediatR;
+using SMS.Application.DTOs.Core.Students;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
@@ -22,7 +23,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                                              IAppLogger<CreateStudentCommandHandler> logger,
                                              IMapper mapper,
                                              IStudentOnboardingService onboardingService,
-                                             IEmailTemplatesLoader templateLoader) // Removed IEmailSenderService to decouple
+                                             IEmailTemplatesLoader templateLoader)
         : IRequestHandler<CreateStudentCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
@@ -109,7 +110,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 try
                 {
                     logger.LogInfo("Enqueuing welcome email job via Hangfire.");
-                    string htmlBody = PrepareEmailBody(request, newPassword);
+                    string htmlBody = templateLoader.LoadEmailTemplate(request, newPassword, "WelcomeStudentTemplate.html");
 
                     // The key line: Hangfire finds the EmailJobService via DI later.
                     BackgroundJob.Enqueue<IEmailJobService>(job =>
@@ -124,10 +125,8 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 }
 
                 // --- 9. Success ---
-                return ServiceResponse.Success(
-                    $"New student is created with the email: {request.Email}. Credentials email process initiated.",
-                    new { StudentId = mappedStudent.Id, UserId = newUser.Id, StudentCode = newStudentCode }
-                );
+                return ServiceResponse.Success($"New student is created with the email: {request.Email}. Credentials email process initiated.",
+                                               new CreatedStudentDto(StudentId: mappedStudent.Id, UserId: newUser.Id, StudentCode: newStudentCode));
             }
             catch (Exception ex)
             {
@@ -153,20 +152,6 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 // Use ServiceResponse.Failure
                 return ServiceResponse.Failure($"Error while onboarding a new student into the system. {ex.Message}");
             }
-        }
-
-        private string PrepareEmailBody(CreateStudentCommand request, string newPassword)
-        {
-            string htmlBody = templateLoader.LoadEmailTemplate("StudentWelcomeEmailTemplate.html");
-            htmlBody = htmlBody.Replace("[USERNAME]", request.Email);
-            htmlBody = htmlBody.Replace("[PASSWORD]", newPassword);
-            htmlBody = htmlBody.Replace("[STUDENT_NAME]", request.FullName.ToString());
-            // Fetch configuration for the login URL
-            //string loginUrl = _configuration["ClientSettings:LoginUrl"];
-            string loginUrl = "https://smsclient.example.com/login"; // Placeholder for actual config retrieval
-            htmlBody = htmlBody.Replace("[LOGIN_URL]", loginUrl);
-            htmlBody = htmlBody.Replace("[CURRENT_YEAR]", DateTime.UtcNow.Year.ToString());
-            return htmlBody;
         }
     }
 }
