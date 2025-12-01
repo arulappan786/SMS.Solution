@@ -31,6 +31,10 @@ namespace SMS.WebApi.Filters
             {
                 HandleForbiddenException(context, forbiddenException);
             }
+            else if (context.Exception is ConcurrencyException concurrencyException)
+            {
+                HandleConcurrencyException(context, concurrencyException);
+            }
             // --- 5. Catch-All for Unknown/Unexpected Exceptions (500) ---
             else
             {
@@ -115,6 +119,20 @@ namespace SMS.WebApi.Filters
                 Title = "Internal Server Error",
                 // Never expose technical details (like stack traces) in production!
                 Detail = "An unexpected error occurred while processing the request."
+            });
+
+            context.ExceptionHandled = true;
+        }
+
+        private static void HandleConcurrencyException(ExceptionContext context, ConcurrencyException exception)
+        {
+            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict; // 409
+
+            context.Result = new ObjectResult(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.Conflict,
+                Title = "Concurrency Conflict",
+                Detail = exception.Message ?? "The record you were trying to update has been modified by another transaction."
             });
 
             context.ExceptionHandled = true;
