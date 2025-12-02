@@ -1,141 +1,140 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SMS.Application.Exceptions;
+using SMS.Application.Services.Logging;
 using System.Net;
 
 namespace SMS.WebApi.Filters
 {
+    /// <summary>
+    /// Centralized filter for handling common application exceptions and returning
+    /// standardized RFC 7807 Problem Details results (JSON error responses).
+    /// </summary>
     public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
+        // 1. Logger is now a private readonly INSTANCE member for thread safety
+        private readonly IAppLogger<ApiExceptionFilterAttribute> _logger;
+
+        public ApiExceptionFilterAttribute(IAppLogger<ApiExceptionFilterAttribute> logger)
+        {
+            _logger = logger;
+        }
+
         public override void OnException(ExceptionContext context)
         {
-            // --- 1. Handle Entity Not Found Exception (404) ---
-            if (context.Exception is EntityNotFoundException notFoundException)
+            // Reset ProblemDetails variable
+            ProblemDetails problemDetails = null;
+
+            // Use switch expression (C# 8+) for cleaner exception handling flow
+            problemDetails = context.Exception switch
             {
-                HandleNotFoundException(context, notFoundException);
-            }
-            // --- 2. Handle Validation Exception (400) ---
-            // Thrown typically by the MediatR Validation Behavior pipeline
-            else if (context.Exception is ValidationException validationException)
+                // --- 404: Not Found ---
+                EntityNotFoundException notFoundEx => CreateProblemDetails(
+                    HttpStatusCode.NotFound,
+                    "Resource Not Found",
+                    notFoundEx.Message),
+
+                // --- 400: Bad Request (Business Logic) ---
+                BadRequestException badRequestEx => CreateProblemDetails(
+                    HttpStatusCode.BadRequest,
+                    "Bad Request (Business Logic Error)",
+                    badRequestEx.Message),
+
+                // --- 403: Forbidden ---
+                ForbiddenAccessException forbiddenEx => CreateProblemDetails(
+                    HttpStatusCode.Forbidden,
+                    "Forbidden",
+                    forbiddenEx.Message ?? "You do not have the necessary permissions for this action."),
+
+                // --- 409: Concurrency Conflict ---
+                ConcurrencyException concurrencyEx => CreateProblemDetails(
+                    HttpStatusCode.Conflict,
+                    "Concurrency Conflict",
+                    concurrencyEx.Message ?? "The record you were trying to update has been modified by another transaction."),
+
+                // --- 400: Validation Exception (Requires special handling - ValidationProblemDetails) ---
+                FluentValidation.ValidationException validationEx => HandleValidationException(context, validationEx),
+
+                // --- 500: Catch-All for Unknown/Unexpected Exceptions ---
+                _ => HandleUnknownException(context)
+            };
+
+            // If the handler method (except Validation/Unknown) returned ProblemDetails, apply it.
+            if (problemDetails != null)
             {
-                HandleValidationException(context, validationException);
-            }
-            // --- 3. Handle Bad Request Exception (400) ---
-            // Thrown for business logic errors (e.g., email already exists)
-            else if (context.Exception is BadRequestException badRequestException)
-            {
-                HandleBadRequestException(context, badRequestException);
-            }
-            // --- 4. Handle Forbidden Access Exception (403) ---
-            else if (context.Exception is ForbiddenAccessException forbiddenException)
-            {
-                HandleForbiddenException(context, forbiddenException);
-            }
-            else if (context.Exception is ConcurrencyException concurrencyException)
-            {
-                HandleConcurrencyException(context, concurrencyException);
-            }
-            // --- 5. Catch-All for Unknown/Unexpected Exceptions (500) ---
-            else
-            {
-                HandleUnknownException(context);
+                context.HttpContext.Response.StatusCode = (int)problemDetails.Status.GetValueOrDefault((int)HttpStatusCode.InternalServerError);
+                context.Result = new ObjectResult(problemDetails);
+                context.ExceptionHandled = true;
             }
 
             // Important: Call base.OnException to ensure other filters in the pipeline are executed.
             base.OnException(context);
         }
 
-        // --- EXCEPTION HANDLING METHODS ---
+        // --- HELPER METHODS ---
 
-        private static void HandleNotFoundException(ExceptionContext context, EntityNotFoundException exception)
+        /// <summary>
+        /// Creates a standard ProblemDetails object (RFC 7807) for non-validation exceptions.
+        /// </summary>
+        private ProblemDetails CreateProblemDetails(HttpStatusCode status, string title, string detail, string type = null)
         {
-            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-
-            context.Result = new ObjectResult(new ProblemDetails
+            return new ProblemDetails
             {
-                Status = (int)HttpStatusCode.NotFound,
-                Title = "Resource Not Found",
-                Detail = exception.Message
-            });
-
-            context.ExceptionHandled = true;
+                Status = (int)status,
+                Title = title,
+                Detail = detail,
+                Type = type,
+            };
         }
 
-        private static void HandleValidationException(ExceptionContext context, ValidationException exception)
+        /// <summary>
+        /// Handles the FluentValidation.ValidationException and returns a ValidationProblemDetails object.
+        /// </summary>
+        private ValidationProblemDetails HandleValidationException(ExceptionContext context, FluentValidation.ValidationException exception)
         {
+            // Map the FluentValidation failures into the required dictionary format
+            var errors = exception.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-            // ValidationProblemDetails is a standard ASP.NET Core object that serializes 
-            // the validation errors into a standard format.
-            context.Result = new ObjectResult(new ValidationProblemDetails(exception.Errors)
+            // Create and return the ValidationProblemDetails object
+            var problemDetails = new ValidationProblemDetails(errors)
             {
                 Status = (int)HttpStatusCode.BadRequest,
-                Title = "Validation Failed",
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
-            });
+                Title = "One or more validation errors occurred.",
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                Instance = context.HttpContext.TraceIdentifier
+            };
 
+            context.Result = new ObjectResult(problemDetails);
             context.ExceptionHandled = true;
+
+            // Return null or throw a return exception to avoid double handling in OnException switch
+            return null;
         }
 
-        private static void HandleBadRequestException(ExceptionContext context, BadRequestException exception)
+        /// <summary>
+        /// Handles the final catch-all 500 exception. Logs the full exception details server-side.
+        /// </summary>
+        private ProblemDetails HandleUnknownException(ExceptionContext context)
         {
-            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            // 2. Logging the full exception details is now CORRECTLY done using the instance logger
+            _logger.LogError(context.Exception, "An unhandled exception occurred during request processing.");
 
-            context.Result = new ObjectResult(new ProblemDetails
-            {
-                Status = (int)HttpStatusCode.BadRequest,
-                Title = "Bad Request (Business Logic Error)",
-                Detail = exception.Message
-            });
-
-            context.ExceptionHandled = true;
-        }
-
-        private static void HandleForbiddenException(ExceptionContext context, ForbiddenAccessException exception)
-        {
-            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-
-            context.Result = new ObjectResult(new ProblemDetails
-            {
-                Status = (int)HttpStatusCode.Forbidden,
-                Title = "Forbidden",
-                Detail = exception.Message ?? "You do not have the necessary permissions for this action."
-            });
-
-            context.ExceptionHandled = true;
-        }
-
-        private static void HandleUnknownException(ExceptionContext context)
-        {
             // Set a generic 500 status code for unhandled exceptions
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            // Log the exception details here for monitoring purposes.
-            // logger.LogError(context.Exception, "An unhandled exception occurred.");
-
-            context.Result = new ObjectResult(new ProblemDetails
-            {
-                Status = (int)HttpStatusCode.InternalServerError,
-                Title = "Internal Server Error",
-                // Never expose technical details (like stack traces) in production!
-                Detail = "An unexpected error occurred while processing the request."
-            });
-
-            context.ExceptionHandled = true;
-        }
-
-        private static void HandleConcurrencyException(ExceptionContext context, ConcurrencyException exception)
-        {
-            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict; // 409
-
-            context.Result = new ObjectResult(new ProblemDetails
-            {
-                Status = (int)HttpStatusCode.Conflict,
-                Title = "Concurrency Conflict",
-                Detail = exception.Message ?? "The record you were trying to update has been modified by another transaction."
-            });
-
-            context.ExceptionHandled = true;
+            // IMPORTANT: Never expose technical details (like stack traces) in the ProblemDetails!
+            return CreateProblemDetails(
+                HttpStatusCode.InternalServerError,
+                "Internal Server Error",
+                "An unexpected error occurred while processing the request."
+            );
         }
     }
 }

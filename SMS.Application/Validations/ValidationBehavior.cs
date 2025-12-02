@@ -25,7 +25,7 @@ namespace SMS.Application.Validations
                 .ToList();
 
             if (failures.Any())
-                throw new ValidationException(failures);
+                throw new FluentValidation.ValidationException(failures);
 
             return await next();
         }
