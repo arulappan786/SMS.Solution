@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SMS.Infrastructure.Extensions
 {
-    public static class JwtExtensions
+    public static class JWTExtensions
     {
         public static SymmetricSecurityKey GetSymmetricSecurityKey(this JwtSettings settings)
         {

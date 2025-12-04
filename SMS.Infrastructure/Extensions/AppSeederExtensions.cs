@@ -23,7 +23,7 @@ namespace SMS.Infrastructure.Extensions
                 {
                     // Change the type argument from the static ApplicationInitializer
                     // to a non-static class/interface.
-                    var roleSeederLogger = services.GetRequiredService<IAppLogger<RoleSeeder>>(); // ✅ FIX APPLIED
+                    var roleSeederLogger = services.GetRequiredService<IAppLogger<AppRolesSeeder>>(); // ✅ FIX APPLIED
                     var adminUserSeederLogger = services.GetRequiredService<IAppLogger<AdminUserSeeder>>(); // ✅ FIX APPLIED
 
                     // Resolve required dependencies
@@ -37,7 +37,7 @@ namespace SMS.Infrastructure.Extensions
                     // --- 1. Seed Roles FIRST ---
                     // Note: The RoleSeeder.SeedRolesAsync method also needs to be updated 
                     // to accept ILogger<T> if you want to use the resolved logger inside it.
-                    await RoleSeeder.SeedRolesAsync(roleManager, identitySettingsOptions, roleSeederLogger);
+                    await AppRolesSeeder.SeedRolesAsync(roleManager, identitySettingsOptions, roleSeederLogger);
 
                     // --- 2. Seed Admin User SECOND ---
                     await AdminUserSeeder.SeedAdminUserAsync(userManager, roleManager, identitySettingsOptions, adminUserSeederLogger);

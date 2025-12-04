@@ -5,15 +5,20 @@ using SMS.Infrastructure.Configs;
 
 namespace SMS.Infrastructure.Persistance.Seeders
 {
-    public class RoleSeeder
+    public class AppRolesSeeder
     {
         public async static Task SeedRolesAsync(
             RoleManager<IdentityRole> roleManager, IOptions<IdentitySettings> identitySettingsOptions,
-            IAppLogger<RoleSeeder> logger)
+            IAppLogger<AppRolesSeeder> logger)
         {
             // Define the roles based on your business needs
-            //string[] roles = { "Admin", "Teacher", "Student", "Parent" };
             var initialRoles = identitySettingsOptions.Value.InitialRoles;
+
+            if(initialRoles == null || !initialRoles.Any())
+            {
+                logger.LogWarning("No initial roles defined in IdentitySettings.");
+                return;
+            }
 
             foreach (var roleName in initialRoles)
             {
@@ -29,8 +34,12 @@ namespace SMS.Infrastructure.Persistance.Seeders
                     if (!result.Succeeded)
                     {
                         // Handle errors if role creation fails (e.g., logging)
-                        // throw new Exception($"Failed to seed role {roleName}.");
+                        logger.LogError($"Error creating role '{roleName}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
                     }
+                }
+                else
+                {
+                    logger.LogInfo($"Role '{roleName}' already exists. Skipping seeding for this role.");
                 }
             }
         }

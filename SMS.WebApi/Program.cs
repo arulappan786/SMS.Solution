@@ -39,6 +39,8 @@ builder.Services.AddApplication(config);
 Log.Information("Registering Infrastructure services...");
 builder.Services.AddInfrastructure(config);
 
+builder.Services.AddSwaggerAuth();
+
 // --- JWT Configuration Setup ---
 // 1. Retrieve the JWT Settings from configuration
 var jwtSettings = config.GetSection(nameof(JwtSettings)).Get<JwtSettings>();

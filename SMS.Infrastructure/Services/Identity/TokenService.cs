@@ -16,7 +16,7 @@ namespace SMS.Infrastructure.Services.Identity
         {
             var securityKey = options.Value.GetSymmetricSecurityKey();
             var signingCredentials = options.Value.GetSigningCredentials();
-            var claims = JwtExtensions.GetClaims(user, roles);
+            var claims = JWTExtensions.GetClaims(user, roles);
 
             var securityToken = new JwtSecurityToken(
                 issuer: _jwtSettings.ValidIssuer,

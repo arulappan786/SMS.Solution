@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace SMS.Application.Extensions
 {
-    public static class DependencyInjection
+    public static class DIServicesExtensions
     {
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
