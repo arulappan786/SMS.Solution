@@ -1,7 +1,10 @@
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SMS.Application.Extensions;
+using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Extensions;
 using SMS.Infrastructure.Middlewares;
 using SMS.Infrastructure.Persistence.Seeders;
@@ -11,54 +14,71 @@ using SMS.WebApi.Filters;
 // I. HOST INITIALIZATION & CONFIGURATION
 // --------------------------------------------------------------------------------
 
-// Initializes a new instance of the WebApplicationBuilder, which is the starting point
-// for configuring and hosting the web application. It sets up default host settings.
 var builder = WebApplication.CreateBuilder(args);
-
-// Gets the IConfiguration instance, which consolidates configuration sources 
-// (appsettings.json, environment variables, command-line arguments, etc.).
 var config = builder.Configuration;
 
 // --------------------------------------------------------------------------------
 // 1. Serilog Logging Setup (Early Initialization)
 // --------------------------------------------------------------------------------
 
-// Assigns the static Log.Logger property to a new LoggerConfiguration.
 Log.Logger = new LoggerConfiguration()
-    // Instructs Serilog to load all logging settings (sinks, levels) from the 
-    // IConfiguration instance, typically found in appsettings.json.
     .ReadFrom.Configuration(config)
-    // Adds contextual properties (like correlation IDs or action names) to log events,
-    // which helps in tracing complex operations.
     .Enrich.FromLogContext()
-    // Finalizes the configuration and creates the static Serilog logger instance.
     .CreateLogger();
 
-// Writes the first log message using the static Serilog logger before the application is fully built.
 Log.Information("Starting application...");
-
-// Integrates Serilog with the ASP.NET Core hosting mechanism (builder.Host), 
-// ensuring all subsequent framework logging goes through Serilog.
 builder.Host.UseSerilog();
 
 // --------------------------------------------------------------------------------
 // II. SERVICE REGISTRATION (Dependency Injection)
 // --------------------------------------------------------------------------------
 
-// Logs the intent to register services for clarity in the startup logs.
 Log.Information("Registering Application services...");
-
-// Extension method (defined in SMS.Application) that registers all services,
-// use cases (CQRS), and business logic dependencies for the Application layer.
 builder.Services.AddApplication(config);
 
-// Logs the intent to register services for clarity in the startup logs.
 Log.Information("Registering Infrastructure services...");
-
-// Extension method (defined in SMS.Infrastructure) that registers all 
-// concrete implementations (e.g., DbContext, Repositories, external services)
-// for the Infrastructure layer.
 builder.Services.AddInfrastructure(config);
+
+// --- JWT Configuration Setup ---
+// 1. Retrieve the JWT Settings from configuration
+var jwtSettings = config.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
+if (jwtSettings == null)
+{
+    Log.Fatal("JWT configuration is missing or invalid. Application cannot start.");
+    throw new InvalidOperationException("JwtSettings configuration section is missing or invalid.");
+}
+
+// 2. Add Authentication Services (JWT Bearer) 🔑
+builder.Services.AddAuthentication(options =>
+{
+    // Set the default scheme to JWT Bearer
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        // CORE VALIDATION CHECKS
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        // APPLY CONFIGURATION VALUES
+        ValidIssuer = jwtSettings.ValidIssuer,
+        ValidAudience = jwtSettings.ValidAudience,
+
+        // Apply the secret key for signature validation (must be secure)
+        IssuerSigningKey = jwtSettings.GetSymmetricSecurityKey(),
+
+        // Reduce the tolerance window for token expiration (good security practice)
+        ClockSkew = TimeSpan.Zero
+    };
+});
+// 3. Add Authorization Services (must be added after Authentication)
+builder.Services.AddAuthorization();
+
 
 // Registers MVC controllers as services, enabling them to be used by the application.
 builder.Services.AddControllers(options =>
@@ -93,8 +113,7 @@ builder.Services.AddHangfireServer();
 // 3. CORS Configuration
 // --------------------------------------------------------------------------------
 
-// Retrieves the list of allowed origins (URLs) from the application configuration 
-// (e.g., "CorsOrigins" section in appsettings.json).
+// Retrieves the list of allowed origins (URLs) from the application configuration 
 var allowedOrigins = config.GetSection("CorsOrigins").Get<string[]>() ?? Array.Empty<string>();
 
 // Registers the Cross-Origin Resource Sharing (CORS) service.
@@ -118,71 +137,52 @@ builder.Services.AddCors(options =>
 // III. APPLICATION BUILD AND RUNTIME PIPELINE
 // --------------------------------------------------------------------------------
 
-// Starts a global exception block to catch critical startup failures.
 try
 {
-    // Logs the imminent transition from configuration (builder) to runtime (app).
     Log.Information("Starting web host (Building application)...");
 
-    // Builds the application host, resolving all configured services and creating the WebApplication instance.
     var app = builder.Build();
 
     app.UseExceptionHandlingMiddleware();
     app.UseRequestLoggingMiddleware();
 
-    // Logs the intent to run the database seeding logic.
     Log.Information("Attempting database seeding...");
-
-    // Calls the idempotent database seeding extension method (from SMS.Infrastructure) 
-    // to ensure foundational data (like Identity Roles) exists before running the app.
     await app.SeedDatabaseAsync();
 
     // --- Middleware Pipeline ---
 
-    // Configures the Hangfire Dashboard UI (Web Interface)
     app.UseHangfireDashboard("/hangfire", new DashboardOptions
     {
         // Restrict access to administrators only in a real app!
-        // Authorization = new[] { new HangfireAuthorizationFilter() } 
+        // Authorization = new[] { new HangfireAuthorizationFilter() } 
     });
 
-    // Adds the CORS middleware to the pipeline, applying the default policy defined above.
     app.UseCors();
 
-    // Checks if the application is running in the Development environment.
     if (app.Environment.IsDevelopment())
     {
-        // Enables the Swagger JSON document endpoint.
         app.UseSwagger();
-        // Enables the Swagger UI page for interactive API documentation.
         app.UseSwaggerUI();
     }
 
-    // Redirects HTTP requests to HTTPS, ensuring secure communication.
     app.UseHttpsRedirection();
 
-    // Adds the authorization middleware, which checks if the user has permission to access a resource.
+    // 🔑 IMPORTANT: Add UseAuthentication() before UseAuthorization()
+    app.UseAuthentication();
+
     app.UseAuthorization();
 
     // Maps the controller endpoints (e.g., [Route("api/students")]) to the application's request pipeline.
     app.MapControllers();
 
-    // Logs a successful startup confirmation.
     Log.Information("Application starting up and running!");
-
-    // Runs the application, blocking until the app is shut down. This starts listening for requests.
     app.Run();
 }
-// Catches any unhandled exceptions that occurred during the build or run phase.
 catch (Exception ex)
 {
-    // Logs a fatal error message and the exception details using the static Serilog logger.
     Log.Fatal(ex, "Application terminated unexpectedly during startup.");
 }
-// Ensures this block executes regardless of whether an exception was thrown.
 finally
 {
-    // Flushes any buffered log entries (especially important for file/database sinks) 
-    // and closes the static Serilog logger cleanly before the process exits.
     Log.CloseAndFlush();
 }

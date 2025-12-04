@@ -9,11 +9,11 @@ using SMS.Infrastructure.Configs;
 namespace SMS.Infrastructure.Services.Identity
 {
     public class IdentityService(
-        UserManager<AppUser> userManager,
-        ITokenService tokenService,
-        IUserManagementService userManagementService, // Added for delegated persistence
-        IOptions<JwtSettings> options,
-        IAppLogger<IdentityService> logger) : IIdentityService
+                                UserManager<AppUser> userManager,
+                                ITokenService tokenService,
+                                IUserManagementService userManagementService, // Added for delegated persistence
+                                IOptions<JwtSettings> options,
+                                IAppLogger<IdentityService> logger) : IIdentityService
     {
         private readonly JwtSettings _jwtSettings = options.Value; // Accessing .Value here is common, though IOptions<T> is preferred. Sticking to your original for minimum change.
 
