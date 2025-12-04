@@ -85,6 +85,7 @@ namespace SMS.Infrastructure.Extensions
             services.AddScoped<IRoleManagementService, RoleManagementService>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddSingleton<IJwtConfiguration, JwtConfigurationAccessor>();
 
             return services;
         }

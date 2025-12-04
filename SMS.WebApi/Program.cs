@@ -7,7 +7,6 @@ using SMS.Application.Extensions;
 using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Extensions;
 using SMS.Infrastructure.Middlewares;
-using SMS.Infrastructure.Persistance.Seeders;
 using SMS.WebApi.Filters;
 
 // --------------------------------------------------------------------------------

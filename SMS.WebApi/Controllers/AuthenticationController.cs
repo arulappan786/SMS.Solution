@@ -22,5 +22,22 @@ namespace SMS.WebApi.Controllers
                 return BadRequest(serviceResponse);
             }
         }
+
+        [HttpPost("refreshtoken")]
+        // This endpoint should NOT require [Authorize]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
+        {
+            // Send the command through MediatR
+            var response = await mediator.Send(command);
+
+            if (response.Succeeded)
+            {
+                // Return the new tokens (LoggedInUserDto) and a 200 OK
+                return Ok(response);
+            }
+
+            // Return 401 Unauthorized if the refresh token is invalid/expired
+            return Unauthorized(response.Message);
+        }
     }
 }

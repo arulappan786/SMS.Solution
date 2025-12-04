@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using SMS.Application.Services.Identity;
 using SMS.Domain.Entities.Identity;
 using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Extensions;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace SMS.Infrastructure.Services.Identity
 {
-    public class TokenService(IUserManagementService userManagementService, IOptions<JwtSettings> options) : ITokenService
+    public class TokenService(IOptions<JwtSettings> options) : ITokenService
     {
         private readonly JwtSettings _jwtSettings = options.Value;
 
@@ -44,5 +46,46 @@ namespace SMS.Infrastructure.Services.Identity
             }
         }
 
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            // --- 1. Define Token Validation Parameters ---
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+                ValidAudience = _jwtSettings.ValidAudience,
+
+                ValidateIssuer = true,
+                ValidIssuer = _jwtSettings.ValidIssuer,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _jwtSettings.GetSymmetricSecurityKey(),
+
+                // CRUCIAL: Set ValidateLifetime to false to allow validation of expired tokens
+                ValidateLifetime = false,
+
+                // Optional: Ensure clock skew is handled during validation
+                ClockSkew = TimeSpan.Zero
+            };
+
+            // --- 2. Create Handler and Principal ---
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+
+            // This method attempts to read and validate the token signature and claims 
+            // based on the parameters above. It will throw an exception if the signature is invalid.
+            var principal = tokenHandler.ValidateToken(
+                token,
+                tokenValidationParameters,
+                out securityToken);
+
+            // --- 3. Final Security Check: Ensure token is a JWT and uses the correct algorithm ---
+            if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token format or algorithm.");
+            }
+
+            return principal;
+        }
     }
 }

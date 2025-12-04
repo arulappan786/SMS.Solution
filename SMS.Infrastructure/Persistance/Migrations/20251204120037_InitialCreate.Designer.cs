@@ -12,7 +12,7 @@ using SMS.Infrastructure.Persistance.Context;
 namespace SMS.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251204064539_InitialCreate")]
+    [Migration("20251204120037_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

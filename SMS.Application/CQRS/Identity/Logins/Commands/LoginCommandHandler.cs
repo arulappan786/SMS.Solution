@@ -8,7 +8,8 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
 {
     public class LoginCommandHandler(IValidator<LoginCommand> validator,
                                      IIdentityService identityService,
-                                     IAppLogger<LoginCommandHandler> logger) : IRequestHandler<LoginCommand, ServiceResponse>
+                                     IAppLogger<LoginCommandHandler> logger) 
+        : IRequestHandler<LoginCommand, ServiceResponse>
     {
         public async Task<ServiceResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
