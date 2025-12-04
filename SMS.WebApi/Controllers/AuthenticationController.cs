@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace SMS.WebApi.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/auth")]
     [ApiController]
     public class AuthenticationController(IMediator mediator) : ControllerBase
     {
