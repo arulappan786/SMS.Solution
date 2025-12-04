@@ -27,5 +27,7 @@ namespace SMS.Application.Services.Identity
         Task<IdentityResult> DeleteUserAsync(AppUser user);
 
         Task<(bool Success, string Message)> UpdateRefreshTokenAsync(Guid userId, string? refreshToken, DateTime? expiryTime, CancellationToken cancellationToken);
+
+        Task<(bool Success, string Message)> RevokeUserTokensAsync(Guid userId);
     }
 }

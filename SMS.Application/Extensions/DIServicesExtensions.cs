@@ -11,6 +11,7 @@ using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Application.CQRS.Core.Students.Commands.Delete;
 using SMS.Application.CQRS.Core.Students.Commands.Update;
 using SMS.Application.CQRS.Identity.Logins.Commands;
+using SMS.Application.CQRS.Identity.Registers.Commands;
 using SMS.Application.Validations;
 using System.Reflection;
 
@@ -43,7 +44,7 @@ namespace SMS.Application.Extensions
             services.AddScoped<IValidator<DeleteClassesCommand>, DeleteClassesCommandValidator>();
 
             services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
-
+            services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
 
             return services;
         }

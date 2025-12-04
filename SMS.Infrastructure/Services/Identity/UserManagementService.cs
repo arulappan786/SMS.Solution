@@ -100,6 +100,43 @@ namespace SMS.Infrastructure.Services.Identity
                 logger.LogError($"Failed to save refresh token for user {userId}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 return (false, "Failed to save refresh token data.");
             }
-        }        
+        }
+
+        // Inside SMS.Infrastructure.Services.Identity/UserManagementService.cs
+
+        public async Task<(bool Success, string Message)> RevokeUserTokensAsync(Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                logger.LogWarning($"Revocation failed: User with ID {userId} not found.");
+                return (false, "User not found.");
+            }
+
+            // 1. Invalidate the stored token fields
+            if (user.RefreshToken != null)
+            {
+                user.RefreshToken = null;
+                user.RefreshTokenExpiry = null;
+
+                // 2. Persist the changes
+                var result = await userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    logger.LogInfo($"Successfully revoked all tokens for user {userId}.");
+                    return (true, "Tokens successfully revoked.");
+                }
+                else
+                {
+                    logger.LogError($"Failed to revoke tokens for user {userId}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    return (false, "Failed to update database.");
+                }
+            }
+
+            // If RefreshToken was already null, still return success
+            return (true, "No active tokens found to revoke.");
+        }
     }
 }

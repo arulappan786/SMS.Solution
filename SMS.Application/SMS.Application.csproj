@@ -19,8 +19,4 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CQRS\Identity\Registers\Commands\" />
-  </ItemGroup>
-
 </Project>
