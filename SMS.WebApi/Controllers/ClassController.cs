@@ -20,7 +20,6 @@ public class ClassController(IMediator mediator) : ControllerBase
     // --- QUERY: Get All Classes --- 🧑‍🏫
 
     [HttpGet]
-    [ProducesResponseType(typeof(PaginatedResultDto<ClassesDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllClassesQuery query)
     {
         var classes = await mediator.Send(query);
@@ -30,8 +29,6 @@ public class ClassController(IMediator mediator) : ControllerBase
     // --- QUERY: Get Class by ID ---
 
     [HttpGet("{id:guid}", Name = "GetClassById")]
-    [ProducesResponseType(typeof(ClassesDto), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetClassesByIdQuery { Id = id };
@@ -51,8 +48,6 @@ public class ClassController(IMediator mediator) : ControllerBase
     /// or a 400 Bad Request if the creation failed due to validation or business logic errors.
     /// </returns>
     [HttpPost]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.Created)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateClassesCommand command)
     {
         // Send the creation command to the mediator (CQRS handler) for processing.
@@ -85,9 +80,6 @@ public class ClassController(IMediator mediator) : ControllerBase
     // --- COMMAND: Update Class --- 🔄
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateClassesCommand command)
     {
         // 1. Ensure the ID in the route matches the ID in the command body
@@ -124,9 +116,6 @@ public class ClassController(IMediator mediator) : ControllerBase
     // --- COMMAND: Delete Class --- 🗑️
 
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var command = new DeleteClassesCommand { Id = id };

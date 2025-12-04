@@ -20,7 +20,6 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
     // --- QUERY: Get All AcademicYears --- 📚
 
     [HttpGet]
-    [ProducesResponseType(typeof(PaginatedResultDto<AcademicYearDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllAcademicYearsQuery query)
     {
         var academicYears = await mediator.Send(query);
@@ -30,8 +29,6 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
     // --- QUERY: Get AcademicYear by ID ---
 
     [HttpGet("{id:guid}", Name = "GetAcademicYearById")]
-    [ProducesResponseType(typeof(AcademicYearDto), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetAcademicYearByIdQuery { Id = id };
@@ -48,8 +45,6 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
     /// <param name="command">The command containing data needed to create the Academic Year.</param>
     /// <returns>A 201 Created response with the Location header for the new resource.</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.Created)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateAcademicYearCommand command)
     {
         var serviceResponse = await mediator.Send(command);
@@ -78,9 +73,6 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
     // --- COMMAND: Update AcademicYear --- 🔄
 
     [HttpPut("{id:guid}")] // 👈 Added :guid constraint for safety
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAcademicYearCommand command)
     {
         // 1. Ensure the ID in the route matches the ID in the command body
@@ -114,9 +106,6 @@ public class AcademicYearController(IMediator mediator) : ControllerBase
     // --- COMMAND: Delete AcademicYear --- 🗑️
 
     [HttpDelete("{id:guid}")] // 👈 Added :guid constraint
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var command = new DeleteAcademicYearCommand { Id = id };

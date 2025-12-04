@@ -20,7 +20,6 @@ public class StudentController(IMediator mediator) : ControllerBase
     // --- QUERY: Get All Students ---
 
     [HttpGet]
-    [ProducesResponseType(typeof(PaginatedResultDto<StudentDto>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllStudentsQuery query)
     {
         var students = await mediator.Send(query);
@@ -30,8 +29,6 @@ public class StudentController(IMediator mediator) : ControllerBase
     // --- QUERY: Get Student by ID ---
 
     [HttpGet("{id:guid}", Name = "GetStudentById")]
-    [ProducesResponseType(typeof(StudentDto), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get(Guid id)
     {
         var query = new GetStudentByIdQuery { Id = id };
@@ -54,8 +51,6 @@ public class StudentController(IMediator mediator) : ControllerBase
     /// or a 400 Bad Request if the creation failed due to validation or business logic errors.
     /// </returns>
     [HttpPost]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.Created)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateStudentCommand command)
     {
         // Send the creation command to the mediator (CQRS handler) for processing.
@@ -94,9 +89,6 @@ public class StudentController(IMediator mediator) : ControllerBase
     // --- COMMAND: Update Student ---
 
     [HttpPut("{id:guid}")] // 👈 Added :guid constraint for route safety
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateStudentCommand command)
     {
         // 1. Ensure the ID in the route matches the ID in the command body
@@ -131,9 +123,6 @@ public class StudentController(IMediator mediator) : ControllerBase
     // --- COMMAND: Delete Student ---
 
     [HttpDelete("{id:guid}")] // 👈 Added :guid constraint for route safety
-    [ProducesResponseType((int)HttpStatusCode.NoContent)] // 204 No Content is standard for successful deletion
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.NotFound)]
-    [ProducesResponseType(typeof(ServiceResponse), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var command = new DeleteStudentCommand { Id = id };
