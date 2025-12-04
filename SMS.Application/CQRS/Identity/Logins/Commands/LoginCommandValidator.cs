@@ -6,7 +6,7 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
     {
         public LoginCommandValidator()
         {
-            RuleFor(x => x.EmailAddess)
+            RuleFor(x => x.Email)
                 .NotEmpty()
                     .WithMessage("Email Address is required.")
                 .EmailAddress()

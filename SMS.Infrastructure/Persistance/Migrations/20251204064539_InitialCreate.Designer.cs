@@ -12,8 +12,8 @@ using SMS.Infrastructure.Persistance.Context;
 namespace SMS.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251130135544_UniquenessCheck")]
-    partial class UniquenessCheck
+    [Migration("20251204064539_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -729,7 +729,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("RefreshTokenExpiry")
+                    b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")

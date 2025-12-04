@@ -1,15 +1,21 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using SMS.Application.Services.Logging;
+using SMS.Infrastructure.Configs;
 
 namespace SMS.Infrastructure.Persistance.Seeders
 {
-    public static class RoleSeeder
+    public class RoleSeeder
     {
-        public async static Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+        public async static Task SeedRolesAsync(
+            RoleManager<IdentityRole> roleManager, IOptions<IdentitySettings> identitySettingsOptions,
+            IAppLogger<RoleSeeder> logger)
         {
             // Define the roles based on your business needs
-            string[] roles = { "Admin", "Teacher", "Student", "Parent" };
+            //string[] roles = { "Admin", "Teacher", "Student", "Parent" };
+            var initialRoles = identitySettingsOptions.Value.InitialRoles;
 
-            foreach (var roleName in roles)
+            foreach (var roleName in initialRoles)
             {
                 // Check if the role already exists to prevent duplicates
                 if (await roleManager.FindByNameAsync(roleName) == null)

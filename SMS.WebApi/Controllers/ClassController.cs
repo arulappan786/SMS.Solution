@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SMS.Application.Constants;
 using SMS.Application.CQRS.Accademic.Classes.Commands.Create;
 using SMS.Application.CQRS.Accademic.Classes.Commands.Delete;
 using SMS.Application.CQRS.Accademic.Classes.Commands.Update;
@@ -12,6 +14,7 @@ using System.Net;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[Authorize(Roles = AppRoles.Admin)]
 public class ClassController(IMediator mediator) : ControllerBase
 {
     // --- QUERY: Get All Classes --- 🧑‍🏫

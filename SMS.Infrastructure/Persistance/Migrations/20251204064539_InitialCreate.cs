@@ -16,7 +16,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
                     IsCurrent = table.Column<bool>(type: "bit", nullable: false)
@@ -135,7 +135,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MaxCapacity = table.Column<int>(type: "int", nullable: false),
                     AcademicYearId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -241,7 +241,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     Home_Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     StudentCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -317,7 +317,7 @@ namespace SMS.Infrastructure.Persistance.Migrations
                     LastLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     StudentProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TeacherProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ParentProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -646,6 +646,18 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AcademicYear_Dates_Unique",
+                table: "AcademicYears",
+                columns: new[] { "StartDate", "EndDate" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AcademicYear_Name_Unique",
+                table: "AcademicYears",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -724,6 +736,12 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 name: "IX_Classes_AcademicYearId",
                 table: "Classes",
                 column: "AcademicYearId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Classes_Name_AcademicYearId_Unique",
+                table: "Classes",
+                columns: new[] { "Name", "AcademicYearId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClassSchedules_ClassSubjectId",
@@ -814,6 +832,12 @@ namespace SMS.Infrastructure.Persistance.Migrations
                 name: "IX_StudentParents_StudentId_ParentId",
                 table: "StudentParents",
                 columns: new[] { "StudentId", "ParentId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Student_Email_Unique",
+                table: "Students",
+                column: "Email",
                 unique: true);
 
             migrationBuilder.CreateIndex(

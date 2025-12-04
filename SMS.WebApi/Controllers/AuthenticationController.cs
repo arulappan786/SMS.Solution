@@ -4,7 +4,7 @@ using SMS.Application.CQRS.Identity.Logins.Commands;
 
 namespace SMS.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class AuthenticationController(IMediator mediator) : ControllerBase
     {

@@ -1,4 +1,4 @@
-﻿namespace SMS.Domain.Constants
+﻿namespace SMS.Application.Constants
 {
     public static class EmailTemplates
     {

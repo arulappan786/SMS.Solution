@@ -19,7 +19,7 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
 
             if (!validationResult.IsValid)
             {
-                logger.LogWarning($"Login validation failed validation for {request.EmailAddess}.");
+                logger.LogWarning($"Login validation failed validation for {request.Email}.");
 
                 // Return failure response with detailed validation errors
                 return ServiceResponse.Failure(
@@ -28,17 +28,17 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
             }
 
             // --- 2. Core Authentication Logic ---
-            logger.LogInfo($"Input validated for {request.EmailAddess}. Attempting authentication.");
+            logger.LogInfo($"Input validated for {request.Email}. Attempting authentication.");
 
             var (success, message, userDto) = await identityService.LoginAsync(
-                request.EmailAddess,
+                request.Email,
                 request.Password,
                 cancellationToken);
 
             // --- 3. Handle Authentication Result ---
             if (success)
             {
-                logger.LogInfo($"User {request.EmailAddess} logged in successfully. UserID: {userDto.UserId}.");
+                logger.LogInfo($"User {request.Email} logged in successfully. UserID: {userDto.UserId}.");
 
                 // Successful login returns the LoggedInUserDto as the Data payload
                 return ServiceResponse.Success(
@@ -47,7 +47,7 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
             }
             else
             {
-                logger.LogWarning($"Login failed for user {request.EmailAddess}. Reason: {message}");
+                logger.LogWarning($"Login failed for user {request.Email}. Reason: {message}");
 
                 // Authentication failed (e.g., bad credentials, locked account)
                 return ServiceResponse.Failure(message);

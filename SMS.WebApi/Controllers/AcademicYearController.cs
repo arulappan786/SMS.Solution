@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SMS.Application.Constants;
 using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Create;
 using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Delete;
 using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update;
@@ -12,6 +14,7 @@ using System.Net;
 
 [Route("api/v1/[controller]")]
 [ApiController]
+[Authorize(Roles = AppRoles.Admin)]
 public class AcademicYearController(IMediator mediator) : ControllerBase
 {
     // --- QUERY: Get All AcademicYears --- 📚

@@ -32,6 +32,7 @@ namespace SMS.Infrastructure.Extensions
             services.Configure<ClientSettings>(configuration.GetSection(ClientSettings.SettingsKey));
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SettingsKey));
             services.Configure<StudentSettings>(configuration.GetSection(StudentSettings.SettingsKey));
+            services.Configure<IdentitySettings>(configuration.GetSection(IdentitySettings.SettingsKey));
 
             services.AddDbContext<AppDbContext>(options =>
             {
