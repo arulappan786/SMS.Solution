@@ -8,6 +8,7 @@ using SMS.Application.Services.Common;
 using SMS.Application.Services.Core.Students;
 using SMS.Application.Services.Jobs;
 using SMS.Application.Services.Logging;
+using SMS.Domain.Constants;
 using SMS.Domain.Entities.Core;
 using SMS.Domain.Entities.Identity;
 using SMS.Domain.Interfaces.Repositories.Common;
@@ -110,7 +111,7 @@ namespace SMS.Application.CQRS.Core.Students.Commands.Create
                 try
                 {
                     logger.LogInfo("Enqueuing welcome email job via Hangfire.");
-                    string htmlBody = templateLoader.LoadEmailTemplate(request, newPassword, "WelcomeStudentTemplate.html");
+                    string htmlBody = templateLoader.LoadEmailTemplate(request, newPassword, EmailTemplates.WelcomeUserTemplate);
 
                     // The key line: Hangfire finds the EmailJobService via DI later.
                     BackgroundJob.Enqueue<IEmailJobService>(job =>

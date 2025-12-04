@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using SMS.Application.Exceptions;
 using SMS.Application.Services.Logging;
 using System.Net;
@@ -52,6 +53,9 @@ namespace SMS.WebApi.Filters
                     "Concurrency Conflict",
                     concurrencyEx.Message ?? "The record you were trying to update has been modified by another transaction."),
 
+                // --- 409: Database Constraint Violation (e.g., Foreign Key) ---
+                DbUpdateException dbUpdateEx => HandleDbUpdateException(context, dbUpdateEx),
+
                 // --- 400: Validation Exception (Requires special handling - ValidationProblemDetails) ---
                 FluentValidation.ValidationException validationEx => HandleValidationException(context, validationEx),
 
@@ -85,6 +89,25 @@ namespace SMS.WebApi.Filters
                 Detail = detail,
                 Type = type,
             };
+        }
+
+        /// <summary>
+        /// Handles Entity Framework Core DbUpdateException, usually for foreign key or unique constraint violations.
+        /// </summary>
+        private ProblemDetails HandleDbUpdateException(ExceptionContext context, DbUpdateException exception)
+        {
+            // Log the full exception for server-side monitoring
+            _logger.LogError(exception, "Database update exception encountered.");
+
+            // Set response status code (409 Conflict is often suitable for constraint violations)
+            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+
+            // IMPORTANT: Do NOT expose InnerException details to the client!
+            return CreateProblemDetails(
+                HttpStatusCode.Conflict,
+                "Database Constraint Violation",
+                "The requested action could not be completed because it would violate a database constraint. This resource may be referenced by other records."
+            );
         }
 
         /// <summary>
