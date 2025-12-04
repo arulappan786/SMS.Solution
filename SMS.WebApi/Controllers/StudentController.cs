@@ -7,7 +7,6 @@ using SMS.Application.CQRS.Core.Students.Commands.Delete;
 using SMS.Application.CQRS.Core.Students.Commands.Update;
 using SMS.Application.CQRS.Core.Students.Queries.GetAll;
 using SMS.Application.CQRS.Core.Students.Queries.GetById;
-using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Core.Students;
 using SMS.Application.DTOs.Service;
 using System.Net;

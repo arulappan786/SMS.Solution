@@ -8,7 +8,6 @@ using SMS.Application.CQRS.Accademic.Classes.Commands.Update;
 using SMS.Application.CQRS.Accademic.Classes.Queries.GetAll;
 using SMS.Application.CQRS.Accademic.Classes.Queries.GetById;
 using SMS.Application.DTOs.Accademic.Classes;
-using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Service;
 using System.Net;
 

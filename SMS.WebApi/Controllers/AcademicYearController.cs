@@ -8,7 +8,6 @@ using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update;
 using SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetAll;
 using SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetById;
 using SMS.Application.DTOs.Accademic.AcademicYears;
-using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Service;
 using System.Net;
 

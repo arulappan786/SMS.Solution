@@ -8,6 +8,7 @@ using SMS.Infrastructure.Configs;
 using SMS.Infrastructure.Extensions;
 using SMS.Infrastructure.Middlewares;
 using SMS.WebApi.Filters;
+using System.Text;
 
 // --------------------------------------------------------------------------------
 // I. HOST INITIALIZATION & CONFIGURATION
@@ -21,6 +22,7 @@ var config = builder.Configuration;
 // --------------------------------------------------------------------------------
 
 Log.Logger = new LoggerConfiguration()
+    // Loads logging configuration from appsettings (e.g., sink configuration, minimum levels)
     .ReadFrom.Configuration(config)
     .Enrich.FromLogContext()
     .CreateLogger();
@@ -38,21 +40,24 @@ builder.Services.AddApplication(config);
 Log.Information("Registering Infrastructure services...");
 builder.Services.AddInfrastructure(config);
 
+// Note: Assuming AddSwaggerAuth is an extension method containing Swagger services.
 builder.Services.AddSwaggerAuth();
 
-// --- JWT Configuration Setup ---
-// 1. Retrieve the JWT Settings from configuration
+// --- SECURITY MEASURE: JWT Bearer Authentication Configuration ---
+// This registers services to process and validate JWTs sent in the Authorization header.
+
 var jwtSettings = config.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
 if (jwtSettings == null)
 {
+    // SECURITY: Fail fast if the secret key or other critical settings are missing.
     Log.Fatal("JWT configuration is missing or invalid. Application cannot start.");
     throw new InvalidOperationException("JwtSettings configuration section is missing or invalid.");
 }
 
-// 2. Add Authentication Services (JWT Bearer) 🔑
+// 2. Add Authentication Services (JWT Bearer) 
 builder.Services.AddAuthentication(options =>
 {
-    // Set the default scheme to JWT Bearer
+    // Sets JWT as the primary mechanism for authentication checks.
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
@@ -60,77 +65,72 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        // CORE VALIDATION CHECKS
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+        // SECURITY: CRITICAL VALIDATION CHECKS
+        ValidateIssuer = true,          // Ensures token came from the correct authority.
+        ValidateAudience = true,        // Ensures token is intended for this recipient API.
+        ValidateLifetime = true,        // Ensures the token has not expired (short life = better security).
+        ValidateIssuerSigningKey = true,// Ensures the token signature is genuine (not tampered with).
 
         // APPLY CONFIGURATION VALUES
         ValidIssuer = jwtSettings.ValidIssuer,
         ValidAudience = jwtSettings.ValidAudience,
 
-        // Apply the secret key for signature validation (must be secure)
-        IssuerSigningKey = jwtSettings.GetSymmetricSecurityKey(),
+        // Apply the secret key for signature validation.
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
-        // Reduce the tolerance window for token expiration (good security practice)
+        // SECURITY: Eliminates clock skew tolerance. Prevents expired tokens from being accepted 
+        // even for a short grace period.
         ClockSkew = TimeSpan.Zero
     };
 });
-// 3. Add Authorization Services (must be added after Authentication)
+// 3. Add Authorization Services (Required for [Authorize] attributes)
 builder.Services.AddAuthorization();
 
 
-// Registers MVC controllers as services, enabling them to be used by the application.
+// Registers MVC controllers as services.
 builder.Services.AddControllers(options =>
 {
-    // Add the custom filter to the MVC options
+    // SECURITY: Global custom exception filter to prevent sensitive error details 
+    // from being returned to the client (fail securely).
     options.Filters.Add(typeof(ApiExceptionFilterAttribute));
 });
 
 // Registers the required services for Swagger/OpenAPI generation.
 builder.Services.AddSwaggerGen();
 
-// --- Hangfire Background Job Setup ---
+// --- Hangfire Background Job Setup (Not a security measure, kept for context) ---
 var hangfireConnectionString = builder.Configuration.GetConnectionString("HangfireConnection");
 
-// Registers Hangfire services and configures the SQL Server storage provider.
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
     .UseSqlServerStorage(hangfireConnectionString, new SqlServerStorageOptions
     {
         CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
         SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-        QueuePollInterval = TimeSpan.Zero, // Poll continuously
+        QueuePollInterval = TimeSpan.Zero,
         UseRecommendedIsolationLevel = true,
-        DisableGlobalLocks = true // Optimization for modern SQL Server
+        DisableGlobalLocks = true
     })
 );
 
-// Registers the Hangfire background worker process (the component that executes the jobs).
 builder.Services.AddHangfireServer();
 
 // --------------------------------------------------------------------------------
-// 3. CORS Configuration
+// 3. SECURITY MEASURE: CORS Configuration
 // --------------------------------------------------------------------------------
 
-// Retrieves the list of allowed origins (URLs) from the application configuration 
 var allowedOrigins = config.GetSection("CorsOrigins").Get<string[]>() ?? Array.Empty<string>();
 
-// Registers the Cross-Origin Resource Sharing (CORS) service.
+// SECURITY: Registers the CORS service to strictly control which external domains 
+// are allowed to make requests to the API. Prevents unauthorized domain access.
 builder.Services.AddCors(options =>
 {
-    // Defines a default CORS policy.
     options.AddDefaultPolicy(policy =>
     {
-        // Specifies the HTTP origins that are allowed to access the API.
-        policy.WithOrigins(allowedOrigins)
-            // Allows all HTTP headers in the request.
+        policy.WithOrigins(allowedOrigins) // SECURITY: Only allow specified, trusted origins (Not AllowAnyOrigin).
             .AllowAnyHeader()
-            // Allows all HTTP methods (GET, POST, PUT, DELETE, etc.).
             .AllowAnyMethod()
-            // Allows credentials (cookies, HTTP authentication) to be sent with cross-origin requests.
-            .AllowCredentials();
+            .AllowCredentials(); // Allows cookies/Auth headers to be sent.
     });
 });
 
@@ -144,17 +144,34 @@ try
 
     var app = builder.Build();
 
+    // --- SECURITY MIDDLEWARE (Early in the pipeline) ---
+
+    // SECURITY: Prevents Clickjacking by instructing browsers not to display the page in an iframe.
+    app.UseXfo(xfo => xfo.Deny());
+
+    // SECURITY: Content Security Policy. Restricts the sources from which content 
+    // (scripts, styles, etc.) can be loaded, mitigating XSS risks.
+    app.UseCsp(options => options
+        .DefaultSources(s => s.Self()) // Only allows resources from the API's origin by default
+        .ScriptSources(s => s.None())  // Strict policy: No inline or external scripts
+        .FrameAncestors(s => s.None()) // Modern equivalent of X-Frame-Options: DENY
+    );
+
+    // SECURITY: Custom middleware to catch unhandled exceptions and return safe, generic error responses.
     app.UseExceptionHandlingMiddleware();
+    // Log ALL requests/responses for auditing and debugging.
     app.UseRequestLoggingMiddleware();
 
+
     Log.Information("Attempting database seeding...");
+    // SECURITY: Ensure foundational data (like Identity Roles) are present before launch.
     await app.SeedDatabaseAsync();
 
-    // --- Middleware Pipeline ---
+    // --- Core Pipeline ---
 
     app.UseHangfireDashboard("/hangfire", new DashboardOptions
     {
-        // Restrict access to administrators only in a real app!
+        // CRITICAL SECURITY: Must implement authorization to restrict dashboard access to Admins only!
         // Authorization = new[] { new HangfireAuthorizationFilter() } 
     });
 
@@ -166,14 +183,22 @@ try
         app.UseSwaggerUI();
     }
 
+    // SECURITY: HTTP Strict Transport Security (HSTS). Forces clients to use HTTPS 
+    // for future connections after the first successful secure visit.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
+    // SECURITY: Redirects all incoming HTTP requests to HTTPS, enforcing encryption.
     app.UseHttpsRedirection();
 
-    // 🔑 IMPORTANT: Add UseAuthentication() before UseAuthorization()
+    // 🔑 SECURITY: Authentication Middleware (Identifies the user from the JWT). Must run first.
     app.UseAuthentication();
 
+    // 🔑 SECURITY: Authorization Middleware (Checks the user's roles/permissions against policy). Must run second.
     app.UseAuthorization();
 
-    // Maps the controller endpoints (e.g., [Route("api/students")]) to the application's request pipeline.
     app.MapControllers();
 
     Log.Information("Application starting up and running!");
