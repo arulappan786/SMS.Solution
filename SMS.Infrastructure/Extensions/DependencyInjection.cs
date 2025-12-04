@@ -22,7 +22,7 @@ using SMS.Infrastructure.Services.Identity;
 using SMS.Infrastructure.Services.Jobs;
 using SMS.Infrastructure.Services.Logging;
 
-namespace SMS.Infrastructure
+namespace SMS.Infrastructure.Extensions
 {
     public static class DependencyInjection
     {
@@ -30,6 +30,8 @@ namespace SMS.Infrastructure
         {
             services.Configure<GmailSettings>(configuration.GetSection(GmailSettings.SettingsKey));
             services.Configure<ClientSettings>(configuration.GetSection(ClientSettings.SettingsKey));
+            services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SettingsKey));
+            services.Configure<StudentSettings>(configuration.GetSection(StudentSettings.SettingsKey));
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -78,7 +80,8 @@ namespace SMS.Infrastructure
             // Identity Services
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IRoleManagementService, RoleManagementService>();
-            services.AddScoped<ITokenManagementService, TokenManagementService>();            
+            services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<ITokenService, TokenService>();
 
             return services;
         }

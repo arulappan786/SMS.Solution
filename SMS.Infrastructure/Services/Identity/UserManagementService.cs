@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using SMS.Application.DTOs.Identity;
 using SMS.Application.Services.Identity;
+using SMS.Application.Services.Logging;
 using SMS.Domain.Entities.Identity;
 using SMS.Infrastructure.Persistance.Context;
 
 namespace SMS.Infrastructure.Services.Identity
 {
     public class UserManagementService(UserManager<AppUser> userManager,
-                                       AppDbContext dbContext) : IUserManagementService
+                                       AppDbContext dbContext, IAppLogger<UserManagementService> logger) : IUserManagementService
     {
 
         public async Task<bool> CreateUserWithTransactionAsync(AppUser user, string password, IDbContextTransaction transaction)
@@ -68,5 +70,36 @@ namespace SMS.Infrastructure.Services.Identity
             // to the underlying IdentityDbContext.
             return await userManager.UpdateAsync(user);
         }
+
+        // Inside UserManagementService implementation
+
+        public async Task<(bool Success, string Message)> UpdateRefreshTokenAsync(Guid userId, string? refreshToken, DateTime? expiryTime, CancellationToken cancellationToken)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                logger.LogWarning($"Token update failed: User with ID {userId} not found.");
+                return (false, "User not found.");
+            }
+
+            // 1. Apply the token data to the entity
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = expiryTime;
+
+            // 2. Persist the changes
+            var result = await userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                logger.LogInfo($"Refresh token updated successfully for user {userId}.");
+                return (true, "Refresh token saved.");
+            }
+            else
+            {
+                logger.LogError($"Failed to save refresh token for user {userId}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                return (false, "Failed to save refresh token data.");
+            }
+        }        
     }
 }

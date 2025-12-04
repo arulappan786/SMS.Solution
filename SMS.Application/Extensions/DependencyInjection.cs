@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SMS.Application.Configs;
 using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Create;
 using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Delete;
 using SMS.Application.CQRS.Accademic.AcademicYears.Commands.Update;
@@ -11,17 +10,16 @@ using SMS.Application.CQRS.Accademic.Classes.Commands.Update;
 using SMS.Application.CQRS.Core.Students.Commands.Create;
 using SMS.Application.CQRS.Core.Students.Commands.Delete;
 using SMS.Application.CQRS.Core.Students.Commands.Update;
+using SMS.Application.CQRS.Identity.Logins.Commands;
 using SMS.Application.Validations;
 using System.Reflection;
 
-namespace SMS.Application
+namespace SMS.Application.Extensions
 {
     public static class DependencyInjection
     {
         public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<StudentSettings>(configuration.GetSection(StudentSettings.SettingsKey));
-
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
@@ -43,6 +41,8 @@ namespace SMS.Application
             services.AddScoped<IValidator<CreateClassesCommand>, CreateClassesCommandValidator>();
             services.AddScoped<IValidator<UpdateClassesCommand>, UpdateClassesCommandValidator>();
             services.AddScoped<IValidator<DeleteClassesCommand>, DeleteClassesCommandValidator>();
+
+            services.AddScoped<IValidator<LoginCommand>, LoginCommandValidator>();
 
 
             return services;

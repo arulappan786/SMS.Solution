@@ -25,5 +25,7 @@ namespace SMS.Application.Services.Identity
         /// <param name="user">The AppUser entity to be deleted.</param>
         /// <returns>IdentityResult indicating success or failure of the deletion.</returns>
         Task<IdentityResult> DeleteUserAsync(AppUser user);
+
+        Task<(bool Success, string Message)> UpdateRefreshTokenAsync(Guid userId, string? refreshToken, DateTime? expiryTime, CancellationToken cancellationToken);
     }
 }

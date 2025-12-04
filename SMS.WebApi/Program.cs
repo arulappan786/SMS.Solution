@@ -1,8 +1,8 @@
 using Hangfire;
 using Hangfire.SqlServer;
 using Serilog;
-using SMS.Application;
-using SMS.Infrastructure;
+using SMS.Application.Extensions;
+using SMS.Infrastructure.Extensions;
 using SMS.Infrastructure.Middlewares;
 using SMS.Infrastructure.Persistence.Seeders;
 using SMS.WebApi.Filters;

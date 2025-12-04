@@ -12,7 +12,7 @@ namespace SMS.Domain.Entities.Identity
 
         public string? RefreshToken { get; set; }
 
-        public DateTime RefreshTokenExpiry { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
 
         public Guid? StudentProfileId { get; set; }
         public Guid? TeacherProfileId { get; set; }
