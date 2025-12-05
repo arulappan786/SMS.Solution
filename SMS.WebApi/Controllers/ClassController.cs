@@ -11,7 +11,7 @@ using SMS.Application.DTOs.Accademic.Classes;
 using SMS.Application.DTOs.Service;
 using System.Net;
 
-[Route("api/v1/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize(Roles = AppRoles.Admin)]
 public class ClassController(IMediator mediator) : ControllerBase

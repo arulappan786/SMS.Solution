@@ -11,7 +11,7 @@ using SMS.Application.DTOs.Accademic.AcademicYears;
 using SMS.Application.DTOs.Service;
 using System.Net;
 
-[Route("api/v1/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize(Roles = AppRoles.Admin)]
 public class AcademicYearController(IMediator mediator) : ControllerBase

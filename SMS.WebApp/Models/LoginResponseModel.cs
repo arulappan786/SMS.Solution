@@ -1,0 +1,20 @@
+﻿namespace SMS.WebApp.Models
+{
+    public class LoginResponseModel
+    {
+        public Guid UserId { get; set; }
+
+        public string UserName { get; set; }= string.Empty;
+
+        public string EmailAddress { get; set; } = string.Empty;
+
+        public List<string>? Roles { get; set; }
+
+        public string AccessToken { get; set; } = string.Empty;
+
+        public string RefreshToken { get; set; } = string.Empty;
+
+        public long ExpiresInSeconds { get; set; }
+        
+    }
+}
