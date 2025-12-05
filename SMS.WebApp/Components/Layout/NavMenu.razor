@@ -1,30 +1,97 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">SMS.WebApp</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="nav flex-column">
+        
+        
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="oi oi-home" aria-hidden="true"></span> Dashboard
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="teachers">
+                <span class="oi oi-people" aria-hidden="true"></span> Teachers
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="students">
+                <span class="oi oi-person" aria-hidden="true"></span> Students
             </NavLink>
         </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="parents">
+                <span class="oi oi-people" aria-hidden="true"></span> Parents
+            </NavLink>
+        </div>
+                
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="studentparent">
+                <span class="oi oi-people" aria-hidden="true"></span> Student Parent
+            </NavLink>
+        </div>
+
+        @* --- Academic Menu Group --- *@
+        <div class="nav-item px-3">
+            <button class="nav-link btn btn-link w-100 text-start" @onclick="ToggleAcademicSubMenu">
+                <span class="oi oi-book" aria-hidden="true"></span> Academic
+                <span class="oi @(isAcademicSubMenuExpanded ? "oi-caret-top" : "oi-caret-bottom") float-end" aria-hidden="true"></span>
+            </button>
+
+            @if (isAcademicSubMenuExpanded)
+            {
+                <div class="academic-submenu ps-4">
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/academic/academic-year/list">
+                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Academic Year
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/academic/classes/list">
+                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Classes
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/academic/subject/list">
+                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Subject
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="/academic/classsubject/list">
+                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Class Subject Mapping
+                        </NavLink>
+                    </div>
+                </div>
+            }
+        </div>
+        
+
     </nav>
 </div>
 
+@code {
+    private bool collapseNavMenu = true;
+    private bool isAcademicSubMenuExpanded = false;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ToggleAcademicSubMenu()
+    {
+        isAcademicSubMenuExpanded = !isAcademicSubMenuExpanded;
+    }
+}

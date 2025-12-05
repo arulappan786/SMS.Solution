@@ -5,6 +5,9 @@
 @inject ProtectedLocalStorage LocalStorage
 @inject LogoutClient LogoutClient
 
+<div class="p-5">
+    <h3>Logging out...</h3>
+</div>
 
 @code {
     private bool initialized = false;
@@ -45,7 +48,6 @@
             }
             
             // 3. Client-side Cleanup (Must happen regardless of API success)
-            // await LocalStorage.DeleteAsync("sessionState");
             await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
 
             // 4. Redirect
