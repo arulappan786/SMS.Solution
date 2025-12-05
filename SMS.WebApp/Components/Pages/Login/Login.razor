@@ -9,6 +9,7 @@
 <div class="p-5">
     <EditForm Model="loginModel" FormName="Login" OnValidSubmit="HandleLogin">
         <DataAnnotationsValidator />
+        <ValidationSummary />
         <div class="form-group">
             <label for="email">Email</label>
             <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />

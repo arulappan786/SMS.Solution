@@ -1,13 +1,18 @@
 ﻿@page "/logout"
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject ApiClient ApiClient
 
 @code {
 
+    private LoginModel loginModel = new LoginModel() { Email = "", Password = "" };
+
     override protected async Task OnInitializedAsync()
     {
+        var res = await ApiClient.PostAsync<ServiceResponse, LoginModel>("/api/auth/logout", loginModel);
+
         await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        // await AuthService.LogoutAsync();
+        
         NavigationManager.NavigateTo("/login");
     }
 }

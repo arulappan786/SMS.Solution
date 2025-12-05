@@ -2,5 +2,5 @@
 {
     // Identity
     // Tokens
-    public record LoggedInUserDto(Guid UserId, string UserName, string Email, List<string> Roles, string AccessToken, string RefreshToken, int ExpiresInSeconds);
+    public record LoggedInUserDto(Guid UserId, string UserName, string Email, List<string> Roles, string AccessToken, string RefreshToken, long ExpiresInSeconds);
 }

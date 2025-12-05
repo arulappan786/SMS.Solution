@@ -50,12 +50,11 @@ namespace SMS.Infrastructure.Services.Identity
             var roles = await userManager.GetRolesAsync(user);
 
             // Access Token details
-            int accessTokenLifetimeSeconds = _jwtSettings.TokenDurationInMinutes * 60;
             var accessToken = tokenService.GenerateAccessToken(user, roles.ToList());
 
             // Refresh Token details
             var refreshToken = tokenService.GenerateRefreshToken();
-            const int refreshTokenLifetimeDays = 7; // Define constant lifespan for refresh token
+            int refreshTokenLifetimeDays = _jwtSettings.RefreshTokenDurationInDays;
             var expiryTime = DateTime.UtcNow.AddDays(refreshTokenLifetimeDays);
 
             // --- 4. Delegate Refresh Token Persistence to User Management Service ---
@@ -81,7 +80,7 @@ namespace SMS.Infrastructure.Services.Identity
                 Roles: roles.ToList(),
                 AccessToken: accessToken,
                 RefreshToken: refreshToken,
-                ExpiresInSeconds: accessTokenLifetimeSeconds
+                ExpiresInSeconds: DateTimeOffset.UtcNow.AddMinutes(_jwtSettings.TokenDurationInMinutes).ToUnixTimeSeconds()
             );
 
             return (true, "Login successful.", userDto);

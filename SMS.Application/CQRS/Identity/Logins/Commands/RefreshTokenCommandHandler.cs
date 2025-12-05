@@ -75,7 +75,7 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
                 Roles: roles.ToList(),
                 AccessToken: newAccessToken,
                 RefreshToken: newRefreshToken,
-                ExpiresInSeconds: (int)jwtConfig.TokenDurationInMinutes * 60 // Assuming you can access JwtSettings
+                ExpiresInSeconds: DateTimeOffset.UtcNow.AddMinutes(jwtConfig.TokenDurationInMinutes).ToUnixTimeSeconds()
             );
 
             return ServiceResponse.Success("Token successfully renewed.", data: userDto);
