@@ -4,6 +4,7 @@ using SMS.Application.DTOs.Accademic.Classes;
 using SMS.Application.DTOs.Common;
 using SMS.Application.DTOs.Service;
 using SMS.Domain.Interfaces.Repositories.Academic;
+using System.Linq.Expressions;
 
 namespace SMS.Application.CQRS.Accademic.Classes.Queries.GetAll
 {
@@ -17,6 +18,11 @@ namespace SMS.Application.CQRS.Accademic.Classes.Queries.GetAll
                 pageNumber: request.PageNumber,
                 pageSize: request.PageSize,
                 orderByExpression: a => a.Id,
+                includeProperties: new Expression<Func<Domain.Entities.Academic.Classes, object>>[]
+                {
+                    s => s.AcademicYear!
+
+                },
                 ascending: true,
                 cancellationToken: cancellationToken);
 

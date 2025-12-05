@@ -3,7 +3,8 @@ using SMS.WebApp;
 using SMS.WebApp.Authentication;
 using SMS.WebApp.Components;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage; // Explicitly ensure this is available for AuthTokenHandler/Logout
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using System.Text.Json.Serialization; // Explicitly ensure this is available for AuthTokenHandler/Logout
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,24 +58,25 @@ builder.Services.AddHttpClient<ApiClient>(client =>
 {
     // Set the base URL.
     client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? string.Empty);
-})
+});
 // CRITICAL: Attach the AuthTokenHandler as an interceptor. 
 // It runs before every request to check, refresh, and attach the Bearer token.
-.AddHttpMessageHandler<AuthTokenHandler>();
+//.AddHttpMessageHandler<AuthTokenHandler>();
 
-// 3. Register the specific LogoutClient.
-// This is used for the authenticated logout call, bypassing the token check/refresh handler
-// for more control over token management during cleanup. (The token is manually set.)
-builder.Services.AddHttpClient<LogoutClient>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? string.Empty);
-});
+//// 3. Register the specific LogoutClient.
+//// This is used for the authenticated logout call, bypassing the token check/refresh handler
+//// for more control over token management during cleanup. (The token is manually set.)
+//builder.Services.AddHttpClient<LogoutClient>(client =>
+//{
+//    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? string.Empty);
+//});
 
 // Optionally configure System.Text.Json options globally for consistency.
 builder.Services.Configure<JsonSerializerOptions>(options =>
 {
     // Ensures property names in JSON are matched to C# model properties regardless of casing (e.g., userId vs. UserId).
     options.PropertyNameCaseInsensitive = true;
+    options.ReferenceHandler = ReferenceHandler.Preserve;
 });
 
 

@@ -7,12 +7,12 @@ namespace SMS.WebApp.Models
 
         [Required]
         [EmailAddress]
-        public required string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         [DataType(DataType.Password)]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
-        public required string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
     }
 }

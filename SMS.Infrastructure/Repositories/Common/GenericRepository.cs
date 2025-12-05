@@ -63,6 +63,51 @@ namespace SMS.Infrastructure.Repositories.Common
             return (items, totalCount);
         }
 
+        public async Task<(IEnumerable<TEntity> Items, int TotalCount)> GetAllPaginatedAsync<TKey>(
+            int pageNumber,
+            int pageSize,
+            Expression<Func<TEntity, TKey>> orderByExpression,
+            Expression<Func<TEntity, object>>[]? includeProperties = null, // New optional parameter for includes
+            bool ascending = true,
+            CancellationToken cancellationToken = default)
+        {
+            // Calculate how many records to skip
+            int skip = (pageNumber - 1) * pageSize;
+
+            // 1. Prepare the queryable
+            IQueryable<TEntity> query = dbContext.Set<TEntity>().AsNoTracking();
+
+            // NEW: Apply includes if any are provided
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            // 2. Get the total count (must be counted before Skip/Take, but after Includes if using filtering)
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            // 3. Apply ordering dynamically
+            if (ascending)
+            {
+                query = query.OrderBy(orderByExpression);
+            }
+            else
+            {
+                query = query.OrderByDescending(orderByExpression);
+            }
+
+            // 4. Apply pagination and retrieve items
+            var items = await query
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
+        }
+
         public async Task<TEntity?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
             if (id == Guid.Empty) throw new ArgumentNullException(nameof(id));

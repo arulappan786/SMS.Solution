@@ -1,57 +1,12 @@
-﻿@page "/logout"
-
-@inject NavigationManager Navigation
+﻿
+@page "/logout"
 @inject AuthenticationStateProvider AuthStateProvider
-@inject ProtectedLocalStorage LocalStorage
-@inject LogoutClient LogoutClient
-
-<div class="p-5">
-    <h3>Logging out...</h3>
-</div>
+@inject NavigationManager Navigation
 
 @code {
-    private bool initialized = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender && !initialized)
-        {
-            initialized = true;
-            
-            // 1. **CRITICAL STEP:** Retrieve the existing token BEFORE cleaning up.
-            var sessionResult = await LocalStorage.GetAsync<LoginResponseModel>("sessionState");
-            var sessionState = sessionResult.Success ? sessionResult.Value : null;
-
-            // 2. Authenticated API Logout Call (Uses the safe, token-setting client)
-            if (sessionState != null && !string.IsNullOrEmpty(sessionState.AccessToken))
-            {
-                try
-                {
-                    // Call the safe client, manually passing the token to be set on the header.
-                    var result = await LogoutClient.PostAsync("/api/auth/logout", sessionState.AccessToken); 
-                    
-                    if (result.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine("Backend session successfully revoked.");
-                    }
-                    else
-                    {
-                        // Log the API failure, but continue with local logout.
-                        Console.Error.WriteLine($"Logout API failed with status: {result.StatusCode}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log and ignore network failures.
-                    Console.Error.WriteLine($"Logout API network failed: {ex.Message}");
-                }
-            }
-            
-            // 3. Client-side Cleanup (Must happen regardless of API success)
-            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-
-            // 4. Redirect
-            Navigation.NavigateTo("/login", forceLoad: true);
-        }
+        await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
+        Navigation.NavigateTo("/login");
     }
 }

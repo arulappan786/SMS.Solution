@@ -1,7 +1,81 @@
 ﻿@page "/academic/academic-year/list"
+@page "/academic/year"
+@attribute [Authorize]
+@inject ApiClient apiClient
 
 <h3>Academic Year</h3>
 
+@if (AcademicYears == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <NavLink class="btn btn-primary mb-3 rounded" href="/academic/year/create">
+            <i class="bi bi-plus" style="margin-right: 5px;"></i>
+            Create New Academic Year
+        </NavLink>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover rounded">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Current?</th>
+                    <th style="width: 150px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in AcademicYears)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.StartDate.ToShortDateString()</td>
+                        <td>@item.EndDate.ToShortDateString()</td>
+                        <td>@(item.IsCurrent ? "Yes" : "No")</td>
+                        <td class="d-flex justify-content-around">
+                            <a class="btn btn-primary" href="/academic/year/edit/@item.Id">Edit</a>
+                            <a class="btn btn-danger" href="/academic/year/delete/@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+
 @code {
 
+    public IEnumerable<AcademicYearModel>? AcademicYears;
+    private bool dataLoaded = false; // Flag to prevent multiple data fetching calls
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Call the authenticated API Client
+            var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
+
+            if (response != null && response.Succeeded && response.Data != null)
+            {
+                // Assuming the API returns a List<AcademicYearModel> nested inside the generic wrapper
+                AcademicYears = response.Data.Items;
+            }
+            else
+            {
+                // Handle API failure response or non-successful status code
+                Console.Error.WriteLine("Failed to load Academic Years. API call was unsuccessful.");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle network or token handler exceptions
+            Console.Error.WriteLine($"Error during API call: {ex.Message}");
+        }
+    }
 }

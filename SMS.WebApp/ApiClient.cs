@@ -1,85 +1,93 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Localization;
+using Newtonsoft.Json;
+using SMS.WebApp.Authentication;
+using SMS.WebApp.Models;
+using System.Globalization;
+using System.Net.Http.Headers;
 
 namespace SMS.WebApp
 {
-    // The ApiClient no longer needs to worry about tokens or navigation.
-    // It only needs the HttpClient injected with the AuthTokenHandler.
-    public class ApiClient(HttpClient httpClient)
+    public class ApiClient(HttpClient httpClient, ProtectedLocalStorage localStorage, NavigationManager navigationManager, AuthenticationStateProvider authStateProvider)
     {
-        // Generic GET method
-        public async Task<T?> GetAsync<T>(string path)
+        public async Task SetAuthorizeHeader()
         {
-            // Token handling happens automatically in the DelegatingHandler
+            try
+            {
+                var sessionState = (await localStorage.GetAsync<LoginResponseModel>("sessionState")).Value;
+                if (sessionState != null && !string.IsNullOrEmpty(sessionState.AccessToken))
+                {
+                    if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                    {
+                        await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
+                        navigationManager.NavigateTo("/login");
+                    }
+                    else if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds())
+                    {
+                        var res = await httpClient.GetFromJsonAsync<LoginResponseModel>($"/api/auth/loginByRefeshToken?refreshToken={sessionState.RefreshToken}");
+                        if (res != null)
+                        {
+                            await ((CustomAuthStateProvider)authStateProvider).MarkUserAsAuthenticated(res);
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", res.AccessToken);
+                        }
+                        else
+                        {
+                            await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
+                            navigationManager.NavigateTo("/login");
+                        }
+                    }
+                    else
+                    {
+                        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessionState.AccessToken);
+                    }
+
+                    var requestCulture = new RequestCulture(
+                            CultureInfo.CurrentCulture,
+                            CultureInfo.CurrentUICulture
+                        );
+                    var cultureCookieValue = CookieRequestCultureProvider.MakeCookieValue(requestCulture);
+
+                    httpClient.DefaultRequestHeaders.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cultureCookieValue}");
+                }
+            }
+            catch (Exception ex)
+            {
+                navigationManager.NavigateTo("/login");
+            }
+        }
+        public async Task<T> GetFromJsonAsync<T>(string path)
+        {
+            await SetAuthorizeHeader();
             return await httpClient.GetFromJsonAsync<T>(path);
         }
-
-        // Generic POST method
-        public async Task<TResponse?> PostAsync<TResponse, TRequest>(string path, TRequest postModel)
+        public async Task<T1> PostAsync<T1, T2>(string path, T2 postModel)
         {
+            await SetAuthorizeHeader();
+
             var res = await httpClient.PostAsJsonAsync(path, postModel);
-
-            // Centralized success check and deserialization
-            if (res.IsSuccessStatusCode)
+            if (res != null && res.IsSuccessStatusCode)
             {
-                // Use System.Text.Json extension method for deserialization
-                return await res.Content.ReadFromJsonAsync<TResponse>();
+                return JsonConvert.DeserializeObject<T1>(await res.Content.ReadAsStringAsync());
             }
-
-            // Handle and throw specific API exceptions (e.g., 400 Bad Request) for production logging
-            // Or return default after logging the error status code
             return default;
         }
-
-        // Generic PUT method
-        public async Task<TResponse?> PutAsync<TResponse, TRequest>(string path, TRequest putModel)
+        public async Task<T1> PutAsync<T1, T2>(string path, T2 postModel)
         {
-            var res = await httpClient.PutAsJsonAsync(path, putModel);
-
-            if (res.IsSuccessStatusCode)
+            await SetAuthorizeHeader();
+            var res = await httpClient.PutAsJsonAsync(path, postModel);
+            if (res != null && res.IsSuccessStatusCode)
             {
-                return await res.Content.ReadFromJsonAsync<TResponse>();
+                return JsonConvert.DeserializeObject<T1>(await res.Content.ReadAsStringAsync());
             }
-
             return default;
         }
-
-        // Generic DELETE method
-        public async Task<TResponse?> DeleteAsync<TResponse>(string path)
+        public async Task<T> DeleteAsync<T>(string path)
         {
-            // Note: DeleteFromJsonAsync only works if the server returns a body.
-            var res = await httpClient.DeleteAsync(path);
-
-            if (res.IsSuccessStatusCode)
-            {
-                // Check for empty body (204 No Content) vs. body with content
-                if (res.Content.Headers.ContentLength == 0) return default;
-                return await res.Content.ReadFromJsonAsync<TResponse>();
-            }
-
-            return default;
-        }
-
-        public async Task<HttpResponseMessage> LogoutAsync(string path)
-        {
-            // AuthTokenHandler will run and attach the Bearer token.
-            // Send an empty request body.
-            return await httpClient.PostAsync(path, new StringContent(string.Empty));
-        }
-    }
-
-    // LogoutClient.cs - In the same namespace as ApiClient
-    public class LogoutClient(HttpClient httpClient)
-    {
-        // Simple method to make a POST without internal token logic
-        public async Task<HttpResponseMessage> PostAsync(string path, string accessToken)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Post, path);
-
-            // MANUALLY attach the token for this specific request
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            request.Content = new StringContent(string.Empty); // Empty body
-
-            return await httpClient.SendAsync(request);
+            await SetAuthorizeHeader();
+            return await httpClient.DeleteFromJsonAsync<T>(path);
         }
     }
 }
+

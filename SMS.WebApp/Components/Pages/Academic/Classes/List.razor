@@ -1,7 +1,81 @@
 ﻿@page "/academic/classes/list"
+@page "/academic/classes"
+@attribute [Authorize]
+@inject ApiClient apiClient
 
-<h3>Classes</h3>
+<h3>Academic Year</h3>
+
+@if (Classes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="d-flex justify-content-end">
+        <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
+            <i class="bi bi-plus" style="margin-right: 5px;"></i>
+            Create New Class
+        </NavLink>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover rounded">
+            <thead>
+                <tr>
+                    @* <th>Academic Year Id</th> *@
+                    <th>Academic Year</th>
+                    @* <th>Class Id</th> *@
+                    <th>Class Name</th>
+                    <th>Maximum Capacity</th>
+                    <th style="width: 150px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Classes)
+                {
+                    <tr>
+                        @* <td>@item.AcademicYearId</td> *@
+                        <td>@item.AcademicYearName</td>
+                        @* <td>@item.Id</td> *@
+                        <td>@item.Name</td>
+                        <td>@item.MaxCapacity</td>
+                        <td class="d-flex justify-content-around">
+                            <a class="btn btn-primary" href="/academic/class/edit/@item.Id">Edit</a>
+                            <a class="btn btn-danger" href="/academic/classs/delete/@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
 
 @code {
 
+    public IEnumerable<ClassesModel>? Classes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Call the authenticated API Client
+            var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
+
+            if (response != null && response.Succeeded && response.Data != null)
+            {
+                // Assuming the API returns a List<AcademicYearModel> nested inside the generic wrapper
+                Classes = response.Data.Items;
+            }
+            else
+            {
+                // Handle API failure response or non-successful status code
+                Console.Error.WriteLine("Failed to load Academic Years. API call was unsuccessful.");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle network or token handler exceptions
+            Console.Error.WriteLine($"Error during API call: {ex.Message}");
+        }
+    }
 }
