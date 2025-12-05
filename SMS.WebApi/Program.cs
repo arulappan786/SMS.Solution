@@ -147,15 +147,15 @@ try
     // --- SECURITY MIDDLEWARE (Early in the pipeline) ---
 
     // SECURITY: Prevents Clickjacking by instructing browsers not to display the page in an iframe.
-    app.UseXfo(xfo => xfo.Deny());
+    //app.UseXfo(xfo => xfo.Deny());
 
     // SECURITY: Content Security Policy. Restricts the sources from which content 
     // (scripts, styles, etc.) can be loaded, mitigating XSS risks.
-    app.UseCsp(options => options
-        .DefaultSources(s => s.Self()) // Only allows resources from the API's origin by default
-        .ScriptSources(s => s.None())  // Strict policy: No inline or external scripts
-        .FrameAncestors(s => s.None()) // Modern equivalent of X-Frame-Options: DENY
-    );
+    //app.UseCsp(options => options
+    //    .DefaultSources(s => s.Self()) // Only allows resources from the API's origin by default
+    //    .ScriptSources(s => s.None())  // Strict policy: No inline or external scripts
+    //    .FrameAncestors(s => s.None()) // Modern equivalent of X-Frame-Options: DENY
+    //);
 
     // SECURITY: Custom middleware to catch unhandled exceptions and return safe, generic error responses.
     app.UseExceptionHandlingMiddleware();

@@ -1,6 +1,6 @@
 ﻿namespace SMS.WebApp.Models
 {
-    public class BaseResponseModel
+    public class ServiceResponse
     {
         public bool Succeeded { get; set; }
         public string Message { get; set; } = string.Empty;

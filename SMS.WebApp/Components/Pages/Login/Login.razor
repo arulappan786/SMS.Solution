@@ -1,8 +1,10 @@
 ﻿@page "/login"
+
 @layout EmptyLayout
 @inject NavigationManager Navigation
 @inject ApiClient ApiClient
 @inject AuthenticationStateProvider AuthStateProvider
+
 
 <div class="p-5">
     <EditForm Model="loginModel" FormName="Login" OnValidSubmit="HandleLogin">
@@ -25,12 +27,22 @@
 
     private async Task HandleLogin()
     {
-        var res = await ApiClient.PostAsync<LoginResponseModel, LoginModel>("/api/auth/login", loginModel);
-        if (res != null && res.AccessToken != null)
+        var res = await ApiClient.PostAsync<ServiceResponse, LoginModel>("/api/auth/login", loginModel);
+
+        if (res is null) return;
+        if (!res.Succeeded) return;
+        if (res.Data is null) return;
+
+        // FIX: Use Newtonsoft.Json.JsonConvert.SerializeObject instead of JsonSerializer.Serialize
+        string jsonString = JsonConvert.SerializeObject(res.Data);
+
+        // 2. Deserialize the JSON string into the strongly-typed model
+        var loginResult = JsonConvert.DeserializeObject<LoginResponseModel>(jsonString);
+
+        if (loginResult != null && loginResult.AccessToken != null)
         {
-            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(res);
+            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResult!);
             Navigation.NavigateTo("/");
         }
     }
-
 }

@@ -21,6 +21,7 @@ namespace SMS.WebApp
             try
             {
                 var sessionState = (await localStorage.GetAsync<LoginResponseModel>("sessionState")).Value;
+                //var token = (await localStorage.GetAsync<LoginResponseModel>("sessionState")).Value?.AccessToken;
                 if (sessionState != null && !string.IsNullOrEmpty(sessionState.AccessToken))
                 {
                     if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
@@ -75,7 +76,7 @@ namespace SMS.WebApp
             return await httpClient.GetFromJsonAsync<T>(path);
         }
 
-        public async Task<T1> PostAsync<T1, T2>(string path, T2 postModel)
+        public async Task<T1?> PostAsync<T1, T2>(string path, T2 postModel)
         {
             await SetAuthorizeHeader();
 
@@ -83,12 +84,13 @@ namespace SMS.WebApp
 
             if (res != null && res.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T1>(await res.Content.ReadAsStringAsync());
+                var content = await res.Content.ReadAsStringAsync();
+                return string.IsNullOrWhiteSpace(content) ? default : JsonConvert.DeserializeObject<T1>(content);
             }
 
             return default;
         }
-        public async Task<T1> PutAsync<T1, T2>(string path, T2 postModel)
+        public async Task<T1?> PutAsync<T1, T2>(string path, T2 postModel)
         {
             await SetAuthorizeHeader();
             
@@ -96,7 +98,8 @@ namespace SMS.WebApp
             
             if (res != null && res.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T1>(await res.Content.ReadAsStringAsync());
+                var content = await res.Content.ReadAsStringAsync();
+                return string.IsNullOrWhiteSpace(content) ? default : JsonConvert.DeserializeObject<T1>(content);
             }
             
             return default;

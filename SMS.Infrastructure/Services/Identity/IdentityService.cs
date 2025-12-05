@@ -77,7 +77,7 @@ namespace SMS.Infrastructure.Services.Identity
             var userDto = new LoggedInUserDto(
                 UserId: Guid.Parse(user.Id),
                 UserName: user.UserName!,
-                EmailAddress: user.Email!,
+                Email: user.Email!,
                 Roles: roles.ToList(),
                 AccessToken: accessToken,
                 RefreshToken: refreshToken,

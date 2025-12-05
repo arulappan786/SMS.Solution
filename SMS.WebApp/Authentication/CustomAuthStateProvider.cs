@@ -8,9 +8,12 @@ namespace SMS.WebApp.Authentication
 {
     public class CustomAuthStateProvider(ProtectedLocalStorage localStorage) : AuthenticationStateProvider
     {
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            throw new NotImplementedException();
+            var token = (await localStorage.GetAsync<LoginResponseModel>("sessionState")).Value?.AccessToken;
+            var identity = string.IsNullOrEmpty(token) ? new ClaimsIdentity() : GetClaimsIdentity(token);
+            var user = new ClaimsPrincipal(identity);
+            return new AuthenticationState(user);
         }
 
         public async Task MarkUserAsAuthenticated(LoginResponseModel model)

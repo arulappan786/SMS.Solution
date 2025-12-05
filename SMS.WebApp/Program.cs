@@ -14,6 +14,9 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-XSRF-TOKEN";
 });
 
+builder.Services.AddAuthentication();
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 builder.Services.AddHttpClient<ApiClient>(client =>
@@ -35,6 +38,9 @@ app.UseHttpsRedirection();
 
 
 app.UseAntiforgery();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

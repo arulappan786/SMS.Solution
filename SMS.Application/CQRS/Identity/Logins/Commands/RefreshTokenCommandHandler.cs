@@ -71,7 +71,7 @@ namespace SMS.Application.CQRS.Identity.Logins.Commands
             var userDto = new LoggedInUserDto(
                 UserId: Guid.Parse(user.Id),
                 UserName: user.UserName!,
-                EmailAddress: user.Email!,
+                Email: user.Email!,
                 Roles: roles.ToList(),
                 AccessToken: newAccessToken,
                 RefreshToken: newRefreshToken,
