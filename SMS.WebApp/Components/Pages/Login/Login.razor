@@ -2,9 +2,9 @@
 
 @layout EmptyLayout
 @inject NavigationManager Navigation
-@inject ApiClient ApiClient
 @inject AuthenticationStateProvider AuthStateProvider
-
+@inject ApiClient ApiClient
+@inject IHttpClientFactory HttpClientFactory
 
 <div class="p-5">
     <EditForm Model="loginModel" FormName="Login" OnValidSubmit="HandleLogin">
@@ -19,31 +19,36 @@
             <InputText id="password" class="form-control" type="password" @bind-Value="loginModel.Password" />
         </div>
         <button type="submit" class="btn btn-primary mt-3">Login</button>
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="text-danger mt-2">@errorMessage</div>
+        }
     </EditForm>
 </div>
 
 
 @code {
+
     private LoginModel loginModel = new LoginModel() { Email = "", Password = "" };
+
+    private string errorMessage = string.Empty;
 
     private async Task HandleLogin()
     {
-        var res = await ApiClient.PostAsync<ServiceResponse, LoginModel>("/api/auth/login", loginModel);
+        HttpClient client = HttpClientFactory.CreateClient("NoAuthClient");
+        var response = await client.PostAsJsonAsync("api/auth/login", loginModel);
 
-        if (res is null) return;
-        if (!res.Succeeded) return;
-        if (res.Data is null) return;
-
-        // FIX: Use Newtonsoft.Json.JsonConvert.SerializeObject instead of JsonSerializer.Serialize
-        string jsonString = JsonConvert.SerializeObject(res.Data);
-
-        // 2. Deserialize the JSON string into the strongly-typed model
-        var loginResult = JsonConvert.DeserializeObject<LoginResponseModel>(jsonString);
-
-        if (loginResult != null && loginResult.AccessToken != null)
+        if(response.IsSuccessStatusCode)
         {
-            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResult!);
-            Navigation.NavigateTo("/");
+            var loginWrapper = await response.Content.ReadFromJsonAsync<ServiceResponse<LoginResponseModel>>();
+
+            if (loginWrapper != null && loginWrapper.Succeeded && loginWrapper.Data != null)
+            {
+                var loginResult = loginWrapper.Data;
+
+                await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loginResult);
+                Navigation.NavigateTo("/", forceLoad: true);
+            }
         }
     }
 }
