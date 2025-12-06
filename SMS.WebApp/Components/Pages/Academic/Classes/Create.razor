@@ -1,0 +1,86 @@
+﻿@page "/academic/classes/create"
+
+@inject NavigationManager NavigationManager
+@inject ApiClient apiClient
+@inject ToastService ToastService
+
+<h3>@PageTitle</h3>
+
+<EditForm Model="createClassModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="academicYear" class="form-label">Academic Year</label>
+        <InputSelect id="academicYear" class="form-select" @bind-Value="createClassModel.AcademicYearId">
+            <option value="">Select Academic Year</option>
+            @if (AcademicYears != null)
+            {
+                @foreach (var year in AcademicYears)
+                {
+                    <option value="@year.Id">@year.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <label for="className" class="form-label">Class Name</label>
+        <InputText id="className" class="form-control" @bind-Value="createClassModel.Name" />
+    </div>
+    <div class="mb-3">
+        <label for="maxCapacity" class="form-label">Maximum Capacity</label>
+        <InputNumber id="maxCapacity" class="form-control" @bind-Value="createClassModel.MaxCapacity" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create Class</button>
+</EditForm>
+
+@code {
+
+    private string PageTitle => "Create New Class";
+
+    private CreateClassModel? createClassModel = new();
+
+    private IEnumerable<AcademicYearModel>? AcademicYears;
+
+    override protected async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadAcademicYears();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+
+        try
+        {
+            var response = await apiClient.PostAsync<ServiceResponse, CreateClassModel>("/api/class", createClassModel);
+
+            if (response == null || !response.Succeeded)
+            {
+                ToastService.ShowError("Class creation failed. Please check the inputs and resubmit.");
+                return;
+            }
+            else
+            {
+                ToastService.ShowSuccess("Class created successfully!");
+                NavigationManager.NavigateTo("/academic/classes");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Class creation failed. {ex.Message}");
+            return;
+        }
+        
+    }
+
+
+    private async Task LoadAcademicYears()
+    {
+        var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
+
+        if (response != null && response.Succeeded && response.Data != null)
+        {
+            AcademicYears = response.Data.Items;
+        }
+    }
+}

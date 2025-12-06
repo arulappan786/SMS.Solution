@@ -131,7 +131,7 @@ public class StudentController(IMediator mediator) : ControllerBase
         if (serviceResponse.Succeeded)
         {
             // Standard REST practice: 204 No Content on successful deletion
-            return NoContent();
+            return Ok(serviceResponse);
         }
         else
         {

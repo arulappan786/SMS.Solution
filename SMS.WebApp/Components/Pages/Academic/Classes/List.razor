@@ -1,9 +1,11 @@
 ﻿@page "/academic/classes/list"
 @page "/academic/classes"
-@attribute [Authorize]
-@inject ApiClient apiClient
 
-<h3>Academic Year</h3>
+@attribute [Authorize(Roles = "Admin")]
+@inject ApiClient apiClient
+@inject ToastService ToastService
+
+<h3>@PageTitle</h3>
 
 @if (Classes == null)
 {
@@ -22,39 +24,69 @@ else
         <table class="table table-bordered table-striped table-hover rounded">
             <thead>
                 <tr>
-                    @* <th>Academic Year Id</th> *@
                     <th>Academic Year</th>
-                    @* <th>Class Id</th> *@
                     <th>Class Name</th>
                     <th>Maximum Capacity</th>
-                    <th style="width: 150px;">Actions</th>
+                    <th style="width: 180px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Classes)
                 {
                     <tr>
-                        @* <td>@item.AcademicYearId</td> *@
                         <td>@item.AcademicYearName</td>
-                        @* <td>@item.Id</td> *@
                         <td>@item.Name</td>
                         <td>@item.MaxCapacity</td>
                         <td class="d-flex justify-content-around">
-                            <a class="btn btn-primary" href="/academic/class/edit/@item.Id">Edit</a>
-                            <a class="btn btn-danger" href="/academic/classs/delete/@item.Id">Delete</a>
+                            <AuthorizeView Roles="Admin">
+                                <Authorized>
+                                    <a class="btn btn-secondary" href="/academic/class/edit/@item.Id">Update</a>
+                                    <button class="btn btn-danger" @onclick="() => { DeleteID = item.Id; Modal?.Open(); }">Delete</button>
+                                </Authorized>
+                            </AuthorizeView>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+        <AppModal @ref="Modal">
+            <Title>Notification</Title>
+            <Body>
+                Are you sure to delete the class?
+            </Body>
+            <Footer>
+                <button type="button" class="btn btn-primary" style="width:80px" @onclick="HandleDelete">Yes</button>
+                <button type="button" class="btn btn-secondary" @onclick="() => Modal?.Close()">Cancel</button>
+            </Footer>
+        </AppModal>
     </div>
 }
 
 @code {
-
-    public IEnumerable<ClassesModel>? Classes;
+    private string PageTitle => "Classes List";
+    private IEnumerable<ClassesModel>? Classes;
+    private Guid DeleteID { get; set; }
+    private AppModal? Modal;
 
     protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadClasses();
+    }
+
+    protected async Task HandleDelete()
+    {
+        var res = await apiClient.DeleteAsync<ServiceResponse>($"/api/class/{DeleteID}");
+
+        if (res != null && res.Succeeded)
+        {
+            ToastService.ShowSuccess("Class delete successfully!");
+            await LoadClasses();
+            Modal?.Close();
+        }
+    }
+
+    protected async Task LoadClasses()
     {
         try
         {

@@ -1,0 +1,82 @@
+﻿@inject ToastService ToastService
+@implements IDisposable
+
+@if (IsVisible)
+{
+    // A fixed container to position the toasts (e.g., bottom-right)
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+        <div class="toast show @BackgroundCssClass" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header @TextCssClass">
+                <strong class="me-auto">@Heading</strong>
+                <button type="button" class="btn-close" @onclick="HideToast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body @BackgroundCssClass">
+                @Message
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string? Message;
+    private string? Heading;
+    private bool IsVisible;
+    private string BackgroundCssClass = "";
+    private string TextCssClass = "";
+    private System.Threading.Timer? CountdownTimer;
+    private const int TimeoutMilliseconds = 5000; // Toast duration
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to the event from the service
+        ToastService.OnShow += ShowToast;
+    }
+
+    private void ShowToast(string message, ToastLevel level)
+    {
+        Message = message;
+        BuildToastSettings(level);
+        IsVisible = true;
+
+        // Start the timer to hide the toast automatically
+        StartCountdown();
+
+        // Notify the component to re-render
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void StartCountdown()
+    {
+        CountdownTimer?.Dispose();
+        CountdownTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(HideToast); // Hide on the UI thread after timeout
+        }, null, TimeoutMilliseconds, System.Threading.Timeout.Infinite);
+    }
+
+    private void HideToast()
+    {
+        IsVisible = false;
+        CountdownTimer?.Dispose();
+        InvokeAsync(StateHasChanged);
+    }
+
+    // Maps ToastLevel to Bootstrap CSS classes and header text
+    private void BuildToastSettings(ToastLevel level)
+    {
+        (BackgroundCssClass, TextCssClass, Heading) = level switch
+        {
+            ToastLevel.Success => ("bg-success text-white", "text-success", "Success"),
+            ToastLevel.Error => ("bg-danger text-white", "text-danger", "Error"),
+            // ... define others
+            _ => ("bg-info text-white", "text-info", "Info")
+        };
+    }
+
+    public void Dispose()
+    {
+        // Clean up event subscription to prevent memory leaks
+        ToastService.OnShow -= ShowToast;
+        CountdownTimer?.Dispose();
+    }
+}

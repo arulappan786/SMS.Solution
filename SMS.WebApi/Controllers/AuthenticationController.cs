@@ -87,7 +87,7 @@ namespace SMS.WebApi.Controllers
             if (response.Succeeded)
             {
                 // 204 No Content is appropriate for a successful state change/invalidation
-                return NoContent();
+                return Ok(response);
             }
 
             // Return 400 Bad Request or 401 Unauthorized based on failure reason
@@ -116,7 +116,7 @@ namespace SMS.WebApi.Controllers
 
             if (response.Succeeded)
             {
-                return NoContent(); // Success, session terminated
+                return Ok(response); // Success, session terminated
             }
 
             // Return 404 if the user ID wasn't found, or 400 for other failures
@@ -148,7 +148,7 @@ namespace SMS.WebApi.Controllers
             if (response.Succeeded)
             {
                 // Client must also clear its locally stored Access Token and Refresh Token.
-                return NoContent(); // HTTP 204: Success, but no data to return
+                return Ok(response); // HTTP 204: Success, but no data to return
             }
 
             // If the command failed (e.g., database error), return appropriate status

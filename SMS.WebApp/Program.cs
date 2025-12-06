@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using SMS.WebApp;
 using SMS.WebApp.Authentication;
 using SMS.WebApp.Components;
+using SMS.WebApp.Services.Toaster;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using System.Text.Json.Serialization; // Explicitly ensure this is available for AuthTokenHandler/Logout
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     // Enables interactive components using Blazor Server technology.
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<ToastService>();
 
 // --- Security and Authentication Services ---
 
