@@ -9,12 +9,12 @@
 
 @if (Classes == null)
 {
-    <p><em>Loading...</em></p>
+    <AppLoader Message="Fetching latest Classes..." />
 }
 else
 {
     <div class="d-flex justify-content-end">
-        
+
         <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
             <i class="bi bi-plus" style="margin-right: 5px;"></i>
             Create New Class
@@ -93,14 +93,6 @@ else
             .GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
 
         if (response != null && response.Succeeded && response.Data != null)
-        {
-            // Assuming the API returns a List<AcademicYearModel> nested inside the generic wrapper
             Classes = response.Data.Items;
-        }
-        else
-        {
-            // Handle API failure response or non-successful status code
-            Console.Error.WriteLine("Failed to load Academic Years. API call was unsuccessful.");
-        }
     }
 }

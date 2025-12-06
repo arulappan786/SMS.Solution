@@ -8,7 +8,7 @@
 
 @if (ClassModel == null)
 {
-    <p><em>Loading...</em></p>
+    <AppLoader Message="Fetching Class Details..." />
 }
 else
 {
@@ -16,39 +16,32 @@ else
     <EditForm Model="ClassModel" OnValidSubmit="HandleValidSubmit" FormName="editclass">
         <DataAnnotationsValidator />
         <ValidationSummary />
-        @if (ClassModel == null)
-        {
-            <p><em>Loading...</em></p>
-        }
-        else
-        {
-            <div class="mb-3">
-                <label for="academicYear" class="form-label">Academic Year</label>
-                <InputSelect id="academicYear" class="form-select" @bind-Value="ClassModel.AcademicYearId">
-                    <option value="">Select Academic Year</option>
-                    @if (AcademicYears != null)
+        <div class="mb-3">
+            <label for="academicYear" class="form-label">Academic Year</label>
+            <InputSelect id="academicYear" class="form-select" @bind-Value="ClassModel.AcademicYearId">
+                <option value="">Select Academic Year</option>
+                @if (AcademicYears != null)
+                {
+                    @foreach (var year in AcademicYears)
                     {
-                        @foreach (var year in AcademicYears)
-                        {
-                            <option value="@year.Id">@year.Name</option>
-                        }
+                        <option value="@year.Id">@year.Name</option>
                     }
-                </InputSelect>
-            </div>
-            <div class="mb-3">
-                <label for="name" class="form-label">Class Name</label>
-                <InputText id="name" class="form-control" @bind-Value="ClassModel.Name" />
-            </div>
-            <div class="mb-3">
-                <label for="maxCapacity" class="form-label">Maximum Capacity</label>
-                <InputNumber id="maxCapacity" class="form-control" @bind-Value="ClassModel.MaxCapacity" />
-            </div>
-            <hr />
-            <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
-                <a class="btn btn-primary" href="/academic/classes">Back To List</a>
-                <button type="submit" class="btn btn-success ms-2">Update Class</button>
-            </div>
-        }
+                }
+            </InputSelect>
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Class Name</label>
+            <InputText id="name" class="form-control" @bind-Value="ClassModel.Name" />
+        </div>
+        <div class="mb-3">
+            <label for="maxCapacity" class="form-label">Maximum Capacity</label>
+            <InputNumber id="maxCapacity" class="form-control" @bind-Value="ClassModel.MaxCapacity" />
+        </div>
+        <hr />
+        <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
+            <a class="btn btn-primary" href="/academic/classes">Back To List</a>
+            <button type="submit" class="btn btn-success ms-2">Update Class</button>
+        </div>
     </EditForm>
 }
 

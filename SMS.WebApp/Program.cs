@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.IdentityModel.Tokens;
 using SMS.WebApp;
 using SMS.WebApp.Authentication;
 using SMS.WebApp.Components;
 using SMS.WebApp.Services.Toaster;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization; // Explicitly ensure this is available for AuthTokenHandler/Logout
 
@@ -27,8 +30,34 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-XSRF-TOKEN";
 });
 
-// Adds the authentication services container required by Identity and other auth mechanisms.
-builder.Services.AddAuthentication();
+// --- START: AUTHENTICATION CONFIGURATION ---
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+
+        ValidIssuer = builder.Configuration["JwtSettings:ValidIssuer"],
+        ValidAudience = builder.Configuration["JwtSettings:ValidAudience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+            builder.Configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT Key not configured"))),
+
+        ClockSkew = TimeSpan.Zero
+
+    };
+});
+
+// --- END: AUTHENTICATION CONFIGURATION ---
 
 // Enables cascading the AuthenticationState to child components via a CascadingParameter.
 builder.Services.AddCascadingAuthenticationState();

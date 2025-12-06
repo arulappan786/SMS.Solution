@@ -58,3 +58,40 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+
+/* --- Loader Component Styles --- */
+
+/* Style for the container that holds the spinner. 
+   We use flexbox to center content. */
+.loader-container {
+    display: flex;
+    flex-direction: column; /* Stack the spinner and message vertically */
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically (if height is set) */
+    /* Set a reasonable minimum height for the loader area */
+    min-height: 200px;
+    /* Optional: Add a slight margin */
+    margin: 50px 0;
+}
+
+/* Style for the text message */
+.loader-message {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Optional: Overlay style for full-screen loading */
+.full-screen-loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+    z-index: 9999; /* Ensure it covers everything */
+    /* Use flex properties to perfectly center the spinner */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
