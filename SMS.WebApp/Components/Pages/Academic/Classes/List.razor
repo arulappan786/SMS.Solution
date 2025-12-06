@@ -40,7 +40,7 @@ else
                         <td class="d-flex justify-content-around">
                             <AuthorizeView Roles="Admin">
                                 <Authorized>
-                                    <a class="btn btn-secondary" href="/academic/class/edit/@item.Id">Update</a>
+                                    <a class="btn btn-secondary" href="/academic/classes/update/@item.Id">Update</a>
                                     <button class="btn btn-danger" @onclick="() => { DeleteID = item.Id; Modal?.Open(); }">Delete</button>
                                 </Authorized>
                             </AuthorizeView>

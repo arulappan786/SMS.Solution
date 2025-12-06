@@ -1,0 +1,112 @@
+﻿@page "/academic/classes/update/{Id:guid}"
+
+@inject NavigationManager NavigationManager
+@inject ApiClient apiClient
+@inject ToastService ToastService
+
+<h3>@PageTitle</h3>
+
+@if (ClassModel == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <EditForm Model="ClassModel" OnValidSubmit="HandleValidSubmit" FormName="editclass">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        @if (ClassModel == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="mb-3">
+                <label for="academicYear" class="form-label">Academic Year</label>
+                <InputSelect id="academicYear" class="form-select" @bind-Value="ClassModel.AcademicYearId">
+                    <option value="">Select Academic Year</option>
+                    @if (AcademicYears != null)
+                    {
+                        @foreach (var year in AcademicYears)
+                        {
+                            <option value="@year.Id">@year.Name</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Class Name</label>
+                <InputText id="name" class="form-control" @bind-Value="ClassModel.Name" />
+            </div>
+            <div class="mb-3">
+                <label for="maxCapacity" class="form-label">Maximum Capacity</label>
+                <InputNumber id="maxCapacity" class="form-control" @bind-Value="ClassModel.MaxCapacity" />
+            </div>
+            <button type="submit" class="btn btn-primary">Update Class</button>
+        }
+    </EditForm>
+}
+
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    // 1. REMOVE [SupplyParameterFromForm]. We initialize it from the API.
+    private ClassesModel? ClassModel;
+
+    // 2. Add an AcademicYears property that can be used in the select
+    private IEnumerable<AcademicYearModel>? AcademicYears;
+
+    private string PageTitle => "Update Class";
+
+    // 3. Initialize both the ClassModel and the AcademicYears
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch the class data
+        var classResponse = await apiClient.GetFromJsonAsync<ServiceResponse<ClassesModel>>($"/api/class/{Id}");
+        ClassModel = classResponse.Data;
+
+        // Load the list of academic years for the dropdown
+        await LoadAcademicYears();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // ... (Your existing submission logic is fine)
+        if (ClassModel != null)
+        {
+            // Use PutAsJsonAsync instead of PutAsync for cleaner JSON serialization
+            var response = await apiClient.PutAsync<ServiceResponse<ClassesModel>, ClassesModel>($"/api/class/{Id}", ClassModel);
+
+            // Check for success status code directly from HttpResponseMessage
+            if (response.Succeeded)
+            {
+                ToastService.ShowSuccess("Class updated successfully!");
+                NavigationManager.NavigateTo("/academic/classes");
+            }
+            else
+            {
+                // You might want to read the error message from the response content
+                ToastService.ShowError("Class updating failed. Check the server logs.");
+            }
+        }
+    }
+
+    private async Task LoadAcademicYears()
+    {
+        // Ensure this API call returns the necessary data structure
+        var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
+
+        if (response != null && response.Succeeded && response.Data != null)
+        {
+            AcademicYears = response.Data.Items;
+        }
+        else
+        {
+            // Optional: Show an error if dropdown data fails to load
+            ToastService.ShowError("Failed to load academic years for the dropdown.");
+        }
+    }
+}

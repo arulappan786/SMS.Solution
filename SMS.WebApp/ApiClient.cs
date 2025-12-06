@@ -26,17 +26,36 @@ namespace SMS.WebApp
                     }
                     else if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds())
                     {
-                        var res = await httpClient.GetFromJsonAsync<LoginResponseModel>($"/api/auth/loginByRefeshToken?refreshToken={sessionState.RefreshToken}");
-                        if (res != null)
+                        var refreshTokenModel = new RefreshTokenModel
                         {
-                            await ((CustomAuthStateProvider)authStateProvider).MarkUserAsAuthenticated(res);
-                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", res.AccessToken);
+                            AccessToken = sessionState.AccessToken,
+                            RefreshToken = sessionState.RefreshToken
+                        };
+                        
+                        var res = await httpClient.PostAsJsonAsync<RefreshTokenModel>($"/api/auth/refreshtoken", refreshTokenModel);
+
+                        if(res != null && res.IsSuccessStatusCode)
+                        {
+                            var content = await res.Content.ReadAsStringAsync();
+                            var loginResponse = JsonConvert.DeserializeObject<LoginResponseModel>(content);
+
+                            //var loginResponse = JsonConvert.DeserializeObject<LoginResponseModel>(await res.Content.ReadAsStringAsync());
+                            
+                            if(loginResponse == null)
+                            {
+                                await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
+                                navigationManager.NavigateTo("/login");
+                                return;
+                            }
+                            
+                            await ((CustomAuthStateProvider)authStateProvider).MarkUserAsAuthenticated(loginResponse);
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.AccessToken);
                         }
                         else
                         {
                             await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
                             navigationManager.NavigateTo("/login");
-                        }
+                        }                       
                     }
                     else
                     {
@@ -60,7 +79,13 @@ namespace SMS.WebApp
         public async Task<T> GetFromJsonAsync<T>(string path)
         {
             await SetAuthorizeHeader();
-            return await httpClient.GetFromJsonAsync<T>(path);
+            var result = await httpClient.GetFromJsonAsync<T>(path);
+            if (result == null)
+            {
+                // You can throw, return default, or handle as needed. Here, returning default to avoid CS8603.
+                return default!;
+            }
+            return result;
         }
         public async Task<T1> PostAsync<T1, T2>(string path, T2 postModel)
         {
@@ -69,9 +94,11 @@ namespace SMS.WebApp
             var res = await httpClient.PostAsJsonAsync(path, postModel);
             if (res != null && res.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T1>(await res.Content.ReadAsStringAsync());
+                var content = await res.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<T1>(content);
+                return result ?? default!;
             }
-            return default;
+            return default!;
         }
         public async Task<T1> PutAsync<T1, T2>(string path, T2 postModel)
         {
@@ -79,14 +106,22 @@ namespace SMS.WebApp
             var res = await httpClient.PutAsJsonAsync(path, postModel);
             if (res != null && res.IsSuccessStatusCode)
             {
-                return JsonConvert.DeserializeObject<T1>(await res.Content.ReadAsStringAsync());
+                var content = await res.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<T1>(content);
+                return result ?? default!;
             }
-            return default;
+            return default!;
         }
         public async Task<T> DeleteAsync<T>(string path)
         {
             await SetAuthorizeHeader();
-            return await httpClient.DeleteFromJsonAsync<T>(path);
+            var result = await httpClient.DeleteFromJsonAsync<T>(path);
+            if (result == null)
+            {
+                // Return default to avoid CS8603: Possible null reference return.
+                return default!;
+            }
+            return result;
         }
     }
 }
