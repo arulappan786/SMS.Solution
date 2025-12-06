@@ -12,6 +12,10 @@ using System.Text.Json.Serialization; // Explicitly ensure this is available for
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddCascadingAuthenticationState();
+//builder.Services.AddProtectedBrowserStorage();
+
 // --- Component and Interactive Services ---
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -60,7 +64,7 @@ builder.Services.AddAuthentication(options =>
 // --- END: AUTHENTICATION CONFIGURATION ---
 
 // Enables cascading the AuthenticationState to child components via a CascadingParameter.
-builder.Services.AddCascadingAuthenticationState();
+//builder.Services.AddCascadingAuthenticationState();
 
 // Register the core ProtectedBrowserStorage service for safe client-side data storage (tokens).
 builder.Services.AddScoped<ProtectedLocalStorage>();
@@ -131,6 +135,18 @@ app.UseHttpsRedirection();
 
 // Adds the Antiforgery middleware to the pipeline (must run before endpoint routing).
 app.UseAntiforgery();
+
+//app.UseStatusCodePages(async context =>
+//{
+//    // Check if the response status is 401 (Unauthorized)
+//    if (context.HttpContext.Response.StatusCode == 401)
+//    {
+//        // Redirect the user to the login page
+//        context.HttpContext.Response.Redirect("/login");
+//    }
+//});
+
+//app.UseRouting();
 
 // Enables authentication middleware (checks headers/cookies).
 app.UseAuthentication();

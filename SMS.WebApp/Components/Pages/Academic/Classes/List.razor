@@ -69,10 +69,29 @@ else
     private Guid DeleteID { get; set; }
     private AppModal? Modal;
 
-    protected override async Task OnInitializedAsync()
+    // --- 1. Inject AuthenticationStateProvider ---
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    // --- 2. Remove OnInitializedAsync and use OnParametersSetAsync ---
+    protected override async Task OnParametersSetAsync()
     {
-        await base.OnInitializedAsync();
-        await LoadClasses();
+        // Wait for the Blazor AuthenticationStateProvider to determine the user's identity
+        var authState = await authenticationState;
+        var user = authState?.User;
+
+        // Only proceed to load data if the user is authenticated (and implicitly, authorized)
+        if (user?.Identity?.IsAuthenticated == true && user.IsInRole("Admin"))
+        {
+            // Clear existing data/show loader
+            Classes = null;
+            await LoadClasses();
+        }
+        else
+        {
+            // If not authorized, ensure Classes is null, and the page shows the NotAuthorized content
+            Classes = null;
+        }
     }
 
     protected async Task HandleDelete()
@@ -89,10 +108,21 @@ else
 
     protected async Task LoadClasses()
     {
-        var response = await apiClient
-            .GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
+        try
+        {
+            var response = await apiClient
+                .GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
 
-        if (response != null && response.Succeeded && response.Data != null)
-            Classes = response.Data.Items;
+            if (response != null && response.Succeeded && response.Data != null)
+            {
+                Classes = response.Data.Items;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Catch and handle API failure (e.g., if token expired or API failed)
+            ToastService.ShowError("Failed to load classes or API call failed.");
+            Classes = new List<ClassesModel>(); // Set to empty list to stop showing loader
+        }
     }
 }

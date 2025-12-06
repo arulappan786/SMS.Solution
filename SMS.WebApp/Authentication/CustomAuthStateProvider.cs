@@ -24,7 +24,7 @@ namespace SMS.WebApp.Authentication
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
         }
 
-        private ClaimsIdentity GetClaimsIdentity(string token)
+        private static ClaimsIdentity GetClaimsIdentity(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
@@ -38,6 +38,6 @@ namespace SMS.WebApp.Authentication
             var identity = new ClaimsIdentity();
             var user = new ClaimsPrincipal(identity);
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
-        }        
+        }
     }
 }
