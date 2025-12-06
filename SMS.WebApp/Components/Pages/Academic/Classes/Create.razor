@@ -4,7 +4,7 @@
 @inject ApiClient apiClient
 @inject ToastService ToastService
 
-<h3>@PageTitle</h3>
+<PageHeader Title="@PageTitle" />
 
 <EditForm Model="createClassModel" OnValidSubmit="HandleValidSubmit" FormName="createclass">
     <DataAnnotationsValidator />
@@ -30,7 +30,11 @@
         <label for="maxCapacity" class="form-label">Maximum Capacity</label>
         <InputNumber id="maxCapacity" class="form-control" @bind-Value="createClassModel.MaxCapacity" />
     </div>
-    <button type="submit" class="btn btn-primary">Create Class</button>
+    <hr />
+    <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
+        <a class="btn btn-primary" href="/academic/classes">Back To List</a>
+        <button type="submit" class="btn btn-success ms-2">Create Class</button>
+    </div>
 </EditForm>
 
 @code {
@@ -73,10 +77,10 @@
         
     }
 
-
     private async Task LoadAcademicYears()
     {
-        var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
+        var response = await apiClient
+        .GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
 
         if (response != null && response.Succeeded && response.Data != null)
         {

@@ -1,12 +1,40 @@
-﻿
-@page "/logout"
+﻿@page "/logout"
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
+@inject ApiClient apiClient
+
+<div>
+    <h3>Logging out...</h3>
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
+</div>
+
 
 @code {
+
+    private string ReturnUrl { get; set; } = "/login";
+
+    private string? ErrorMessage { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        Navigation.NavigateTo("/login");
+       
+       try
+        {
+            var respone = await apiClient.PostAsync<ServiceResponse, LoginModel>("api/auth/logout", default);
+
+            ErrorMessage = respone.Succeeded ? string.Empty : respone.Message;            
+
+            await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
+            Navigation.NavigateTo(ReturnUrl, forceLoad: true);
+
+            ErrorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
     }
 }

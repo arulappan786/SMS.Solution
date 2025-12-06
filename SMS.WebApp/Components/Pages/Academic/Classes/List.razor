@@ -5,7 +5,7 @@
 @inject ApiClient apiClient
 @inject ToastService ToastService
 
-<h3>@PageTitle</h3>
+<PageHeader Title="@PageTitle" />
 
 @if (Classes == null)
 {
@@ -14,6 +14,7 @@
 else
 {
     <div class="d-flex justify-content-end">
+        
         <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
             <i class="bi bi-plus" style="margin-right: 5px;"></i>
             Create New Class
@@ -55,8 +56,8 @@ else
                 Are you sure to delete the class?
             </Body>
             <Footer>
-                <button type="button" class="btn btn-primary" style="width:80px" @onclick="HandleDelete">Yes</button>
-                <button type="button" class="btn btn-secondary" @onclick="() => Modal?.Close()">Cancel</button>
+                <button type="button" class="btn btn-danger" style="width:80px" @onclick="HandleDelete">Yes</button>
+                <button type="button" class="btn btn-primary" @onclick="() => Modal?.Close()">Cancel</button>
             </Footer>
         </AppModal>
     </div>
@@ -88,26 +89,18 @@ else
 
     protected async Task LoadClasses()
     {
-        try
-        {
-            // Call the authenticated API Client
-            var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
+        var response = await apiClient
+            .GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
 
-            if (response != null && response.Succeeded && response.Data != null)
-            {
-                // Assuming the API returns a List<AcademicYearModel> nested inside the generic wrapper
-                Classes = response.Data.Items;
-            }
-            else
-            {
-                // Handle API failure response or non-successful status code
-                Console.Error.WriteLine("Failed to load Academic Years. API call was unsuccessful.");
-            }
-        }
-        catch (Exception ex)
+        if (response != null && response.Succeeded && response.Data != null)
         {
-            // Handle network or token handler exceptions
-            Console.Error.WriteLine($"Error during API call: {ex.Message}");
+            // Assuming the API returns a List<AcademicYearModel> nested inside the generic wrapper
+            Classes = response.Data.Items;
+        }
+        else
+        {
+            // Handle API failure response or non-successful status code
+            Console.Error.WriteLine("Failed to load Academic Years. API call was unsuccessful.");
         }
     }
 }

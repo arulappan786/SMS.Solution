@@ -4,7 +4,7 @@
 @inject ApiClient apiClient
 @inject ToastService ToastService
 
-<h3>@PageTitle</h3>
+<PageHeader Title="@PageTitle" />
 
 @if (ClassModel == null)
 {
@@ -43,7 +43,11 @@ else
                 <label for="maxCapacity" class="form-label">Maximum Capacity</label>
                 <InputNumber id="maxCapacity" class="form-control" @bind-Value="ClassModel.MaxCapacity" />
             </div>
-            <button type="submit" class="btn btn-primary">Update Class</button>
+            <hr />
+            <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
+                <a class="btn btn-primary" href="/academic/classes">Back To List</a>
+                <button type="submit" class="btn btn-success ms-2">Update Class</button>
+            </div>
         }
     </EditForm>
 }
@@ -53,34 +57,27 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    // 1. REMOVE [SupplyParameterFromForm]. We initialize it from the API.
     private ClassesModel? ClassModel;
 
-    // 2. Add an AcademicYears property that can be used in the select
     private IEnumerable<AcademicYearModel>? AcademicYears;
 
     private string PageTitle => "Update Class";
 
-    // 3. Initialize both the ClassModel and the AcademicYears
     protected override async Task OnInitializedAsync()
     {
-        // Fetch the class data
         var classResponse = await apiClient.GetFromJsonAsync<ServiceResponse<ClassesModel>>($"/api/class/{Id}");
         ClassModel = classResponse.Data;
 
-        // Load the list of academic years for the dropdown
         await LoadAcademicYears();
     }
 
     private async Task HandleValidSubmit()
     {
-        // ... (Your existing submission logic is fine)
         if (ClassModel != null)
         {
-            // Use PutAsJsonAsync instead of PutAsync for cleaner JSON serialization
-            var response = await apiClient.PutAsync<ServiceResponse<ClassesModel>, ClassesModel>($"/api/class/{Id}", ClassModel);
+            var response = await apiClient
+            .PutAsync<ServiceResponse<ClassesModel>, ClassesModel>($"/api/class/{Id}", ClassModel);
 
-            // Check for success status code directly from HttpResponseMessage
             if (response.Succeeded)
             {
                 ToastService.ShowSuccess("Class updated successfully!");
@@ -88,7 +85,6 @@ else
             }
             else
             {
-                // You might want to read the error message from the response content
                 ToastService.ShowError("Class updating failed. Check the server logs.");
             }
         }
@@ -96,17 +92,12 @@ else
 
     private async Task LoadAcademicYears()
     {
-        // Ensure this API call returns the necessary data structure
-        var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
+        var response = await apiClient
+        .GetFromJsonAsync<ServiceResponse<PaginatedResult<AcademicYearModel>>>("/api/academicyear");
 
         if (response != null && response.Succeeded && response.Data != null)
         {
             AcademicYears = response.Data.Items;
-        }
-        else
-        {
-            // Optional: Show an error if dropdown data fails to load
-            ToastService.ShowError("Failed to load academic years for the dropdown.");
-        }
+        }       
     }
 }

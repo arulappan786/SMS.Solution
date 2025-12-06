@@ -22,7 +22,7 @@ namespace SMS.WebApp
                     if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
                     {
                         await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
-                        navigationManager.NavigateTo("/login");
+                        navigationManager.NavigateTo("/login", forceLoad: true);
                     }
                     else if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds())
                     {
@@ -37,24 +37,22 @@ namespace SMS.WebApp
                         if(res != null && res.IsSuccessStatusCode)
                         {
                             var content = await res.Content.ReadAsStringAsync();
-                            var loginResponse = JsonConvert.DeserializeObject<LoginResponseModel>(content);
+                            var loginResponse = JsonConvert.DeserializeObject<ServiceResponse<LoginResponseModel>>(content);
 
-                            //var loginResponse = JsonConvert.DeserializeObject<LoginResponseModel>(await res.Content.ReadAsStringAsync());
-                            
                             if(loginResponse == null)
                             {
                                 await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
-                                navigationManager.NavigateTo("/login");
+                                navigationManager.NavigateTo("/login", forceLoad: true);
                                 return;
                             }
                             
-                            await ((CustomAuthStateProvider)authStateProvider).MarkUserAsAuthenticated(loginResponse);
-                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.AccessToken);
+                            await ((CustomAuthStateProvider)authStateProvider).MarkUserAsAuthenticated(loginResponse.Data);
+                            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.Data.AccessToken);
                         }
                         else
                         {
                             await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
-                            navigationManager.NavigateTo("/login");
+                            navigationManager.NavigateTo("/login", forceLoad: true);
                         }                       
                     }
                     else
@@ -73,7 +71,7 @@ namespace SMS.WebApp
             }
             catch (Exception ex)
             {
-                navigationManager.NavigateTo("/login");
+                navigationManager.NavigateTo("/login", forceLoad: true);
             }
         }
         public async Task<T> GetFromJsonAsync<T>(string path)
