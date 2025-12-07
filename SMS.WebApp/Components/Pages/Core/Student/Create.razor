@@ -43,9 +43,6 @@
         <div class="mb-3">
             <label for="gender" class="form-label">Gender</label>
             <InputSelect id="gender" class="form-select" @bind-Value="student.Gender">
-                @* <option value="@((int)Gender.Male)">Male</option>
-                <option value="@((int)Gender.Female)">Female</option>
-                <option value="@((int)Gender.Other)">Other</option> *@
                 <option value="@Gender.Male">Male</option>
                 <option value="@Gender.Female">Female</option>
                 <option value="@Gender.Other">Other</option>
@@ -142,7 +139,7 @@
             {
                 successMessage = string.IsNullOrWhiteSpace(response.Message) ? "Student created successfully!" : response.Message;
                 ToastService.ShowSuccess(successMessage);
-                NavigationManager.NavigateTo("/students", forceLoad: true);
+                NavigationManager.NavigateTo("/students");
             }
             else
             {

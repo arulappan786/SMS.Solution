@@ -1,0 +1,196 @@
+﻿@page "/students/update/{Id:guid}"
+
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject ApiClient apiClient
+@inject ToastService ToastService
+@inject NavigationManager NavigationManager
+
+<PageHeader Title=@PageTitle />
+
+@if (student == null)
+{
+    <AppLoader Message="Loading student data..." />
+}
+else
+{
+
+    <EditForm Model="@student" OnValidSubmit="HandleValidSubmit" FormName="updateStudent">
+        <ObjectGraphValidator />
+        <p class="text-success mt-2">@successMessage</p>
+        <p class="text-danger mt-2">@errorMessage</p>
+
+        <fieldset class="form-group">
+            <legend>Personal Information</legend>
+
+            <div class="mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <InputText id="firstName" class="form-control" @bind-Value="student.FullName.FirstName" />
+                <ValidationMessage For="@(() => student.FullName.FirstName)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <InputText id="lastName" class="form-control" @bind-Value="student.FullName.LastName" />
+                <ValidationMessage For="@(() => student.FullName.LastName)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" class="form-control" @bind-Value="student.Email" />
+                <ValidationMessage For="@(() => student.Email)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="dob" class="form-label">Date of Birth</label>
+                <InputDate id="dob" class="form-control" @bind-Value="student.DateOfBirth" />
+                <ValidationMessage For="@(() => student.DateOfBirth)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender</label>
+                <InputSelect id="gender" class="form-select" @bind-Value="student.Gender">
+                    <option value="@Gender.Male">Male</option>
+                    <option value="@Gender.Female">Female</option>
+                    <option value="@Gender.Other">Other</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => student.Gender)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="classId" class="form-label">Academic Year</label>
+                <InputSelect id="classId" class="form-select" @bind-Value="student.CurrentClassId">
+                    <option value="">Select Class</option>
+                    @if (Classes != null)
+                    {
+                        @foreach (var cls in Classes)
+                        {
+                            <option value="@cls.Id">@cls.Name</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => student.CurrentClassId)" />
+            </div>
+
+        </fieldset>
+
+        <fieldset class="form-group mt-4">
+            <legend>Home Address</legend>
+
+            <div class="mb-3">
+                <label for="street" class="form-label">Street</label>
+                <InputText id="street" class="form-control" @bind-Value="student.HomeAddress.Street" />
+                <ValidationMessage For="@(() => student.HomeAddress.Street)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="city" class="form-label">City</label>
+                <InputText id="city" class="form-control" @bind-Value="student.HomeAddress.City" />
+                <ValidationMessage For="@(() => student.HomeAddress.City)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="state" class="form-label">State</label>
+                <InputText id="state" class="form-control" @bind-Value="student.HomeAddress.State" />
+                <ValidationMessage For="@(() => student.HomeAddress.State)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="zipCode" class="form-label">Zip Code</label>
+                <InputText id="zipCode" class="form-control" @bind-Value="student.HomeAddress.ZipCode" placeholder="e.g., 110001 or 98765" />
+                <ValidationMessage For="@(() => student.HomeAddress.ZipCode)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="country" class="form-label">Country</label>
+                <InputText id="country" class="form-control" @bind-Value="student.HomeAddress.Country" />
+                <ValidationMessage For="@(() => student.HomeAddress.Country)" />
+            </div>
+
+        </fieldset>
+
+        <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
+            <a class="btn btn-primary" href="/students">Back To List</a>
+            <button type="submit" class="btn btn-success ms-2">Update Student</button>
+        </div>
+
+    </EditForm>
+}
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private string PageTitle => "Update Student";
+
+    private IEnumerable<ClassesModel>? Classes;
+    private UpdateStudentModel student = new();
+
+    private string successMessage = string.Empty;
+    private string errorMessage = string.Empty;
+
+    override protected async Task OnInitializedAsync()
+    {
+        await LoadStudentData();
+        await LoadClasses();
+    }
+
+    private async Task LoadStudentData()
+    {
+        var response = await apiClient.GetFromJsonAsync<ServiceResponse<StudentDto>>($"/api/student/{Id}");
+
+        if (response != null && response.Succeeded && response.Data != null)
+        {
+            student.Id = Id;
+            student.CurrentClassId = response.Data.CurrentClassId;
+            student.FullName = response.Data.FullName;
+            student.HomeAddress = response.Data.HomeAddress;
+            student.Email = response.Data.Email;
+            student.DateOfBirth = response.Data.DateOfBirth;
+            student.Gender = response.Data.Gender;
+        }
+
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        successMessage = string.Empty;
+        errorMessage = string.Empty;
+
+        string apiUrl = $"api/student/{Id}";
+
+        try
+        {
+            var response = await apiClient.PutAsync<ServiceResponse<StudentDto>, UpdateStudentModel>(apiUrl, student);
+
+            if (response.Succeeded)
+            {
+                successMessage = string.IsNullOrWhiteSpace(response.Message) ? "Student updated successfully!" : response.Message;
+                ToastService.ShowSuccess(successMessage);
+                NavigationManager.NavigateTo("/students");
+            }
+            else
+            {
+                ToastService.ShowError(response.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+            ToastService.ShowError(errorMessage);
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadClasses()
+    {
+        var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
+
+        if (response != null && response.Succeeded && response.Data != null)
+        {
+            Classes = response.Data.Items;
+        }
+    }
+
+
+}

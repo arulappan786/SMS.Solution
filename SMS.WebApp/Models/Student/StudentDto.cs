@@ -6,7 +6,7 @@
                              FullName FullName,
                              Address HomeAddress,
                              DateOnly DateOfBirth,
-                             string Gender,
+                             Gender Gender,
                              string Email,
                              string StudentCode,
                              DateTime EnrollmentDate);

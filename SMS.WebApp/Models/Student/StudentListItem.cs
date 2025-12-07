@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public Guid CurrentClassId { get; set; }
         public FullName FullName { get; set; } = new FullName();
-        public string Gender { get; set; } = string.Empty;
+        public Gender Gender { get; set; }
         public string Email { get; set; } = string.Empty;
         public string StudentCode { get; set; } = string.Empty;
 

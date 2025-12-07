@@ -34,7 +34,7 @@ namespace SMS.Application.Mappings.Core
                     src.FullName,
                     src.HomeAddress,
                     src.DateOfBirth,
-                    src.Gender.ToString(),
+                    src.Gender,
                     src.Email,
                     src.StudentCode,
                     src.EnrollmentDate

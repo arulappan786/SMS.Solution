@@ -116,6 +116,26 @@ namespace SMS.Infrastructure.Repositories.Common
                 .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id), cancellationToken);
         }
 
+        public async Task<TEntity?> GetAsync(Guid id, Expression<Func<TEntity, object>>[]? includeProperties = null, CancellationToken cancellationToken = default)
+        {
+            if (id == Guid.Empty) throw new ArgumentNullException(nameof(id));
+
+            // 1. Prepare the queryable
+            IQueryable<TEntity> query = dbContext.Set<TEntity>().AsNoTracking();
+
+            // NEW: Apply includes if any are provided
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return await query
+                .FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id), cancellationToken);
+        }
+
         public async Task<bool> UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
         {
             if (id == Guid.Empty) throw new ArgumentNullException(nameof(id));           

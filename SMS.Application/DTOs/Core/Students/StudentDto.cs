@@ -1,4 +1,5 @@
-﻿using SMS.Domain.ValueObjects;
+﻿using SMS.Domain.Enums;
+using SMS.Domain.ValueObjects;
 
 namespace SMS.Application.DTOs.Core.Students
 {
@@ -9,7 +10,7 @@ namespace SMS.Application.DTOs.Core.Students
                              FullName FullName,
                              Address HomeAddress,
                              DateOnly DateOfBirth,
-                             string Gender,
+                             Gender Gender,
                              string Email,
                              string StudentCode,
                              DateTime EnrollmentDate);

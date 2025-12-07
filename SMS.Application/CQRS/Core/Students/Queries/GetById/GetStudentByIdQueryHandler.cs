@@ -3,7 +3,9 @@ using MediatR;
 using SMS.Application.DTOs.Core.Students;
 using SMS.Application.DTOs.Service;
 using SMS.Application.Exceptions;
+using SMS.Domain.Entities.Core;
 using SMS.Domain.Interfaces.Repositories.Core;
+using System.Linq.Expressions;
 
 namespace SMS.Application.CQRS.Core.Students.Queries.GetById
 {
@@ -14,7 +16,12 @@ namespace SMS.Application.CQRS.Core.Students.Queries.GetById
         public async Task<ServiceResponse<StudentDto>> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
         {
             // 1. Retrieve the entity
-            var student = await studentRepository.GetAsync(request.Id, cancellationToken);
+            var student = await studentRepository
+                .GetAsync(request.Id, includeProperties: new Expression<Func<Student, object>>[]
+                {
+                    s => s.CurrentClass!,
+
+                }, cancellationToken);
 
             // 2. Handle Not Found by throwing an exception
             if (student == null)
