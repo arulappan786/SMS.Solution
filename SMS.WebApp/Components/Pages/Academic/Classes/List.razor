@@ -7,18 +7,27 @@
 
 <PageHeader Title="@PageTitle" />
 
+<div class="d-flex justify-content-end">
+    <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
+        <i class="bi bi-plus" style="margin-right: 5px;"></i>
+        Create New Class
+    </NavLink>
+</div>
+
 @if (Classes == null)
 {
     <AppLoader Message="Fetching latest Classes..." />
 }
+else if (!Classes.Any())
+{
+    <div class="alert alert-info text-center">
+        <p><i class="oi oi-warning"></i></p>
+        <h4>No Classes found.</h4>
+        <p>Please add new classes to view them here.</p>
+    </div>
+}
 else
 {
-    <div class="d-flex justify-content-end">
-        <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
-            <i class="bi bi-plus" style="margin-right: 5px;"></i>
-            Create New Class
-        </NavLink>
-    </div>
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover rounded">

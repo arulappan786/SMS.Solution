@@ -1,4 +1,4 @@
-﻿<div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-3 rounded-2 shadow-sm mb-4">
+﻿<div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-3 rounded-2 shadow-sm mb-2">
 
     <div class="d-flex align-items-center me-3 mb-2 mb-md-0" style="min-width: 250px;">
         <i class="bi bi-search me-2 text-muted"></i>
@@ -24,6 +24,7 @@
     </div>
 
     <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+        
         <button class="btn btn-secondary btn-sm"
                 disabled="@(!State.HasPreviousPage)"
                 @onclick="@(() => Navigate.InvokeAsync(State.PageNumber - 1))">
@@ -39,6 +40,7 @@
                 @onclick="@(() => Navigate.InvokeAsync(State.PageNumber + 1))">
             Next <i class="bi bi-chevron-right"></i>
         </button>
+
     </div>
 
 </div>

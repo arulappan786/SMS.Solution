@@ -5,19 +5,26 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 
-<div class="p-5">
-    <EditForm Model="loginModel" FormName="Login" OnValidSubmit="HandleLogin">
-        <DataAnnotationsValidator />
-        <div class="form-group">
-            <label for="username">Username</label>
-            <InputText id="username" class="form-control" @bind-Value="loginModel.Email" />
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <InputText id="password" class="form-control" type="password" @bind-Value="loginModel.Password" />
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">Login</button>
-    </EditForm>
+<div class="d-flex align-items-center justify-content-center vh-100">
+    <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
+        <h3 class="card-title text-center mb-4">User Login</h3>
+        <EditForm Model="loginModel" FormName="Login" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <div class="mb-3">
+                <label for="username" class="form-label">Email</label>
+                <InputText id="username" class="form-control" @bind-Value="loginModel.Email" />
+                <ValidationMessage For="@(() => loginModel.Email)" />
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" class="form-control" type="password" @bind-Value="loginModel.Password" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary mt-3">Login</button>
+            </div>
+        </EditForm>
+    </div>
 </div>
 
 @code {
@@ -26,7 +33,7 @@
     {
         var res = await ApiClient.PostAsync<ServiceResponse<LoginResponseModel>, LoginModel>("/api/auth/login", loginModel);
 
-        if (res != null && res.Data.AccessToken != null)
+        if (res != null && res.Data?.AccessToken != null)
         {
             await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(res.Data);
             Navigation.NavigateTo("/");

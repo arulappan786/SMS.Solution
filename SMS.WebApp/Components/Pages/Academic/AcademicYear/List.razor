@@ -3,22 +3,30 @@
 @attribute [Authorize(Roles = "Admin")]
 @inject ApiClient apiClient
 
-<h3>@PageTitle</h3>
-<hr />
+<PageHeader Title="@PageTitle" />
+
+<div class="d-flex justify-content-end">
+    <NavLink class="btn btn-primary mb-3 rounded" href="/academic/year/create">
+        <i class="bi bi-plus" style="margin-right: 5px;"></i>
+        Create New Academic Year
+    </NavLink>
+</div>
 
 @if (AcademicYears == null)
 {
     <AppLoader Message="Fetching latest Academic Years..." />
 }
+else if (!AcademicYears.Any())
+{
+    <div class="alert alert-info text-center">
+        <p><i class="oi oi-warning"></i></p>
+        <h4>No Academic Years found.</h4>
+        <p>Please add new academic years to view them here.</p>
+    </div>
+}
 else
 {
-    <div class="d-flex justify-content-end">
-        <NavLink class="btn btn-primary mb-3 rounded" href="/academic/year/create">
-            <i class="bi bi-plus" style="margin-right: 5px;"></i>
-            Create New Academic Year
-        </NavLink>
-    </div>
-
+ 
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover rounded">
             <thead>

@@ -9,20 +9,27 @@
 
 <PageHeader Title="@PageTitle" />
 
-@if (Students == null || Students.Count <= 0)
+<div class="d-flex justify-content-end">
+    <NavLink class="btn btn-primary mb-3 rounded" href="/students/create">
+        <i class="bi bi-plus" style="margin-right: 5px;"></i>
+        Create New Student
+    </NavLink>
+</div>
+
+@if (Students == null)
 {
     <AppLoader Message="Fetching latest students..." />
 }
+else if (!Students.Any())
+{
+    <div class="alert alert-info text-center">
+        <p><i class="oi oi-warning"></i></p>
+        <h4>No students found.</h4>
+        <p>Please add new students to view them here.</p>
+    </div>
+}
 else
 {
-    @* Create New Student Button *@
-
-    <div class="d-flex justify-content-end">
-        <NavLink class="btn btn-primary mb-3 rounded" href="/students/create">
-            <i class="bi bi-plus" style="margin-right: 5px;"></i>
-            Create New Student
-        </NavLink>
-    </div>
 
     @* Pagination *@
 
