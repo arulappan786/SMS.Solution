@@ -18,7 +18,7 @@ namespace SMS.Application.CQRS.Accademic.AcademicYears.Queries.GetAll
                 pageNumber: request.PageNumber, pageSize: request.PageSize, orderByExpression: a => a.Id, ascending: true, cancellationToken: cancellationToken);
 
             // 2. Map the entities to DTOs
-            var academicYearsDtos = mapper.Map<IEnumerable<AcademicYearDto>>(academicYears);
+            var academicYearsDtos = mapper.Map<List<AcademicYearDto>>(academicYears);
 
             // 3. Construct the final PaginatedResultDto
             var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);

@@ -4,11 +4,14 @@
 @attribute [Authorize(Roles = "Admin")]
 @inject ApiClient apiClient
 @inject ToastService ToastService
+@inject NavigationManager NavigationManager
 
 <PageHeader Title="@PageTitle" />
 
 <EditForm Model="@student" OnValidSubmit="HandleValidSubmit" FormName="createStudent">
     <ObjectGraphValidator />
+    <p class="text-success mt-2">@successMessage</p>
+    <p class="text-danger mt-2">@errorMessage</p>
     
     <fieldset class="form-group">
         <legend>Personal Information</legend>
@@ -103,12 +106,9 @@
     </fieldset>
 
     <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
-        <a class="btn btn-primary" href="/academic/classes">Back To List</a>
+        <a class="btn btn-primary" href="/students">Back To List</a>
         <button type="submit" class="btn btn-success ms-2">Create Student</button>
-    </div>
-
-    <p class="text-success mt-2">@successMessage</p>
-    <p class="text-danger mt-2">@errorMessage</p>
+    </div>    
 
 </EditForm>
 
@@ -127,40 +127,33 @@
         await LoadClasses();
     }
 
-    // 2. This method is called when the form submission is valid
     private async Task HandleValidSubmit()
     {
-        successMessage = "Submitting...";
+        successMessage = string.Empty;
         errorMessage = string.Empty;
 
-        // The URL of your API endpoint
         string apiUrl = "api/student";
 
         try
         {
-            // 3. Send the model object to the API
-            // HttpClient will serialize the C# object 'student' into the required JSON structure.
             var response = await apiClient.PostAsync<ServiceResponse<StudentDto>, CreateStudentModel>(apiUrl, student);
 
             if (response.Succeeded)
             {
-                successMessage = "Student created successfully!";
-                errorMessage = string.Empty;
-                // Optionally reset the form:
-                // student = new Student();
+                successMessage = string.IsNullOrWhiteSpace(response.Message) ? "Student created successfully!" : response.Message;
+                ToastService.ShowSuccess(successMessage);
+                NavigationManager.NavigateTo("/students", forceLoad: true);
             }
             else
             {
-                // Read the error message from the API response
-                var errorContent = response.Message;
-                errorMessage = $"Error: => Details: {errorContent}";
-                successMessage = string.Empty;
+                ToastService.ShowError(response.Message);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An unexpected error occurred: {ex.Message}";
-            successMessage = string.Empty;
+            ToastService.ShowError(errorMessage);
+            StateHasChanged();
         }
     }
 

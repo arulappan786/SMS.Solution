@@ -30,6 +30,7 @@ namespace SMS.Application.Mappings.Core
                     src.Id,
                     src.UserId,
                     src.CurrentClassId,
+                    src.CurrentClass!.Name,
                     src.FullName,
                     src.HomeAddress,
                     src.DateOfBirth,

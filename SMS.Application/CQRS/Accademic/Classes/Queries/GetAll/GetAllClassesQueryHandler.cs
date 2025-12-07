@@ -27,7 +27,7 @@ namespace SMS.Application.CQRS.Accademic.Classes.Queries.GetAll
                 cancellationToken: cancellationToken);
 
             // 2. Map the entities to DTOs
-            var classesDto = mapper.Map<IEnumerable<ClassesDto>>(classes);
+            var classesDto = mapper.Map<List<ClassesDto>>(classes);
 
             // 3. Construct the final PaginatedResultDto
             var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);

@@ -1,0 +1,81 @@
+﻿<div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-3 rounded-2 shadow-sm mb-4">
+
+    <div class="d-flex align-items-center me-3 mb-2 mb-md-0" style="min-width: 250px;">
+        <i class="bi bi-search me-2 text-muted"></i>
+        <input type="search"
+               class="form-control form-control-sm"
+               placeholder="Search by name, code, or email..."
+               @bind="State.SearchTerm"
+               @bind:after="OnSearchTermChanged" />
+    </div>
+
+    <div class="d-flex align-items-center me-3 mb-2 mb-md-0">
+        <label for="pageSizeSelect" class="form-label mb-0 me-2 text-nowrap">Items:</label>
+        <select id="pageSizeSelect"
+                class="form-select form-select-sm"
+                @bind="State.PageSize"
+                @bind:after="OnPageSizeChanged"
+                style="width: 80px;">
+            @foreach (var size in PageSizeOptions)
+            {
+                <option value="@size">@size</option>
+            }
+        </select>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+        <button class="btn btn-secondary btn-sm"
+                disabled="@(!State.HasPreviousPage)"
+                @onclick="@(() => Navigate.InvokeAsync(State.PageNumber - 1))">
+            <i class="bi bi-chevron-left"></i> Previous
+        </button>
+
+        <span class="text-muted text-nowrap">
+            Page @State.PageNumber of @State.TotalPages (Total: @State.TotalCount)
+        </span>
+
+        <button class="btn btn-secondary btn-sm"
+                disabled="@(!State.HasNextPage)"
+                @onclick="@(() => Navigate.InvokeAsync(State.PageNumber + 1))">
+            Next <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+
+</div>
+
+@code {
+    // Input Parameter: The current state of pagination, received from the parent
+    [Parameter]
+    public PaginationState State { get; set; } = new();
+
+    // Output Event: Fired when the user clicks 'Previous' or 'Next'
+    [Parameter]
+    public EventCallback<int> Navigate { get; set; }
+
+    // Output Event: Fired when the user changes the page size dropdown
+    [Parameter]
+    public EventCallback<int> PageSizeChanged { get; set; }
+
+    // Output Event: Fired after the user types in the search box (e.g., debounce this in the parent)
+    [Parameter]
+    public EventCallback<string> SearchTermChanged { get; set; }
+
+    // Configuration: Options for the Page Size dropdown
+    private List<int> PageSizeOptions = new List<int> { 10, 25, 50, 100 };
+
+    // Handler for Page Size change
+    private Task OnPageSizeChanged()
+    {
+        // When size changes, we typically reset the page to 1
+        State.PageNumber = 1;
+        return PageSizeChanged.InvokeAsync(State.PageSize);
+    }
+
+    // Handler for Search Term change (often debounced in real-world apps)
+    private Task OnSearchTermChanged()
+    {
+        // When search changes, we typically reset the page to 1
+        State.PageNumber = 1;
+        return SearchTermChanged.InvokeAsync(State.SearchTerm);
+    }
+}
