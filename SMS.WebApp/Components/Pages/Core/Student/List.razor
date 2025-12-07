@@ -1,7 +1,16 @@
 ﻿@page "/students"
 
-<h3>Students</h3>
+<PageHeader Title="@PageTitle" />
+
+<div class="d-flex justify-content-end">
+    <NavLink class="btn btn-primary mb-3 rounded" href="/students/create">
+        <i class="bi bi-plus" style="margin-right: 5px;"></i>
+        Create New Student
+    </NavLink>
+</div>
 
 @code {
+
+    private string PageTitle = "Student Management";
 
 }

@@ -14,7 +14,6 @@
 else
 {
     <div class="d-flex justify-content-end">
-
         <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
             <i class="bi bi-plus" style="margin-right: 5px;"></i>
             Create New Class
@@ -108,21 +107,11 @@ else
 
     protected async Task LoadClasses()
     {
-        try
-        {
-            var response = await apiClient
-                .GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
+        var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<ClassesModel>>>("/api/class");
 
-            if (response != null && response.Succeeded && response.Data != null)
-            {
-                Classes = response.Data.Items;
-            }
-        }
-        catch (Exception ex)
+        if (response != null && response.Succeeded && response.Data != null)
         {
-            // Catch and handle API failure (e.g., if token expired or API failed)
-            ToastService.ShowError("Failed to load classes or API call failed.");
-            Classes = new List<ClassesModel>(); // Set to empty list to stop showing loader
+            Classes = response.Data.Items;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SMS.Domain.Enums
+﻿namespace SMS.WebApp.Models.Student
 {
     public enum Gender
     {
