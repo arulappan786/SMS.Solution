@@ -5,16 +5,18 @@
 @inject ApiClient apiClient
 @inject NavigationManager NavManager
 @inject ToastService ToastService
-@* @rendermode InteractiveServer *@
+@rendermode InteractiveServer
 
 <PageHeader Title="@PageTitle" />
 
-@if (Students == null)
+@if (Students == null || Students.Count <= 0)
 {
     <AppLoader Message="Fetching latest students..." />
 }
 else
 {
+    @* Create New Student Button *@
+
     <div class="d-flex justify-content-end">
         <NavLink class="btn btn-primary mb-3 rounded" href="/students/create">
             <i class="bi bi-plus" style="margin-right: 5px;"></i>
@@ -22,24 +24,22 @@ else
         </NavLink>
     </div>
 
-    <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
-        <label for="pageSizeSelect" class="form-label mb-0">Items per page:</label>
-        <select id="pageSizeSelect"
-                class="form-select form-select-sm"
-                @bind:after="HandlePageSizeChange"
-                @bind="SelectedPageSize"
-                style="width: auto;">
+    @* Pagination *@
 
-            @foreach (var size in PageSizeOptions)
-            {
-                <option value="@size">@size</option>
-            }
-        </select>
-    </div>
+    <PaginationHeader State="Pagination"
+                      Navigate="HandlePageNavigation"
+                      PageSizeChanged="HandlePageSizeChange"
+                      SearchTermChanged="HandleSearchTermChange" />
 
     @* Student Listing *@
 
     <div class="table-responsive">
+
+        @if(Students.Count == 0)
+        {
+            <AppLoader Message="No students found." />
+        }
+    
         <table class="table table-bordered table-striped table-hover rounded">
             <thead>
                 <tr>
@@ -81,32 +81,14 @@ else
                 }
             </tbody>
         </table>
-    </div>
-
-    @* Pagination *@
-
-    <div class="d-flex align-items-center justify-content-center gap-3">
-        <button class="btn btn-secondary"
-                disabled="@(!Result.HasPreviousPage)"
-                @onclick="@(() => LoadPage(Result.PageNumber - 1))">
-            Previous
-        </button>
-
-        <span>Page @Result.PageNumber of @Result.TotalPages</span>
-
-        <button class="btn btn-secondary"
-                disabled="@(!Result.HasNextPage)"
-                @onclick="@(() => LoadPage(Result.PageNumber + 1))">
-            Next
-        </button>
-    </div>
+    </div>   
 
     @* Models Popup Modal for Delete Confirmation *@
 
     <AppModal @ref="Modal">
         <Title>Notification</Title>
         <Body>
-            Are you sure to delete the class?
+            Are you sure to delete the student?
         </Body>
         <Footer>
             <button type="button" class="btn btn-danger" style="width:80px" @onclick="HandleDelete">Yes</button>
@@ -119,31 +101,34 @@ else
     private PaginatedResult<StudentListItem> Result = new();
     private List<StudentListItem> Students => Result.Items;
     private bool IsLoading = true;
-    private int CurrentPage = 1;
     private string PageTitle => "Student List";
     private Guid DeleteID { get; set; }
     private AppModal? Modal;
 
-    private int SelectedPageSize { get; set; } = 10;
+    private PaginationState Pagination { get; set; } = new();
 
-    private List<int> PageSizeOptions = new List<int> {5, 10, 25, 50, 75, 100 };
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPage(CurrentPage);
+        await LoadData(Pagination.PageNumber);
     }
 
-    private async Task LoadPage(int pageNumber)
+    private async Task LoadData(int pageNumber)
     {
         StateHasChanged();
 
-        var path = $"api/student?pageNumber={pageNumber}&pageSize={SelectedPageSize}";
+        var path = $"api/student?pageNumber={pageNumber}&pageSize={Pagination.PageSize}";
         var response = await apiClient.GetFromJsonAsync<ServiceResponse<PaginatedResult<StudentListItem>>>(path);
 
         if (response != null && response.Succeeded && response.Data != null)
         {
             Result = response.Data;
-            CurrentPage = Result.PageNumber;
+
+            Pagination.PageNumber = Result.PageNumber;
+            Pagination.TotalPages = Result.TotalPages;
+            Pagination.TotalCount = Result.TotalCount;
+            Pagination.HasPreviousPage = Result.HasPreviousPage;
+            Pagination.HasNextPage = Result.HasNextPage;
         }
         else
         {
@@ -151,21 +136,37 @@ else
         }
     }
 
-    private async Task HandlePageSizeChange()
+    private Task HandlePageNavigation(int newPage)
     {
-        await LoadPage(1);
+        return LoadData(newPage);
+    }
+
+    private Task HandlePageSizeChange(int newSize)
+    {
+        return LoadData(1);
+    }
+
+    private Task HandleSearchTermChange(string term)
+    {
+        return LoadData(1);
     }
 
     protected async Task HandleDelete()
     {
-        var res = await apiClient.DeleteAsync<ServiceResponse>($"/api/class/{DeleteID}");
-
-        if (res != null && res.Succeeded)
+        try
         {
-            ToastService.ShowSuccess("Class delete successfully!");
-            await LoadPage(CurrentPage);
-            Modal?.Close();
+            var res = await apiClient.DeleteAsync<ServiceResponse>($"/api/student/{DeleteID}");
+
+            if (res != null && res.Succeeded)
+            {
+                ToastService.ShowSuccess("Student delete successfully!");
+                await LoadData(1);
+                Modal?.Close();
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Error deleting student: {ex.Message}");
         }
     }
-
 }
