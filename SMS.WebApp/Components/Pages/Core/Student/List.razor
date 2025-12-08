@@ -20,13 +20,9 @@
 {
     <AppLoader Message="Fetching latest students..." />
 }
-else if (!Students.Any())
+else if (!Students.Any() || Students.Count  == 0)
 {
-    <div class="alert alert-info text-center">
-        <p><i class="oi oi-warning"></i></p>
-        <h4>No students found.</h4>
-        <p>Please add new students to view them here.</p>
-    </div>
+    <NoDataFound Title="No students found." Message="Please add new students to view them here." />
 }
 else
 {
@@ -42,10 +38,10 @@ else
 
     <div class="table-responsive">
 
-        @if(Students.Count == 0)
+       @*  @if(Students.Count == 0)
         {
             <AppLoader Message="No students found." />
-        }
+        } *@
     
         <table class="table table-bordered table-striped table-hover rounded">
             <thead>

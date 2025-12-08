@@ -1,4 +1,4 @@
-﻿@page "/academic/classes/update/{Id:guid}"
+﻿@page "/classessections/update/{Id:guid}"
 
 @inject NavigationManager NavigationManager
 @inject ApiClient apiClient
@@ -39,7 +39,7 @@ else
         </div>
         <hr />
         <div class="d-flex justify-content-end bg-body-secondary rounded-2 mt-3 p-3">
-            <a class="btn btn-primary" href="/academic/classes">Back To List</a>
+            <a class="btn btn-primary" href="classessections">Back To List</a>
             <button type="submit" class="btn btn-success ms-2">Update Class</button>
         </div>
     </EditForm>
@@ -74,7 +74,7 @@ else
             if (response.Succeeded)
             {
                 ToastService.ShowSuccess("Class updated successfully!");
-                NavigationManager.NavigateTo("/academic/classes");
+                NavigationManager.NavigateTo("classessections");
             }
             else
             {

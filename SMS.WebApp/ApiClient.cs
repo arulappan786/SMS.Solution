@@ -17,6 +17,7 @@ namespace SMS.WebApp
             try
             {
                 var sessionState = (await localStorage.GetAsync<LoginResponseModel>("sessionState")).Value;
+
                 if (sessionState != null && !string.IsNullOrEmpty(sessionState.AccessToken))
                 {
                     if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.ToUnixTimeSeconds())

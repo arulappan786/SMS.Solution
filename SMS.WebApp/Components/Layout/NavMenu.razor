@@ -1,87 +1,166 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">SMS.WebApp</a>
+        <a class="navbar-brand" href="">SMS.WebApp (Admin)</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass nav-scrollable" @onclick="HandleNavMenuClick">
     <nav class="nav flex-column">
-        
-        
+
+        @* --- 1. Dashboard (Always Visible) --- *@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Dashboard
+                <span class="oi oi-home" aria-hidden="true"></span> 🏠 Dashboard
             </NavLink>
         </div>
 
+        @* --- 2. User & Access Management Menu Group --- *@
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="teachers">
-                <span class="oi oi-people" aria-hidden="true"></span> Teachers
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="students">
-                <span class="oi oi-person" aria-hidden="true"></span> Students
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="parents">
-                <span class="oi oi-people" aria-hidden="true"></span> Parents
-            </NavLink>
-        </div>
-                
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="studentparent">
-                <span class="oi oi-people" aria-hidden="true"></span> Student Parent
-            </NavLink>
-        </div>
-
-        @* --- Academic Menu Group --- *@
-        <div class="nav-item px-3">
-            <button class="nav-link btn btn-link w-100 text-start" @onclick="ToggleAcademicSubMenu">
-                <span class="oi oi-book" aria-hidden="true"></span> Academic
-                <span class="oi @(isAcademicSubMenuExpanded ? "oi-caret-top" : "oi-caret-bottom") float-end" aria-hidden="true"></span>
+            <button class="nav-link btn btn-link w-100 text-start" @onclick="ToggleUserSubMenu">
+                <span class="oi oi-people" aria-hidden="true"></span> 👥 User & Access
+                <span class="oi @(isUserSubMenuExpanded ? "oi-caret-top" : "oi-caret-bottom") float-end" aria-hidden="true"></span>
             </button>
 
-            @if (isAcademicSubMenuExpanded)
+            @if (isUserSubMenuExpanded)
             {
-                <div class="academic-submenu ps-4">
+                <div class="submenu ps-4">
                     <div class="nav-item">
-                        <NavLink class="nav-link" href="/academic/year">
-                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Academic Year
+                        <NavLink class="nav-link" href="students">
+                            <span class="oi oi-person" aria-hidden="true"></span> Manage Students
                         </NavLink>
                     </div>
                     <div class="nav-item">
-                        <NavLink class="nav-link" href="/academic/classes">
-                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Classes
+                        <NavLink class="nav-link" href="teachers">
+                            <span class="oi oi-people" aria-hidden="true"></span> Manage Staff
                         </NavLink>
                     </div>
                     <div class="nav-item">
-                        <NavLink class="nav-link" href="/academic/subject/list">
-                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Subject
+                        <NavLink class="nav-link" href="parents">
+                            <span class="oi oi-people" aria-hidden="true"></span> Manage Parents
                         </NavLink>
                     </div>
                     <div class="nav-item">
-                        <NavLink class="nav-link" href="/academic/classsubject/list">
-                            <span class="oi oi-chevron-right" aria-hidden="true"></span> Class Subject Mapping
+                        <NavLink class="nav-link" href="roles">
+                            <span class="oi oi-lock-locked" aria-hidden="true"></span> Roles & Permissions
                         </NavLink>
                     </div>
                 </div>
             }
         </div>
-        
+
+        @* --- 3. Academic Management Menu Group --- *@
+        <div class="nav-item px-3">
+            <button class="nav-link btn btn-link w-100 text-start" @onclick="ToggleAcademicSubMenu">
+                <span class="oi oi-book" aria-hidden="true"></span> 📚 Academic Management
+                <span class="oi @(isAcademicSubMenuExpanded ? "oi-caret-top" : "oi-caret-bottom") float-end" aria-hidden="true"></span>
+            </button>
+
+            @if (isAcademicSubMenuExpanded)
+            {
+                <div class="submenu ps-4">
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="academicyears">
+                            <span class="oi oi-calendar" aria-hidden="true"></span> Academic Year Setup
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="classessections">
+                            <span class="oi oi-grid-two-up" aria-hidden="true"></span> Classes & Sections
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="subjects">
+                            <span class="oi oi-tags" aria-hidden="true"></span> Subject & Curriculum
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="timetable">
+                            <span class="oi oi-clock" aria-hidden="true"></span> Timetable Configuration
+                        </NavLink>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* --- 4. Finance & Fees Menu Group --- *@
+        <div class="nav-item px-3">
+            <button class="nav-link btn btn-link w-100 text-start" @onclick="ToggleFinanceSubMenu">
+                <span class="oi oi-dollar" aria-hidden="true"></span> 💵 Finance & Fees
+                <span class="oi @(isFinanceSubMenuExpanded ? "oi-caret-top" : "oi-caret-bottom") float-end" aria-hidden="true"></span>
+            </button>
+
+            @if (isFinanceSubMenuExpanded)
+            {
+                <div class="submenu ps-4">
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="feestructures">
+                            <span class="oi oi-briefcase" aria-hidden="true"></span> Fee Structure Setup
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="feecollection">
+                            <span class="oi oi-credit-card" aria-hidden="true"></span> Fee Collection Overview
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="payroll">
+                            <span class="oi oi-wrench" aria-hidden="true"></span> Payroll Management
+                        </NavLink>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* --- 5. System Configuration Menu Group --- *@
+        <div class="nav-item px-3">
+            <button class="nav-link btn btn-link w-100 text-start" @onclick="ToggleSystemSubMenu">
+                <span class="oi oi-cog" aria-hidden="true"></span> ⚙️ System Configuration
+                <span class="oi @(isSystemSubMenuExpanded ? "oi-caret-top" : "oi-caret-bottom") float-end" aria-hidden="true"></span>
+            </button>
+
+            @if (isSystemSubMenuExpanded)
+            {
+                <div class="submenu ps-4">
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="settings">
+                            <span class="oi oi-loop-circular" aria-hidden="true"></span> General Settings
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="auditlogs">
+                            <span class="oi oi-terminal" aria-hidden="true"></span> Audit Logs & Security
+                        </NavLink>
+                    </div>
+                    <div class="nav-item">
+                        <NavLink class="nav-link" href="databackup">
+                            <span class="oi oi-cloud-download" aria-hidden="true"></span> Data Backup
+                        </NavLink>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* --- 6. Reports & Analytics (Always Visible) --- *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="reports">
+                <span class="oi oi-graph" aria-hidden="true"></span> 📈 Reports & Analytics
+            </NavLink>
+        </div>
 
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+
+    // State flags for collapsible menus
+    private bool isUserSubMenuExpanded = false;
     private bool isAcademicSubMenuExpanded = false;
+    private bool isFinanceSubMenuExpanded = false;
+    private bool isSystemSubMenuExpanded = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -90,8 +169,33 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
+    private void HandleNavMenuClick()
+    {
+        // Auto-close nav menu on smaller screens when an item is clicked
+        if (!collapseNavMenu)
+        {
+            ToggleNavMenu();
+        }
+    }
+
+    // Toggle methods for each main category
+    private void ToggleUserSubMenu()
+    {
+        isUserSubMenuExpanded = !isUserSubMenuExpanded;
+    }
+
     private void ToggleAcademicSubMenu()
     {
         isAcademicSubMenuExpanded = !isAcademicSubMenuExpanded;
+    }
+
+    private void ToggleFinanceSubMenu()
+    {
+        isFinanceSubMenuExpanded = !isFinanceSubMenuExpanded;
+    }
+
+    private void ToggleSystemSubMenu()
+    {
+        isSystemSubMenuExpanded = !isSystemSubMenuExpanded;
     }
 }

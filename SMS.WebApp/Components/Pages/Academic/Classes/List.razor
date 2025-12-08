@@ -1,4 +1,4 @@
-﻿@page "/academic/classes"
+﻿@page "/classessections"
 
 @attribute [Authorize(Roles = "Admin")]
 
@@ -8,7 +8,7 @@
 <PageHeader Title="@PageTitle" />
 
 <div class="d-flex justify-content-end">
-    <NavLink class="btn btn-primary mb-3 rounded" href="/academic/classes/create">
+    <NavLink class="btn btn-primary mb-3 rounded" href="/classessections/create">
         <i class="bi bi-plus" style="margin-right: 5px;"></i>
         Create New Class
     </NavLink>
@@ -18,13 +18,9 @@
 {
     <AppLoader Message="Fetching latest Classes..." />
 }
-else if (!Classes.Any())
+else if (!Classes.Any() || Classes.Count() == 0)
 {
-    <div class="alert alert-info text-center">
-        <p><i class="oi oi-warning"></i></p>
-        <h4>No Classes found.</h4>
-        <p>Please add new classes to view them here.</p>
-    </div>
+    <NoDataFound Title="No Classes found." Message="Please add new classes to view them here." />
 }
 else
 {
@@ -49,7 +45,7 @@ else
                         <td class="d-flex justify-content-around">
                             <AuthorizeView Roles="Admin">
                                 <Authorized>
-                                    <a class="btn btn-secondary" href="/academic/classes/update/@item.Id">Update</a>
+                                    <a class="btn btn-secondary" href="/classessections/update/@item.Id">Update</a>
                                     <button class="btn btn-danger" @onclick="() => { DeleteID = item.Id; Modal?.Open(); }">Delete</button>
                                 </Authorized>
                             </AuthorizeView>
@@ -108,7 +104,7 @@ else
 
         if (res != null && res.Succeeded)
         {
-            ToastService.ShowSuccess("Class delete successfully!");
+            ToastService.ShowSuccess("Class deleted successfully!");
             await LoadClasses();
             Modal?.Close();
         }

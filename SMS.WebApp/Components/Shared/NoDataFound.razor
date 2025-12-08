@@ -1,0 +1,15 @@
+﻿<div class="alert alert-info text-center">
+    <p><i class="oi oi-warning"></i></p>
+    <h4>@Title</h4>
+    <p>@Message</p>
+</div>
+
+@code {
+
+    [Parameter]
+    public string Title { get; set; } = "No Data Found";
+    
+    [Parameter]
+    public string Message { get; set; } = "No data found. Please add to view the same.";
+
+}
