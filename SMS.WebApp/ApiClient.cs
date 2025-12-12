@@ -20,7 +20,12 @@ namespace SMS.WebApp
 
                 if (sessionState != null && !string.IsNullOrEmpty(sessionState.AccessToken))
                 {
-                    if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds())
+                    if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                    {
+                        await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
+                        navigationManager.NavigateTo("/login", forceLoad: true);
+                    }
+                    else if (sessionState.ExpiresInSeconds < DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds())
                     {
                         var refreshTokenModel = new RefreshTokenModel
                         {
@@ -35,7 +40,7 @@ namespace SMS.WebApp
                             var content = await res.Content.ReadAsStringAsync();
                             var loginResponse = JsonConvert.DeserializeObject<ServiceResponse<LoginResponseModel>>(content);
 
-                            if(loginResponse == null || loginResponse.Data == null)
+                            if(loginResponse == null)
                             {
                                 await ((CustomAuthStateProvider)authStateProvider).MarkUserAsLoggedOut();
                                 navigationManager.NavigateTo("/login", forceLoad: true);
@@ -65,7 +70,7 @@ namespace SMS.WebApp
                     httpClient.DefaultRequestHeaders.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cultureCookieValue}");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 navigationManager.NavigateTo("/login", forceLoad: true);
             }
