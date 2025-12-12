@@ -103,6 +103,7 @@ else
 @code {
     private PaginatedResult<StudentListItem> Result = new();
     private List<StudentListItem> Students => Result.Items;
+    private bool IsLoading = true;
     private string PageTitle => "Student List";
     private Guid DeleteID { get; set; }
     private AppModal? Modal;
