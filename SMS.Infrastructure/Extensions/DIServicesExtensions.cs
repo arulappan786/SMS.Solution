@@ -65,6 +65,7 @@ namespace SMS.Infrastructure.Extensions
             services.AddScoped(typeof(IAppLogger<>), typeof(SerilogLoggerAdaptor<>));
             services.AddSingleton<IEmailSenderService, EmailSenderService>();
             services.AddScoped<IEmailJobService, EmailJobService>();
+            services.AddScoped<IEmailTemplatesLoader, EmailTemplatesLoader>();
             services.AddScoped<ExceptionHandlingMiddleware>();
             services.AddScoped<RequestLoggingMiddleware>();
 
